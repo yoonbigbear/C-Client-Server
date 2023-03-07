@@ -1,0 +1,16 @@
+
+
+table ChatReq
+{
+	chat : string;
+}
+
+table ChatResp
+{
+	result : int;
+}
+
+table ChatSync
+{
+	chat : string;
+}

@@ -1,0 +1,21 @@
+
+enum EntityFlag : byte
+{
+	Player,
+	Monster,
+	Resource,
+}
+
+struct Position
+{
+	x : float;
+	y : float;
+}
+
+struct EntityInfo
+{
+	pos : Position;
+	flag : EntityFlag;
+	table_id : uint;
+	entity_id : uint;
+}

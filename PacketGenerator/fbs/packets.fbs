@@ -1,0 +1,9 @@
+
+enum PacketId : short
+{
+	Chat_Req,
+	Chat_Resp,
+	Chat_Sync,
+	
+	SightSync,
+}

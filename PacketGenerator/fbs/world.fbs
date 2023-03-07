@@ -1,0 +1,7 @@
+
+include "common.fbs";
+
+table SightSync
+{
+	entities : [EntityInfo];
+}

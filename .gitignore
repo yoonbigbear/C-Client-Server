@@ -1,0 +1,64 @@
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+*.db
+*.vsidx
+*.lock
+*.db-shm
+*.opendb
+*.ipch
+*.ipch
+*.bin
+*.db-journal
+*.db-wal
+*.db-wal
+*.filters
+*.user
+*.user
+*.idb
+*.pdb
+*.lastbuildstate
+*.log
+*.log
+*.recipe
+*.ilk
+*.tlog
+TempClient/x64/Debug/TempClient.vcxproj.FileListAbsolute.txt
+*.iobj
+*.ipdb
+TempServer/x64/Debug/TempServer.vcxproj.FileListAbsolute.txt
+.svn/entries
+.svn/format
+BBEnginePrototype/.vs/BBEnginePrototype/v17/.suo
+BBEnginePrototype/obj/x64/Debug/BBEnginePrototype.vcxproj.FileListAbsolute.txt
+BBEnginePrototype/StructLayoutSettings.json
+*.vcxproj
