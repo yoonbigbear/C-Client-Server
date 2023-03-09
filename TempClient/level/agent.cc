@@ -1,8 +1,9 @@
 #include "agent.h"
 
 #include "navi_mesh.h"
-void Agent::drawAgent(DebugDrawGLBB& dd, const float* pos, float r, float h, float c, const unsigned int col)
+void Agent::drawAgent(const float* pos, float r, float h, float c, const unsigned int col)
 {
+	DebugDrawGLBB dd;
 	dd.depthMask(false);
 
 	// Agent dimensions.	

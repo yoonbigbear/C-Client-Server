@@ -3,59 +3,50 @@
 #include "packet_buffer.h"
 #include "recv_buffer.h"
 #include <asio.hpp>
-#include <memory>
 #include <deque>
+#include <memory>
 
 using tcp = asio::ip::tcp;
 
 class TcpSession
-    : public std::enable_shared_from_this<TcpSession>
 {
 public:
-    typedef std::shared_ptr<TcpSession> Shared;
-
-public:
     TcpSession(asio::io_context& io_context, tcp::socket socket)
-        : socket_(std::move(socket)),
-        io_context_(io_context)
-    {
-    }
-
-    virtual void Start()
+        :io_context_(io_context)
+        , socket_(std::move(socket)) {}
+    virtual ~TcpSession() {}
+    virtual void Initialize()
     {
         socket_.set_option(tcp::no_delay(true));
         Read();
     }
-
-    void Send(const char* buf, size_t size)
-    {
-        Write(buf, size);
-    }
-    void Send(std::vector<uint8_t>& buf, size_t size)
-    {
-        Write(buf, size);
-    }
-
-    void Disconnect()
+    virtual void Disconnect()
     {
         if (IsConnected())
         {
-            socket_.close();
+            asio::post(io_context_, [this]() {socket_.close(); });
         }
+    }
+
+    void Send(const char* buf, size_t size)
+    {
+        asio::post(io_context_, [&]() {Write(buf, size); });
+        
+    }
+    void Send(std::vector<uint8_t>& buf, size_t size)
+    {
+        asio::post(io_context_, [&]() {Write(buf, size); });
     }
     bool IsConnected() const
     {
         return socket_.is_open();
     }
 
-
-
 protected:
 
     void Write(std::vector<uint8_t>& buf, size_t size)
     {
-        asio::async_write(socket_,
-            asio::buffer(buf.data(), size),
+        asio::async_write(socket_, asio::buffer(buf.data(), size),
             [this](asio::error_code ec, std::size_t /*length*/)
             {
                 if (!ec)
@@ -68,11 +59,9 @@ protected:
                 }
             });
     }
-
     void Write(const char* buf, size_t size)
     {
-        asio::async_write(socket_,
-            asio::buffer(buf, size),
+        asio::async_write(socket_, asio::buffer(buf, size),
             [this](asio::error_code ec, std::size_t /*length*/)
             {
                 if (!ec)
@@ -85,7 +74,6 @@ protected:
                 }
             });
     }
-
     void Read()
     {
         recv_buffer_.fill(0);
@@ -112,7 +100,6 @@ protected:
     }
 
 public:
-    tcp::socket& socket() { return socket_; }
     RecvBuffer& recv_buffer() { return recv_packets_; }
 
 protected:

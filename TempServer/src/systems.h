@@ -1,10 +1,11 @@
 #pragma once
 
+#include "pre.h"
+
 #include "fbb/chat_generated.h"
 #include "fbb/packets_generated.h"
 
-#include "random_generator.h"
-#include "box2d/b2_math.h"
+
 
 b2Vec2 RandomPointInCircle2(float range, int max_try = 10)
 {

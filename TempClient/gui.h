@@ -1,21 +1,26 @@
 #pragma once
 
 #include "imgui.h"
+#include "singleton.h"
+
+#include "widget/login_window.h"
+#include "widget/level_info.h"
+#include "widget/log_widget.h"
+#include "widget/console_widget.h"
 
 
-
-class Gui
+class Gui : public Singleton<Gui>
 {
 public:
-
     static void GuiList()
     {
+        ImGui::ShowDemoWindow();
         //// Our state
         //bool show_demo_window = true;
         //bool show_another_window = false;
         // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
-  /*      if (show_demo_window)
-            ImGui::ShowDemoWindow(&show_demo_window);*/
+        //if (show_demo_window)
+             //ImGui::ShowDemoWindow(&show_demo_window);
 
         // 2. Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
         //{
@@ -40,4 +45,14 @@ public:
         //    ImGui::End();
         //}
     }
+    void Draw();
+
+public:
+    LogWidget log;
+    ConsoleWidget console;
+    LoginWindow login;
+    LevelInfo level_info;
 };
+
+//static ExampleAppConsole console;
+//console.Draw("Example: Console", p_open);

@@ -1,6 +1,5 @@
 #pragma once
 
-#define _CRT_SECURE_NO_WARNINGS
 #include "DebugDraw.h"
 #include "DetourNavMesh.h"
 #include "DetourNavMeshQuery.h"
@@ -48,7 +47,7 @@ public:
 	NaviMesh();
 	~NaviMesh();
 
-	void Start(const char* path);
+	void Initialize(const char* path);
 	dtNavMesh* LoadAll(const char* path);
 	void Render();
 public:

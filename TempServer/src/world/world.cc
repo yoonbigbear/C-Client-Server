@@ -5,7 +5,7 @@
 #include "fbb/packets_generated.h"
 #include "fbb/world_generated.h"
 
-void World::Start()
+void World::Initialize()
 {
     packet_handler_.Bind((unsigned short)PacketId::Chat_Req, ChatREQ);
 
@@ -19,7 +19,8 @@ void World::Enter(std::shared_ptr<ClientSession> session)
     registry_.emplace<NetComponent>(entity, session);
 
     //start pos
-    auto& pos_comp = registry_.emplace<PositionComponent>(entity);
+    auto& tf = registry_.emplace<PositionComponent>(entity);
+    tf.pos.SetZero();
 
     // entity info
     auto& entity_data = registry_.emplace<EntityData>(entity);
@@ -29,25 +30,25 @@ void World::Enter(std::shared_ptr<ClientSession> session)
 
     //box collider
     auto& box_comp = registry_.emplace<AABBComponent>(entity);
-    auto half_box = b2Vec2(5.f, 5.f);
-    box_comp.box.lowerBound = pos_comp.pos - half_box;
-    box_comp.box.upperBound = pos_comp.pos + half_box;
+    auto half_box = vec2(5.f, 5.f);
+    box_comp.box.lowerBound = tf.pos - half_box;
+    box_comp.box.upperBound = tf.pos + half_box;
 
     //field
-    //field_.Spawn(pos_comp.pos, box_comp.box, (void*)&entity_data);
+    field_.Spawn(tf.pos, box_comp.box, (void*)&entity_data);
     
     //sight
     auto& sight_comp = registry_.emplace<SightComponent>(entity);
     sight_comp.range = 500.f;
 
 
-    /*{
+    {
         auto sight_half = sight_comp.range * 0.5f;
-        auto sight = b2AABB();
-        sight.lowerBound.x = pos_comp.pos.x - sight_half;
-        sight.lowerBound.y = pos_comp.pos.y - sight_half;
-        sight.upperBound.x = pos_comp.pos.x + sight_half;
-        sight.upperBound.y = pos_comp.pos.y + sight_half;
+        auto sight = AABB2();
+        sight.lowerBound.x = tf.pos.x - sight_half;
+        sight.lowerBound.y = tf.pos.y - sight_half;
+        sight.upperBound.x = tf.pos.x + sight_half;
+        sight.upperBound.y = tf.pos.y + sight_half;
 
         auto targets = field_.Query(sight);
         flatbuffers::FlatBufferBuilder fbb(256);
@@ -64,9 +65,9 @@ void World::Enter(std::shared_ptr<ClientSession> session)
                 });
         }
 
-    }*/
+    }
 
-    printf("enter world %d\n", entity);
+    LOG_INFO("Enter World {}", static_cast<std::uint32_t>(entity));
 }
 
 void World::Enter(int npcid)
@@ -80,29 +81,29 @@ void World::Enter(int npcid)
     entity_data.tid = 1;
 
     // pos
-    auto& pos_comp = registry_.emplace<PositionComponent>(entity);
+    auto& tf = registry_.emplace<PositionComponent>(entity);
+    tf.pos.SetZero();
 
     // collider
     auto& box_comp = registry_.emplace<AABBComponent>(entity);
     auto half_box = b2Vec2(5.f, 5.f);
-    box_comp.box.lowerBound = pos_comp.pos - half_box;
-    box_comp.box.upperBound = pos_comp.pos + half_box;
+    box_comp.box.lowerBound = tf.pos - half_box;
+    box_comp.box.upperBound = tf.pos + half_box;
 
     //field
-    //field_.Spawn(pos_comp.pos, box_comp.box, (void*)&entity_data);
+    field_.Spawn(tf.pos, box_comp.box, (void*)&entity_data);
 
     registry_.emplace<NpcComponent>(entity, npcid);
     {
         auto& wander = registry_.emplace<WanderComponent>(entity);
         wander.range = 100;
-        wander.spawn_pos = pos_comp.pos;
-        wander.acc_time = 2;
+        wander.spawn_pos = tf.pos;
     }
 
     auto& sight_comp = registry_.emplace<SightComponent>(entity);
     sight_comp.range = 500.f;
 
-    printf("enter world %d\n", entity);
+    LOG_INFO("npc enter world {}", static_cast<std::uint32_t>(entity));
 
 }
 

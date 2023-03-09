@@ -201,7 +201,7 @@ inline void dtVcopy(float* dest, const float* a)
 /// @return The scalar length of the vector.
 inline float dtVlen(const float* v)
 {
-	return dtMathSqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+	return dtMathSqrtf(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
 }
 
 /// Derives the square of the scalar length of the vector. (len * len)
@@ -221,7 +221,7 @@ inline float dtVdist(const float* v1, const float* v2)
 	const float dx = v2[0] - v1[0];
 	const float dy = v2[1] - v1[1];
 	const float dz = v2[2] - v1[2];
-	return dtMathSqrt(dx*dx + dy*dy + dz*dz);
+	return dtMathSqrtf(dx*dx + dy*dy + dz*dz);
 }
 
 /// Returns the square of the distance between two points.
@@ -246,7 +246,7 @@ inline float dtVdist2D(const float* v1, const float* v2)
 {
 	const float dx = v2[0] - v1[0];
 	const float dz = v2[2] - v1[2];
-	return dtMathSqrt(dx*dx + dz*dz);
+	return dtMathSqrtf(dx*dx + dz*dz);
 }
 
 /// Derives the square of the distance between the specified points on the xz-plane.
@@ -264,7 +264,7 @@ inline float dtVdist2DSqr(const float* v1, const float* v2)
 ///  @param[in,out]	v	The vector to normalize. [(x, y, z)]
 inline void dtVnormalize(float* v)
 {
-	float d = 1.0 / dtMathSqrt(dtSqr(v[0]) + dtSqr(v[1]) + dtSqr(v[2]));
+	float d = 1.0f / dtMathSqrtf(dtSqr(v[0]) + dtSqr(v[1]) + dtSqr(v[2]));
 	v[0] *= d;
 	v[1] *= d;
 	v[2] *= d;
@@ -279,7 +279,7 @@ inline void dtVnormalize(float* v)
 /// close enough to eachother to be considered colocated.
 inline bool dtVequal(const float* p0, const float* p1)
 {
-	static const float thr = dtSqr(1.0/16384.0);
+	static const float thr = dtSqr(1.0f/16384.0f);
 	const float d = dtVdistSqr(p0, p1);
 	return d < thr;
 }

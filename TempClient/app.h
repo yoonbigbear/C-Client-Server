@@ -2,25 +2,22 @@
 
 #include "net_client.h"
 #include "graphics.h"
-#include "level/navi_mesh.h"
-#include "level/agent.h"
+#include "level/level.h"
 
 class App
 {
 public:
-
+    ~App();
     void Initialize();
     void Run();
 
 public:
-    ClientInterface& client() { return client_; }
     Graphics& graphics() { return graphics_; }
 
 private:
-    ClientInterface client_;
     Graphics graphics_;
-    NaviMesh nav_mesh_;
-    Agent agent_;
-    SDL_Event event;
-    DebugDrawGLBB dd;
+    Level level_;
+    asio::io_context io_context_;
+    std::future<void> io_thread_;
+    std::shared_ptr<NetClient> net_;
 };

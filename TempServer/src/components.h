@@ -1,9 +1,8 @@
 #pragma once
 
+#include "pre.h"
 #include "net/client_session.h"
 #include "fbb/common_generated.h"
-
-#include "box2d/b2_collision.h"
 
 struct NetComponent
 {
@@ -12,7 +11,7 @@ struct NetComponent
 
 struct PositionComponent
 {
-    b2Vec2 pos;
+    vec2 pos;
 };
 
 struct AABBComponent
@@ -30,7 +29,7 @@ struct EntityData
 struct SightComponent
 {
     float range;
-    std::vector<std::uint32_t> entities;
+    Vector<std::uint32_t> entities;
 };
 
 struct NpcComponent
@@ -42,11 +41,11 @@ struct WanderComponent
 {
     float acc_time;
     float range;
-    b2Vec2 spawn_pos;
+    vec2 spawn_pos;
 };
 
 struct MoveComponent
 {
-    b2Vec2 end_pos;
+    vec2 end_pos;
     float speed;
 };

@@ -152,7 +152,7 @@ NaviMesh::~NaviMesh()
 	dtFreeNavMesh(nav_mesh_);
 }
 
-void NaviMesh::Start(const char* path)
+void NaviMesh::Initialize(const char* path)
 {
 	dtFreeNavMesh(nav_mesh_);
 	nav_mesh_ = LoadAll(path);

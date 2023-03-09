@@ -17,8 +17,8 @@ public:
 		memset(modelview_matrix_, 0, sizeof(GLdouble) * 16);
     }
 
-    void Input(SDL_Event* event)
-    {
+	void Input(SDL_Event* event)
+	{
 		ImGuiIO& io = ImGui::GetIO();
 
 		switch (event->type)
@@ -61,15 +61,15 @@ public:
 			else if (event->button.button == SDL_BUTTON_LEFT)
 			{
 
-					processHitTest = true;
-					processHitTestShift = (SDL_GetModState() & KMOD_SHIFT) ? true : false;
+				processHitTest = true;
+				processHitTestShift = (SDL_GetModState() & KMOD_SHIFT) ? true : false;
 			}
 			break;
 
 		case SDL_MOUSEMOTION:
 		{
 			mouse_pos[0] = event->motion.x;
-			mouse_pos[1] = io.DisplaySize.y - 1.f - (float)event->motion.y;
+			mouse_pos[1] = (int)io.DisplaySize.y - 1 - (int)event->motion.y;
 
 			if (rotate)
 			{
@@ -83,7 +83,7 @@ public:
 				}
 			}
 		}
-			break;
+		break;
 		default:
 			break;
 		}
@@ -96,13 +96,12 @@ public:
 		moveBack = std::clamp(moveBack + io.DeltaTime * 4 * ((keystate[SDL_SCANCODE_S]
 			|| keystate[SDL_SCANCODE_DOWN]) ? 1 : -1), 0.0f, 1.0f);
 		moveRight = std::clamp(moveRight + io.DeltaTime * 4 * ((keystate[SDL_SCANCODE_D]
-			|| keystate[SDL_SCANCODE_RIGHT])? 1 : -1), 0.0f, 1.0f);
+			|| keystate[SDL_SCANCODE_RIGHT]) ? 1 : -1), 0.0f, 1.0f);
 		moveUp = std::clamp(moveUp + io.DeltaTime * 4 * ((keystate[SDL_SCANCODE_Q]
 			|| keystate[SDL_SCANCODE_PAGEUP]) ? 1 : -1), 0.0f, 1.0f);
 		moveDown = std::clamp(moveDown + io.DeltaTime * 4 * ((keystate[SDL_SCANCODE_E]
 			|| keystate[SDL_SCANCODE_PAGEDOWN]) ? 1 : -1), 0.0f, 1.0f);
-	
-    }
+	}
 
 public:
     GLdouble modelview_matrix_[16];

@@ -9,6 +9,7 @@ public:
     TcpServer(uint16_t port)
         :acceptor_(io_context_, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), port))
     {
+        LOG_INFO("Start Accept..");
         Accept();
     }
 
@@ -17,25 +18,26 @@ public:
         Stop();
     }
 
-    virtual bool Start()
+    virtual bool Initialize()
     {
         try
         {
-            main_context_ = std::async(std::launch::async, [this] {io_context_.run(); });
+            io_thread_ = std::async(std::launch::async, [this] {io_context_.run(); });
         }
         catch (std::exception& e)
         {
-            Logger::DebugErr(e.what());
+            LOG_ERROR("[error] %s", e.what());
             return false;
         }
         return true;
     }
 
-    void Stop()
+    virtual void Stop()
     {
         io_context_.stop();
-        main_context_.wait();
-        Logger::DebugLog("[SERVER] Stopped");
+        if (io_thread_.valid())
+            io_thread_.wait();
+        LOG_INFO("[SERVER] Stopped");
     }
 
     void Accept()
@@ -52,17 +54,17 @@ public:
     {
         if (!error)
         {
-            Logger::DebugLog("[SERVER] Accept New Connection : ");
+            LOG_INFO("[SERVER] Accept New Connection : ");
         }
         else
         {
-            Logger::DebugErr(error.message());
+            LOG_ERROR("[error] %s", error.message());
         }
         Accept();
     }
 
 protected:
     asio::io_context io_context_;
-    std::future<void> main_context_;
+    std::future<void> io_thread_;
     asio::ip::tcp::acceptor acceptor_;
 };

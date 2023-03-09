@@ -54,6 +54,17 @@ void Graphics::Initialize()
     glDisable(GL_TEXTURE_2D);
     glEnable(GL_DEPTH_TEST);
 
+    // Fog.
+    float fogColor[4] = { 0.32f, 0.31f, 0.30f, 1.0f };
+    glEnable(GL_FOG);
+    glFogi(GL_FOG_MODE, GL_LINEAR);
+    glFogf(GL_FOG_START, 1000 * 0.1f);
+    glFogf(GL_FOG_END, 1000 * 1.25f);
+    glFogfv(GL_FOG_COLOR, fogColor);
+
+    glEnable(GL_CULL_FACE);
+    glDepthFunc(GL_LEQUAL);
+
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -83,8 +94,12 @@ void Graphics::BeginScene()
     glGetIntegerv(GL_VIEWPORT, viewport);
 
     //clear screen
-    glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
+    glClearColor(0.3f, 0.3f, 0.32f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glDisable(GL_TEXTURE_2D);
+    glEnable(GL_DEPTH_TEST);
 
     // Start the Dear ImGui frame
     ImGui_ImplOpenGL3_NewFrame();
@@ -112,17 +127,18 @@ void Graphics::BeginScene()
     float movey = (camera_.moveBack - camera_.moveFront) * keybSpeed * io.DeltaTime + camera_.scrollZoom * 2.0f;
     camera_.scrollZoom = 0;
 
-    camera_.pos[0] += movex * (float)camera_.modelview_matrix_[0];
-    camera_.pos[1] += movex * (float)camera_.modelview_matrix_[4];
-    camera_.pos[2] += movex * (float)camera_.modelview_matrix_[8];
+    if (!ImGui::IsWindowFocused(ImGuiFocusedFlags_AnyWindow))
+    {
+        camera_.pos[0] += movex * (float)camera_.modelview_matrix_[0];
+        camera_.pos[1] += movex * (float)camera_.modelview_matrix_[4];
+        camera_.pos[2] += movex * (float)camera_.modelview_matrix_[8];
 
-    camera_.pos[0] += movey * (float)camera_.modelview_matrix_[2];
-    camera_.pos[1] += movey * (float)camera_.modelview_matrix_[6];
-    camera_.pos[2] += movey * (float)camera_.modelview_matrix_[10];
+        camera_.pos[0] += movey * (float)camera_.modelview_matrix_[2];
+        camera_.pos[1] += movey * (float)camera_.modelview_matrix_[6];
+        camera_.pos[2] += movey * (float)camera_.modelview_matrix_[10];
 
-    camera_.pos[1] += (camera_.moveUp - camera_.moveDown) * keybSpeed * io.DeltaTime;
-
-    //drawCube();
+        camera_.pos[1] += (camera_.moveUp - camera_.moveDown) * keybSpeed * io.DeltaTime;
+    }
 }
 
 
