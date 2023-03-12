@@ -4,7 +4,7 @@
 #include "singleton.h"
 
 #include "widget/login_window.h"
-#include "widget/level_info.h"
+#include "widget/scene_info.h"
 #include "widget/log_widget.h"
 #include "widget/console_widget.h"
 
@@ -51,7 +51,7 @@ public:
     LogWidget log;
     ConsoleWidget console;
     LoginWindow login;
-    LevelInfo level_info;
+    SceneInfo level_info;
 };
 
 //static ExampleAppConsole console;

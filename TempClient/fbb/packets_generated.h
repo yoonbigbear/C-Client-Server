@@ -10,34 +10,37 @@ enum class PacketId : int16_t {
   Chat_Req = 0,
   Chat_Resp = 1,
   Chat_Sync = 2,
-  SightSync = 3,
+  Sight_Sync = 3,
+  Move_Sync = 4,
   MIN = Chat_Req,
-  MAX = SightSync
+  MAX = Move_Sync
 };
 
-inline const PacketId (&EnumValuesPacketId())[4] {
+inline const PacketId (&EnumValuesPacketId())[5] {
   static const PacketId values[] = {
     PacketId::Chat_Req,
     PacketId::Chat_Resp,
     PacketId::Chat_Sync,
-    PacketId::SightSync
+    PacketId::Sight_Sync,
+    PacketId::Move_Sync
   };
   return values;
 }
 
 inline const char * const *EnumNamesPacketId() {
-  static const char * const names[5] = {
+  static const char * const names[6] = {
     "Chat_Req",
     "Chat_Resp",
     "Chat_Sync",
-    "SightSync",
+    "Sight_Sync",
+    "Move_Sync",
     nullptr
   };
   return names;
 }
 
 inline const char *EnumNamePacketId(PacketId e) {
-  if (flatbuffers::IsOutRange(e, PacketId::Chat_Req, PacketId::SightSync)) return "";
+  if (flatbuffers::IsOutRange(e, PacketId::Chat_Req, PacketId::Move_Sync)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesPacketId()[index];
 }

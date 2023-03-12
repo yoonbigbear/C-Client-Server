@@ -28,14 +28,16 @@ public:
         }
     }
 
-    void Send(const char* buf, size_t size)
+    void Send(char* buf, size_t size)
     {
-        asio::post(io_context_, [&]() {Write(buf, size); });
+        Write(buf, size);
+        //asio::post(io_context_, [&]() {Write(buf, size); });
         
     }
-    void Send(std::vector<uint8_t>& buf, size_t size)
+    void Send(std::vector<uint8_t>& buf)
     {
-        asio::post(io_context_, [&]() {Write(buf, size); });
+        Write(buf, buf.size());
+        //asio::post(io_context_, [&]() {Write(buf, buf.size()); });
     }
     bool IsConnected() const
     {

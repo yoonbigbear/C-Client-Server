@@ -23,9 +23,9 @@
 #endif //  _BOX2D
 
 
-#include "types.h"
 #include "logger.h"
 #include "random_generator.h"
+#include "types.h"
 
 //assert check
 #define  ASSERT_RETURN(expr, ret) if(expr){ LOG_ERROR(#expr); return ret;};

@@ -1,8 +1,6 @@
 #pragma once
 
-#include <iostream>
-#include <vector>
-#include <asio.hpp>
+#include "pre.h"
 #include "tcp_session.h"
 #include "packet_handler.h"
 
@@ -14,7 +12,7 @@ public:
     virtual void Initialize() override final;
 
     bool Connect(const std::string& host, const uint16_t port);
-    bool Bind(uint16_t id, std::function<void(std::vector<uint8_t>&)> fn);
+    bool Bind(uint16_t id, std::function<void(Vector<uint8_t>&)> fn);
     void ReadPackets();
     
 private:

@@ -1,15 +1,11 @@
 #include "net_client.h"
 
-#include "gui.h"
+#include "manager/scene_manager.h"
 
-#include "fbb/chat_generated.h"
+#include "ecs/systems.h"
+
 #include "fbb/packets_generated.h"
 
-void ChatSync(std::vector<uint8_t>& data)
-{
-    auto req = flatbuffers::GetRoot<ChatReq>(data.data());
-    printf(req->chat()->c_str());
-}
 
 NetClient::NetClient(asio::io_context& io_context, asio::ip::tcp::socket socket)
     :TcpSession(io_context, std::move(socket))
@@ -25,7 +21,9 @@ void NetClient::Initialize()
 {
     TcpSession::Initialize();
 
-    Bind((unsigned short)PacketId::Chat_Sync, ChatSync);
+    Bind((unsigned short)PacketId::Chat_Sync, Chat_Sync);
+    Bind((unsigned short)PacketId::Sight_Sync, Sight_Sync);
+    Bind((unsigned short)PacketId::Move_Sync, Move_Sync);
 }
 
 bool NetClient::Bind(uint16_t id, std::function<void(std::vector<uint8_t>&)> fn)
@@ -61,6 +59,15 @@ void NetClient::ConnectToServer(const asio::ip::tcp::resolver::results_type& end
                 Gui::instance().log.AddLog("[info] connected server\n");
                 Gui::instance().login.login = true;
                 Initialize();
+
+                EntityInfo info(
+                    Vec3(RandomGenerator::Real(-10, 10), 0, RandomGenerator::Real(-10, 10)),
+                    EntityFlag::Player, 0,0);
+                auto scene = SceneManager::instance().Get(0).lock();
+                if (scene)
+                {
+                    scene->Enter(info);
+                }
             }
             else
             {

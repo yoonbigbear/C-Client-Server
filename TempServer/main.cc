@@ -1,8 +1,9 @@
 #include "pre.h"
-#include "server.h"
-
 #include <DbgHelp.h>
 #pragma comment(lib, "dbghelp.lib")
+
+#include "server.h"
+#include "timer.h"
 
 //dump
 LONG __stdcall ExceptionCallBack(EXCEPTION_POINTERS* e)
@@ -26,19 +27,25 @@ LONG __stdcall ExceptionCallBack(EXCEPTION_POINTERS* e)
 
 int main()
 {
-
     SetUnhandledExceptionFilter(ExceptionCallBack);
 
-    LOG_INFO("Create Server..");
+    LOG_INFO("Create Server!!");
     Server server(11000);
 
-    LOG_INFO("Server Initialize..");
+    LOG_INFO("Server Initialize!!");
     server.Initialize();
 
-    LOG_INFO("Run MainLoop");
+    SimulateTimer<20> timer;
+    timer.Reset();
+    LOG_INFO("Server Start!!");
     while (true)
     {
-        server.Update();
+        timer.Frame();
+        while (timer.time_acc > timer.FRAMERATE)
+        {
+            timer.time_acc -= timer.FRAMERATE;
+            server.Update(static_cast<float>(timer.FRAMERATE));
+        }
     }
     return 0;
 }

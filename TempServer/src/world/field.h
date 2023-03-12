@@ -17,40 +17,21 @@ public:
 class Field
 {
 public:
+    void Initialize(const AABB2& boundary);
+    bool Spawn(const vec2& pos, const AABB2& box, 
+        void* entity_data, int32_t& out_proxy);
 
-    bool Spawn(const vec2& pos, 
-        const AABB2& box,
-        void* entity_data)
-    {
-        if (Checkboundary(box) &&
-            ValidPos(pos))
-        {
-            auto proxy = broad_phase_.CreateProxy(box, entity_data);
-            return true;
-        }
-        return false;
-    }
 
-    auto Query(const AABB2& sight)
-    {
-        BroadPhaseBox collisions;
-        broad_phase_.Query<BroadPhaseBox>(&collisions, sight);
-        std::vector<void*> targets;
-        for (auto& target : collisions.collisions)
-        {
-            targets.push_back(broad_phase_.GetUserData(target));
-        }
-        return targets;
-    }
+    Vector<void*> Query(const vec2& pos, float range);
 
 private:
 
-    bool Checkboundary(const AABB2& box)
+    bool Contains(const AABB2& box)
     {
         return boundary_.Contains(box);
     }
 
-    bool ValidPos(const vec2& pos)
+    bool Contains(const vec2& pos)
     {
         //navigation
         return true;

@@ -5,3 +5,11 @@ table SightSync
 {
 	entities : [EntityInfo];
 }
+
+table MoveSync
+{
+	dest : Vec3;
+	dir  : Vec3;
+	spd	: float;
+	eid : uint;
+}

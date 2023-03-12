@@ -5,7 +5,6 @@
 class PacketHandler
 {
 public:
-
     bool Bind(unsigned short id, std::function<void(std::vector<uint8_t>&)> callback)
     {
         if (packet_handler_.contains(id))

@@ -12,19 +12,26 @@ void LoginWindow::Draw()
         const char* ppw = "";
         uint16_t port = 11000;
 
-        if (ImGui::Button("ConnectServer"))
+        if (ImGui::Button("Connect"))
         {
             onClickConnect(ip, port);
         }
 
+        ImGui::Separator();
+        ImGui::Text("render fps: %d / simulate fps: %d", render_frame, simulate_frame);
         ImGui::End();
     }
     else
     {
         ImGui::Begin("Account Info");
+        if (ImGui::Button("Disconnect"))
+        {
+            onClickDisconnect();
+        }
 
         ImGui::Text("eid : %d", entity_id);
-
+        ImGui::Separator();
+        ImGui::Text("render fps: %d / simulate fps: %d", render_frame, simulate_frame);
         ImGui::End();
     }
 }

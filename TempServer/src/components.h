@@ -11,7 +11,7 @@ struct NetComponent
 
 struct PositionComponent
 {
-    vec2 pos;
+    vec v;
 };
 
 struct AABBComponent
@@ -24,12 +24,13 @@ struct EntityData
     EntityFlag flag;
     std::uint32_t eid;
     uint32_t tid;
+    int32_t proxy;
+
 };
 
 struct SightComponent
 {
     float range;
-    Vector<std::uint32_t> entities;
 };
 
 struct NpcComponent
@@ -41,11 +42,12 @@ struct WanderComponent
 {
     float acc_time;
     float range;
-    vec2 spawn_pos;
+    vec spawn_pos;
 };
 
 struct MoveComponent
 {
-    vec2 end_pos;
+    vec dest;
+    vec dir;
     float speed;
 };

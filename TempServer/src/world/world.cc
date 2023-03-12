@@ -1,5 +1,7 @@
 #include "world.h"
-#include "src/systems.h"
+
+#include "components.h"
+#include <systems/systems.h>
 
 #include "fbb/chat_generated.h"
 #include "fbb/packets_generated.h"
@@ -7,12 +9,12 @@
 
 void World::Initialize()
 {
-    packet_handler_.Bind((unsigned short)PacketId::Chat_Req, ChatREQ);
+    field_.Initialize(AABB2(vec2(-100, -100), vec2(100, 100)));
 
     SpawnAI();
 }
 
-void World::Enter(std::shared_ptr<ClientSession> session)
+void World::Enter(Shared<ClientSession> session)
 {
     auto entity = registry_.create();
 
@@ -20,7 +22,7 @@ void World::Enter(std::shared_ptr<ClientSession> session)
 
     //start pos
     auto& tf = registry_.emplace<PositionComponent>(entity);
-    tf.pos.SetZero();
+    tf.v.v3.Set(RandomGenerator::Real(-50, 50), RandomGenerator::Real(-50, 50), 0);
 
     // entity info
     auto& entity_data = registry_.emplace<EntityData>(entity);
@@ -31,41 +33,20 @@ void World::Enter(std::shared_ptr<ClientSession> session)
     //box collider
     auto& box_comp = registry_.emplace<AABBComponent>(entity);
     auto half_box = vec2(5.f, 5.f);
-    box_comp.box.lowerBound = tf.pos - half_box;
-    box_comp.box.upperBound = tf.pos + half_box;
+    box_comp.box.lowerBound = tf.v.v2 - half_box;
+    box_comp.box.upperBound = tf.v.v2 + half_box;
 
     //field
-    field_.Spawn(tf.pos, box_comp.box, (void*)&entity_data);
+    field_.Spawn(tf.v.v2, box_comp.box, (void*)&entity_data, entity_data.proxy);
     
     //sight
     auto& sight_comp = registry_.emplace<SightComponent>(entity);
-    sight_comp.range = 500.f;
+    sight_comp.range = 500;
 
-
-    {
-        auto sight_half = sight_comp.range * 0.5f;
-        auto sight = AABB2();
-        sight.lowerBound.x = tf.pos.x - sight_half;
-        sight.lowerBound.y = tf.pos.y - sight_half;
-        sight.upperBound.x = tf.pos.x + sight_half;
-        sight.upperBound.y = tf.pos.y + sight_half;
-
-        auto targets = field_.Query(sight);
-        flatbuffers::FlatBufferBuilder fbb(256);
-        SightSyncT sync;
-        for (auto target : targets)
-        {
-            EntityInfo* entity_info = (EntityInfo*)target;
-
-            sync.entities.push_back(EntityInfo{
-                entity_info->pos(),
-                entity_info->flag(),
-                entity_info->table_id(),
-                entity_info->entity_id()
-                });
-        }
-
-    }
+    //sync
+    auto entities = field_.Query(tf.v.v2, sight_comp.range);
+    BroadcastSightSync(registry_, entities, session,
+        static_cast<std::uint32_t>(entity));
 
     LOG_INFO("Enter World {}", static_cast<std::uint32_t>(entity));
 }
@@ -82,22 +63,22 @@ void World::Enter(int npcid)
 
     // pos
     auto& tf = registry_.emplace<PositionComponent>(entity);
-    tf.pos.SetZero();
-
+    tf.v.v3.Set(RandomGenerator::Real(-50, 50), RandomGenerator::Real(-50, 50), 0);
+    
     // collider
     auto& box_comp = registry_.emplace<AABBComponent>(entity);
-    auto half_box = b2Vec2(5.f, 5.f);
-    box_comp.box.lowerBound = tf.pos - half_box;
-    box_comp.box.upperBound = tf.pos + half_box;
+    auto half_box = vec2(5.f, 5.f);
+    box_comp.box.lowerBound = tf.v.v2 - half_box;
+    box_comp.box.upperBound = tf.v.v2 + half_box;
 
     //field
-    field_.Spawn(tf.pos, box_comp.box, (void*)&entity_data);
+    field_.Spawn(tf.v.v2, box_comp.box, (void*)&entity_data, entity_data.proxy);
 
     registry_.emplace<NpcComponent>(entity, npcid);
     {
         auto& wander = registry_.emplace<WanderComponent>(entity);
-        wander.range = 100;
-        wander.spawn_pos = tf.pos;
+        wander.range = 20;
+        wander.spawn_pos = tf.v;
     }
 
     auto& sight_comp = registry_.emplace<SightComponent>(entity);
@@ -107,40 +88,29 @@ void World::Enter(int npcid)
 
 }
 
-void World::FixedUpdate()
-{
-    PacketHandling(registry_, packet_handler_);
-}
-
 void World::Update(float dt)
 {
     //ai
-    Wander(registry_, dt);
+    Wander(registry_, field_, dt);
     Move(registry_, dt);
 
     //Broadcast(BroadcastChat("broadcast from server"));
 }
 
-
 void World::SpawnAI()
 {
-    int aicount = 2;
+    int aicount = 12;
     for (int i = 0; i < aicount; ++i)
     {
         Enter(1);
     }
 }
 
-void World::Broadcast(std::vector<uint8_t>&& data)
+void World::Broadcast(Vector<uint8_t>&& data)
 {
     auto view = registry_.view<NetComponent>();
     for (auto [entity, net] : view.each())
     {
-        net.session->Send(data, data.size());
+        net.session->Send(data);
     }
-}
-
-void World::BroadcastInSight(std::vector<uint8_t>&& data)
-{
-
 }

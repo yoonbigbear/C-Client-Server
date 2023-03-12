@@ -12,6 +12,10 @@ struct SightSync;
 struct SightSyncBuilder;
 struct SightSyncT;
 
+struct MoveSync;
+struct MoveSyncBuilder;
+struct MoveSyncT;
+
 struct SightSyncT : public flatbuffers::NativeTable {
   typedef SightSync TableType;
   std::vector<EntityInfo> entities;
@@ -77,6 +81,96 @@ inline flatbuffers::Offset<SightSync> CreateSightSyncDirect(
 
 flatbuffers::Offset<SightSync> CreateSightSync(flatbuffers::FlatBufferBuilder &_fbb, const SightSyncT *_o, const flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
+struct MoveSyncT : public flatbuffers::NativeTable {
+  typedef MoveSync TableType;
+  std::unique_ptr<Vec3> dest;
+  std::unique_ptr<Vec3> dir;
+  float spd;
+  uint32_t eid;
+  MoveSyncT()
+      : spd(0.0f),
+        eid(0) {
+  }
+};
+
+struct MoveSync FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef MoveSyncT NativeTableType;
+  typedef MoveSyncBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_DEST = 4,
+    VT_DIR = 6,
+    VT_SPD = 8,
+    VT_EID = 10
+  };
+  const Vec3 *dest() const {
+    return GetStruct<const Vec3 *>(VT_DEST);
+  }
+  const Vec3 *dir() const {
+    return GetStruct<const Vec3 *>(VT_DIR);
+  }
+  float spd() const {
+    return GetField<float>(VT_SPD, 0.0f);
+  }
+  uint32_t eid() const {
+    return GetField<uint32_t>(VT_EID, 0);
+  }
+  bool Verify(flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<Vec3>(verifier, VT_DEST) &&
+           VerifyField<Vec3>(verifier, VT_DIR) &&
+           VerifyField<float>(verifier, VT_SPD) &&
+           VerifyField<uint32_t>(verifier, VT_EID) &&
+           verifier.EndTable();
+  }
+  MoveSyncT *UnPack(const flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(MoveSyncT *_o, const flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static flatbuffers::Offset<MoveSync> Pack(flatbuffers::FlatBufferBuilder &_fbb, const MoveSyncT* _o, const flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct MoveSyncBuilder {
+  typedef MoveSync Table;
+  flatbuffers::FlatBufferBuilder &fbb_;
+  flatbuffers::uoffset_t start_;
+  void add_dest(const Vec3 *dest) {
+    fbb_.AddStruct(MoveSync::VT_DEST, dest);
+  }
+  void add_dir(const Vec3 *dir) {
+    fbb_.AddStruct(MoveSync::VT_DIR, dir);
+  }
+  void add_spd(float spd) {
+    fbb_.AddElement<float>(MoveSync::VT_SPD, spd, 0.0f);
+  }
+  void add_eid(uint32_t eid) {
+    fbb_.AddElement<uint32_t>(MoveSync::VT_EID, eid, 0);
+  }
+  explicit MoveSyncBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  MoveSyncBuilder &operator=(const MoveSyncBuilder &);
+  flatbuffers::Offset<MoveSync> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = flatbuffers::Offset<MoveSync>(end);
+    return o;
+  }
+};
+
+inline flatbuffers::Offset<MoveSync> CreateMoveSync(
+    flatbuffers::FlatBufferBuilder &_fbb,
+    const Vec3 *dest = 0,
+    const Vec3 *dir = 0,
+    float spd = 0.0f,
+    uint32_t eid = 0) {
+  MoveSyncBuilder builder_(_fbb);
+  builder_.add_eid(eid);
+  builder_.add_spd(spd);
+  builder_.add_dir(dir);
+  builder_.add_dest(dest);
+  return builder_.Finish();
+}
+
+flatbuffers::Offset<MoveSync> CreateMoveSync(flatbuffers::FlatBufferBuilder &_fbb, const MoveSyncT *_o, const flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
 inline SightSyncT *SightSync::UnPack(const flatbuffers::resolver_function_t *_resolver) const {
   std::unique_ptr<SightSyncT> _o = std::unique_ptr<SightSyncT>(new SightSyncT());
   UnPackTo(_o.get(), _resolver);
@@ -101,6 +195,41 @@ inline flatbuffers::Offset<SightSync> CreateSightSync(flatbuffers::FlatBufferBui
   return CreateSightSync(
       _fbb,
       _entities);
+}
+
+inline MoveSyncT *MoveSync::UnPack(const flatbuffers::resolver_function_t *_resolver) const {
+  std::unique_ptr<MoveSyncT> _o = std::unique_ptr<MoveSyncT>(new MoveSyncT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void MoveSync::UnPackTo(MoveSyncT *_o, const flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = dest(); if (_e) _o->dest = std::unique_ptr<Vec3>(new Vec3(*_e)); }
+  { auto _e = dir(); if (_e) _o->dir = std::unique_ptr<Vec3>(new Vec3(*_e)); }
+  { auto _e = spd(); _o->spd = _e; }
+  { auto _e = eid(); _o->eid = _e; }
+}
+
+inline flatbuffers::Offset<MoveSync> MoveSync::Pack(flatbuffers::FlatBufferBuilder &_fbb, const MoveSyncT* _o, const flatbuffers::rehasher_function_t *_rehasher) {
+  return CreateMoveSync(_fbb, _o, _rehasher);
+}
+
+inline flatbuffers::Offset<MoveSync> CreateMoveSync(flatbuffers::FlatBufferBuilder &_fbb, const MoveSyncT *_o, const flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { flatbuffers::FlatBufferBuilder *__fbb; const MoveSyncT* __o; const flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _dest = _o->dest ? _o->dest.get() : 0;
+  auto _dir = _o->dir ? _o->dir.get() : 0;
+  auto _spd = _o->spd;
+  auto _eid = _o->eid;
+  return CreateMoveSync(
+      _fbb,
+      _dest,
+      _dir,
+      _spd,
+      _eid);
 }
 
 #endif  // FLATBUFFERS_GENERATED_WORLD_H_

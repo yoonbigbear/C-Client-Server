@@ -1,8 +1,9 @@
 #pragma once
 
+#include "pre.h"
+
 #include "net_client.h"
 #include "graphics.h"
-#include "level/level.h"
 
 class App
 {
@@ -16,8 +17,9 @@ public:
 
 private:
     Graphics graphics_;
-    Level level_;
     asio::io_context io_context_;
     std::future<void> io_thread_;
-    std::shared_ptr<NetClient> net_;
+    Shared<NetClient> net_;
+    //thread unsafe
+    std::future<void> simulation_thread_;
 };

@@ -6,15 +6,16 @@ enum EntityFlag : byte
 	Resource,
 }
 
-struct Position
+struct Vec3
 {
 	x : float;
 	y : float;
+	z : float;
 }
 
 struct EntityInfo
 {
-	pos : Position;
+	pos : Vec3;
 	flag : EntityFlag;
 	table_id : uint;
 	entity_id : uint;

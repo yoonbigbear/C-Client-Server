@@ -1,6 +1,7 @@
 #pragma once
 
 #include "random_generator.h"
+#include <xmmintrin.h>
 
 struct Vector3
 {
@@ -181,7 +182,7 @@ public:
     AABB2() {}
     AABB2(Vector2&& min, Vector2&& max)
         :min(min)
-        ,max(max) {}
+        , max(max) {}
     AABB2(const Vector2& center, float hw, float hh, int32_t entity)
     {
         Lower(center, hw, hh);
@@ -297,35 +298,35 @@ public:
     }
 };
 
-static float Max(const float l, const float r)
+inline float Max(const float l, const float r)
 {
     return l < r ? r : l;
 }
-static float Min(const float l, const float r)
+inline float Min(const float l, const float r)
 {
     return l > r ? r : l;
 }
-static int Max(const int l, const int r)
+inline int Max(const int l, const int r)
 {
     return l < r ? r : l;
 }
-static int Min(const int l, const int r)
+inline int Min(const int l, const int r)
 {
     return l > r ? r : l;
 }
 
-static auto Min(const Vector2& a, const Vector2& b)
+inline auto Min(const Vector2& a, const Vector2& b)
 {
     auto r = _mm_min_ps(_mm_load_ps(&a.x), _mm_load_ps(&b.x));
     return Vector2(r.m128_f32[0], r.m128_f32[1]);
 }
-static auto Max(const Vector2& a, const Vector2& b)
+inline auto Max(const Vector2& a, const Vector2& b)
 {
     auto r = _mm_max_ps(_mm_load_ps(&a.x), _mm_load_ps(&b.x));
     return Vector2(r.m128_f32[0], r.m128_f32[1]);
 }
 
-static inline AABB2 Union(const AABB2& a, const AABB2& b)
+inline AABB2 Union(const AABB2& a, const AABB2& b)
 {
     return AABB2{ Min(a.min, b.min), Max(a.max, b.max) };
 }
@@ -337,7 +338,7 @@ inline AABB2 Intersection(const AABB2& a, const AABB2& b)
 inline bool TestOverlap(const AABB2& a, const AABB2& b)
 {
     return (a.min.x <= b.max.x && a.max.x >= b.min.x &&
-    a.min.y <= b.max.y &&  a.max.y >= b.min.y) 
+        a.min.y <= b.max.y && a.max.y >= b.min.y)
         ? true
         : false;
 }
@@ -348,41 +349,26 @@ inline float Area(const AABB2& A)
     return 2.0f * (d.x * d.y + d.y * d.x);
 }
 
-static inline Vector2 RandomPointInCircle2(float range, int max_try = 10)
+short UnitVectorToRadian(const float x, const float y)
 {
-    float x;
-    float y;
-    for (int i = 0; i < max_try; ++i)
-    {
-        x = RandomGenerator::Real(-1.f, 1.f);
-        y = RandomGenerator::Real(-1.f, 1.f);
-        if (x * x + y * y <= 1)
-        {
-            return Vector2(x, y) * range;
-        }
-    }
+    return  static_cast<short>(std::atan2f(y, x) + 180.f);
 }
 
-static short UnitVectorToRadian(const float x, const float y)
-{
-    return  std::atan2f(y, x) + 180;
-}
-
-static Vector2 RadianToUnitVector(float rad)
+Vector2 RadianToUnitVector(float rad)
 {
     return Vector2{ std::cosf(rad), std::sinf(rad) };
 }
 
-static short RadianToDegree(float radian)
+short RadianToDegree(float radian)
 {
     return static_cast<short>(radian * 57.295779f);
 }
-static short DegreeToRadian(int degree)
+short DegreeToRadian(int degree)
 {
     return static_cast<short>(degree * 0.0174532f);
 }
 
-static auto MoveLength(Vector2 dir, float speed)
+auto MoveLength(Vector2 dir, float speed)
 {
     return dir * speed;
 }

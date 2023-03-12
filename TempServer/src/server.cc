@@ -18,7 +18,7 @@ void Server::HandleAccept(const asio::error_code& error, asio::ip::tcp::socket s
         LOG_INFO("[SERVER] Accept New Session. Total :");
 
         total_sessions_++;
-        std::shared_ptr<ClientSession> new_connection =
+        Shared<ClientSession> new_connection =
             std::make_shared<ClientSession>(io_context_, std::move(socket));
         new_connection->Initialize();
 
@@ -36,15 +36,14 @@ void Server::Stop()
     TcpServer::Stop();
 }
 
-void Server::Update()
+void Server::Update(float dt)
 {
     EnterWorld();
 
-    world_.FixedUpdate();
-    world_.Update(0.01f);
+    world_.Update(dt);
 }
 
-void Server::EnterQueue(std::shared_ptr<ClientSession> session)
+void Server::EnterQueue(Shared<ClientSession> session)
 {
     auto lg = std::lock_guard(lock_);
     enter_queue.emplace_back(session);

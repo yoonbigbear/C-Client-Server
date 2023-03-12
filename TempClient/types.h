@@ -41,14 +41,7 @@ using Vector = std::vector<T>;
 template<typename _Key, typename _Val>
 using UnorderedMap = std::unordered_map<_Key, _Val>;
 
-template<typename T>
-inline T VecToXYZ(const vec& v)
+inline void swap_vector(vec& v)
 {
-    return T(v.v3.x, v.v3.z, v.v3.y);
-}
-
-template<typename T>
-inline vec VecToXZY(const T& v)
-{
-    return vec(v.x, v.z, v.y);
+    std::swap(v.v3.z, v.v3.y);
 }

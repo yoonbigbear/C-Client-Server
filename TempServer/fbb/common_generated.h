@@ -6,7 +6,7 @@
 
 #include "flatbuffers/flatbuffers.h"
 
-struct Position;
+struct Vec3;
 
 struct EntityInfo;
 
@@ -43,18 +43,20 @@ inline const char *EnumNameEntityFlag(EntityFlag e) {
   return EnumNamesEntityFlag()[index];
 }
 
-FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(4) Position FLATBUFFERS_FINAL_CLASS {
+FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(4) Vec3 FLATBUFFERS_FINAL_CLASS {
  private:
   float x_;
   float y_;
+  float z_;
 
  public:
-  Position() {
-    memset(static_cast<void *>(this), 0, sizeof(Position));
+  Vec3() {
+    memset(static_cast<void *>(this), 0, sizeof(Vec3));
   }
-  Position(float _x, float _y)
+  Vec3(float _x, float _y, float _z)
       : x_(flatbuffers::EndianScalar(_x)),
-        y_(flatbuffers::EndianScalar(_y)) {
+        y_(flatbuffers::EndianScalar(_y)),
+        z_(flatbuffers::EndianScalar(_z)) {
   }
   float x() const {
     return flatbuffers::EndianScalar(x_);
@@ -62,12 +64,15 @@ FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(4) Position FLATBUFFERS_FINAL_CLASS {
   float y() const {
     return flatbuffers::EndianScalar(y_);
   }
+  float z() const {
+    return flatbuffers::EndianScalar(z_);
+  }
 };
-FLATBUFFERS_STRUCT_END(Position, 8);
+FLATBUFFERS_STRUCT_END(Vec3, 12);
 
 FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(4) EntityInfo FLATBUFFERS_FINAL_CLASS {
  private:
-  Position pos_;
+  Vec3 pos_;
   int8_t flag_;
   int8_t padding0__;  int16_t padding1__;
   uint32_t table_id_;
@@ -77,7 +82,7 @@ FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(4) EntityInfo FLATBUFFERS_FINAL_CLASS {
   EntityInfo() {
     memset(static_cast<void *>(this), 0, sizeof(EntityInfo));
   }
-  EntityInfo(const Position &_pos, EntityFlag _flag, uint32_t _table_id, uint32_t _entity_id)
+  EntityInfo(const Vec3 &_pos, EntityFlag _flag, uint32_t _table_id, uint32_t _entity_id)
       : pos_(_pos),
         flag_(flatbuffers::EndianScalar(static_cast<int8_t>(_flag))),
         padding0__(0),
@@ -86,7 +91,7 @@ FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(4) EntityInfo FLATBUFFERS_FINAL_CLASS {
         entity_id_(flatbuffers::EndianScalar(_entity_id)) {
     (void)padding0__;    (void)padding1__;
   }
-  const Position &pos() const {
+  const Vec3 &pos() const {
     return pos_;
   }
   EntityFlag flag() const {
@@ -99,6 +104,6 @@ FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(4) EntityInfo FLATBUFFERS_FINAL_CLASS {
     return flatbuffers::EndianScalar(entity_id_);
   }
 };
-FLATBUFFERS_STRUCT_END(EntityInfo, 20);
+FLATBUFFERS_STRUCT_END(EntityInfo, 24);
 
 #endif  // FLATBUFFERS_GENERATED_COMMON_H_
