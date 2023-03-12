@@ -24,8 +24,8 @@ void Scene::Draw()
     nav_mesh_.Render();
 
     {
-        auto group = registry_.group<>(entt::get<const Transform, const CylinderData>);
-        for (auto [entity, tf, cylinder] : group.each())
+        auto view = registry_.view<Transform, CylinderData>();
+        for (auto [entity, tf, cylinder] : view.each())
         {
             Draw::Cylinder(&tf.v.v3.x, cylinder.radius, cylinder.height, cylinder.max_climb, startCol);
         }
