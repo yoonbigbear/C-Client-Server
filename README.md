@@ -29,6 +29,7 @@ Additionally, features such as adding dummy bot clients, manipulating basic clie
 - [SDL2](https://github.com/ocornut/imgui)
 - [Dear ImGui](https://github.com/ocornut/imgui)
 - [Opengl3](https://github.com/ocornut/imgui)
+- [recast&detour](https://github.com/recastnavigation/recastnavigation)
 ## Server
 ![image](https://user-images.githubusercontent.com/101116747/224535326-f43fb51f-722d-4135-af23-2d29ab4592b8.png)
 
