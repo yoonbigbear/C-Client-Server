@@ -55,7 +55,7 @@ void App::Run()
     */
     
     //Simulation Thread
-    /*simulation_thread_ = std::async(std::launch::async, [this] {
+    simulation_thread_ = std::async(std::launch::async, [this] {
     SimulateTimer<30> timer;
     timer.Reset();
     while (true)
@@ -75,7 +75,7 @@ void App::Run()
             }
         }
     }
-        });*/
+        });
 
     // Main Thread
     SDL_Event event;
@@ -92,12 +92,6 @@ void App::Run()
             return;
 
         timer.Frame();
-
-        auto scenes = SceneManager::instance().container();
-        for (auto& [key, val] : scenes)
-        {
-            val->Update(static_cast<float>(ImGui::GetIO().DeltaTime));
-        }
 
         graphics_.BeginScene();
         {

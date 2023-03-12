@@ -3,7 +3,6 @@
 void Scene::Initialize(const char* filepath)
 {
     nav_mesh_.Initialize(filepath);
-
     //Gui::instance().level_info.onUpdateList = [this](int selected) {
         //size_t size = agents_.size();
         //for (int i = 0; i < size; i++)
@@ -24,8 +23,10 @@ void Scene::Draw()
     nav_mesh_.Render();
 
     {
-        auto view = registry_.view<Transform, CylinderData>();
-        for (auto [entity, tf, cylinder] : view.each())
+        m.lock();
+        auto group = registry_.group<>(entt::get<const Transform, const CylinderData>);
+        m.unlock();
+        for (auto [entity, tf, cylinder] : group.each())
         {
             Draw::Cylinder(&tf.v.v3.x, cylinder.radius, cylinder.height, cylinder.max_climb, startCol);
         }
@@ -56,7 +57,9 @@ void Scene::Update(float dt)
 {
     //move
     {
+        m.lock();
         auto view = registry_.view<Transform, MoveInfo>();
+        m.unlock();
         for (auto [entity, tf, mover] : view.each())
         {
             auto dist = mover.dest.v2 - tf.v.v2;
