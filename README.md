@@ -9,7 +9,7 @@ Commercial client engines have more features than you need. Once you develop you
 
 TCP MMO 서버를 제작하고 있습니다. ECS 구조를 통해 게임 컨텐츠를 유연하게 확장 및 개발할 수 있는 방향으로 현재 실험중인 프로젝트 입니다.
 
-구조적인 관점에서 봤을때 객체지향 프로그래밍은 규모가 커질수록 확장 및 수정이 어려워져 관리가 힘들어지는 경향이 있습니다. 또한 대부분의 OOP구조들이 캐시미스가 자주 발생할 수 있습니다. 위 단점들을 개선해보고자 ECS구조를 채택하고 최대한 캐시효율 고려하여 개발중입니다.
+구조적인 관점에서 봤을때 객체지향 프로그래밍은 규모가 커질수록 확장 및 수정이 어려워져 관리가 힘들어지는 경향이 있습니다. 또한 대부분의 OOP구조들이 캐시미스가 자주 발생할 수 있습니다. 위 단점들을 개선해보고자 ECS구조를 채택하여 R&D 중입니다.
 
 ### Common used
 - [ASIO 1.24](https://www.boost.org/doc/libs/1_81_0/doc/html/boost_asio.html)
