@@ -23,7 +23,6 @@ public:
     void Move(uint32_t entity, const vec& dest, const vec& dir, float spd);
 
 private:
-    std::mutex m;
     entt::registry registry_;
     UnorderedMap<uint32_t, entt::entity> hash_entities_;
     NaviMesh nav_mesh_;

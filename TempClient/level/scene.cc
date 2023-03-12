@@ -3,6 +3,7 @@
 void Scene::Initialize(const char* filepath)
 {
     nav_mesh_.Initialize(filepath);
+  //  auto view = registry_.group<>();
     //Gui::instance().level_info.onUpdateList = [this](int selected) {
         //size_t size = agents_.size();
         //for (int i = 0; i < size; i++)
@@ -16,6 +17,10 @@ void Scene::Initialize(const char* filepath)
         //    }
         //}
     //};
+
+    //아마 멀티쓰레드 상황에서 registry가 우선 완전히 생성되어야 하는 포인트가 있는듯?
+    //우선 임시로 Init 부분에서 registry를 생성해주도록 작업.
+    auto group = registry_.group<>(entt::get<const Transform, const CylinderData>);
 }
 
 void Scene::Draw()
@@ -23,9 +28,7 @@ void Scene::Draw()
     nav_mesh_.Render();
 
     {
-        m.lock();
         auto group = registry_.group<>(entt::get<const Transform, const CylinderData>);
-        m.unlock();
         for (auto [entity, tf, cylinder] : group.each())
         {
             Draw::Cylinder(&tf.v.v3.x, cylinder.radius, cylinder.height, cylinder.max_climb, startCol);
@@ -57,9 +60,7 @@ void Scene::Update(float dt)
 {
     //move
     {
-        m.lock();
         auto view = registry_.view<Transform, MoveInfo>();
-        m.unlock();
         for (auto [entity, tf, mover] : view.each())
         {
             auto dist = mover.dest.v2 - tf.v.v2;
