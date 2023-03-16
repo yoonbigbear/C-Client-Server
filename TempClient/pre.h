@@ -24,6 +24,7 @@
 #include "gui.h"
 #include "singleton.h"
 #include "bb_util.h"
+#include "bb_lock.h"
 #include "draw.h"
 
 #include "types.h"

@@ -21,7 +21,6 @@ public:
     bool Spawn(const vec2& pos, const AABB2& box, 
         void* entity_data, int32_t& out_proxy);
 
-
     Vector<void*> Query(const vec2& pos, float range);
 
 private:
@@ -41,4 +40,5 @@ private:
 private:
    AABB2 boundary_;
    b2DynamicTree broad_phase_;
+   
 };

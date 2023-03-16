@@ -36,28 +36,16 @@ void Scene::Draw()
     }
 }
 
-void Scene::Enter(const EntityInfo& info)
-{
-    auto entity = registry_.create();
-
-    auto& tf = registry_.emplace<Transform>(entity);
-    auto& cylinder = registry_.emplace<CylinderData>(entity);
-    memcpy(&tf.v.v3, &info.pos(), sizeof(Vec3));
-
-    cylinder.height = 2.f;
-    cylinder.radius = 0.6f;
-}
-
-void Scene::Move(uint32_t entity, const vec& dest, const vec& dir, float spd)
-{
-    auto& mover = registry_.emplace_or_replace<MoveInfo>((entt::entity)entity);
-    mover.dir = dir;
-    mover.dest = dest;
-    mover.speed = spd;
-}
-
 void Scene::Update(float dt)
 {
+    if (auto queue = ReleaseCommandQueue(); !queue.empty())
+    {
+        for (auto& invoke : queue)
+        {
+            invoke();
+        }
+    }
+
     //move
     {
         auto view = registry_.view<Transform, MoveInfo>();
@@ -79,3 +67,46 @@ void Scene::Update(float dt)
         }
     }
 }
+
+void Scene::Enter(const EntityInfo& info)
+{
+    auto entity = registry_.create();
+
+    auto& tf = registry_.emplace<Transform>(entity);
+    auto& cylinder = registry_.emplace<CylinderData>(entity);
+    memcpy(&tf.v.v3, &info.pos(), sizeof(Vec3));
+
+    cylinder.height = 2.f;
+    cylinder.radius = 0.6f;
+}
+
+void Scene::Move(uint32_t entity, const vec& dest, const vec& dir, float spd)
+{
+    auto& mover = registry_.emplace_or_replace<MoveInfo>((entt::entity)entity);
+    mover.dir = dir;
+    mover.dest = dest;
+    mover.speed = spd;
+}
+
+void Scene::AddCommandQueue(std::function<void(void)> command)
+{
+    {
+        LockGuard<SpinLock> guard(command_lock_);
+        command_queue_.emplace_back(command);
+    }
+}
+
+std::vector<std::function<void(void)>> Scene::ReleaseCommandQueue()
+{
+    std::vector<std::function<void(void)>> commands;
+    {
+        LockGuard<SpinLock> guard(command_lock_);
+        if (!command_queue_.empty())
+        {
+            commands.assign(command_queue_.begin(), command_queue_.end());
+            command_queue_.clear();
+        }
+    }
+    return commands;
+}
+
