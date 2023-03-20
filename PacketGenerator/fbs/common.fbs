@@ -25,6 +25,8 @@ struct fbVec
 struct EntityInfo
 {
 	pos : fbVec;
+	endpos : fbVec;
+	spd : float;
 	table_id : uint;
 	entity_id : uint;
 	angle : short;

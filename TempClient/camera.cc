@@ -89,7 +89,7 @@ void Camera::Input(SDL_Event* event)
 			[this]() {
 				Vec start = Vec(ray_start);
 				Vec end = Vec(ray_end);
-				SceneManager::instance().current_scene()->MoveRequest(start, end);
+				//SceneManager::instance().current_scene()->MoveRequest(start, end);
 			}
 		);
 	}

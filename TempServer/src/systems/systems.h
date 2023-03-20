@@ -13,6 +13,124 @@
 #include "world/field.h"
 #include "share/navigation.h"
 
+void PacketHandling(Weak<World> world, PacketHandler& packet_handler);
+void Wander(Weak<World> world, float dt);
+void Move(Weak<World> world, float dt);
+void MoveAlongPath(Weak<World> world);
+void SightSyncronize(Weak<World> world, uint32_t eid);
+void EnterSync(Weak<World> world,
+    Unique<EntityInfo> sender,
+    const Vector<EntityData*>& new_list,
+    const Vector<EntityData*>& before_list);
+void LeaveSync(Weak<World> world,
+    uint32_t sender,
+    const Vector<EntityData*>& new_list,
+    const Vector<EntityData*>& before_list);
+
+void SightSyncronize(Weak<World> world, uint32_t eid)
+{
+    auto ptr = world.lock();
+    _ASSERT(ptr);
+
+    ENTITY(eid);
+    auto& sight = ptr->get<SightComponent>(entity);
+    auto& tf = ptr->get<const Transform>(entity);
+
+    //update sight
+    auto field = ptr->field().lock();
+    auto list = field->Query(tf.v.v3, sight.range);;
+    Vector<EntityData*> datas;
+    datas.reserve(list.size());
+    for (auto e : list)
+    {
+        ENTITYDATA(e);
+        datas.emplace_back(entitydata);
+    }
+    std::sort(datas.begin(), datas.end());
+
+    fbVec pos = VecTo<fbVec>(tf.v.v3);
+    fbVec endpos = pos;
+    float speed = 0.f;
+    if (ptr->all_of<Mover>(entity))
+    {
+        auto mover = ptr->get<Mover>(entity);
+        endpos = VecTo<fbVec>(mover.dest);
+        speed = mover.speed;
+    }
+    auto sender_info = EntityInfo{
+           pos, endpos, speed,
+           0,(uint32_t)entity,
+           tf.angle, EntityFlag::Player };
+
+    EnterSync(world, std::make_unique<EntityInfo>(sender_info),
+        datas, sight.objects);
+    LeaveSync(world, (uint32_t)entity, datas, sight.objects);
+    std::swap(sight.objects, datas);
+}
+void EnterSync(Weak<World> world,
+    Unique<EntityInfo> sender, 
+    const Vector<EntityData*>& new_list,
+    const Vector<EntityData*>& before_list)
+{
+    auto world_ptr = world.lock();
+    _ASSERT(world_ptr);
+
+    flatbuffers::FlatBufferBuilder fbb(256);
+    EnterSyncT sync;
+    sync.enter_entity = std::move(sender);
+    fbb.Finish(EnterSync::Pack(fbb, &sync));
+
+
+    Vector<EntityData*> entered;
+    std::set_difference(new_list.begin(),
+        new_list.end(),
+        before_list.begin(),
+        before_list.end(),
+        std::inserter(entered, entered.begin()));
+    for (auto data : entered)
+    {
+        if (data->eid != (uint32_t)sync.enter_entity->entity_id())
+        {
+            if (world_ptr->all_of<NetComponent>(entt::entity(data->eid)))
+            {
+                auto net = world_ptr->get<NetComponent>(entt::entity(data->eid));
+                net.session->Send((uint16_t)PacketId::EnterSync,
+                    fbb.GetSize(), fbb.GetBufferPointer());
+            }
+        }
+    }
+}
+void LeaveSync(Weak<World> world,
+    uint32_t sender,
+    const Vector<EntityData*>& new_list,
+    const Vector<EntityData*>& before_list)
+{
+    auto world_ptr = world.lock();
+    _ASSERT(world_ptr);
+
+    flatbuffers::FlatBufferBuilder fbb(64);
+    LeaveSyncT sync;
+    sync.leave_entity = (sender);//flag
+    fbb.Finish(LeaveSync::Pack(fbb, &sync));
+
+    Vector<EntityData*> out_list;
+    std::set_difference(before_list.begin(), before_list.end(),
+        new_list.begin(), new_list.end(),
+        std::inserter(out_list, out_list.begin()));
+    for (auto data : out_list)
+    {
+        if (data->eid != (uint32_t)sender)
+        {
+            if (world_ptr->all_of<NetComponent>(entt::entity(data->eid)))
+            {
+                auto net = world_ptr->get<NetComponent>(entt::entity(data->eid));
+                net.session->Send((uint16_t)PacketId::LeaveSync,
+                    fbb.GetSize(), fbb.GetBufferPointer());
+            }
+        }
+    }
+}
+
 void PacketHandling(Weak<World> world, PacketHandler& packet_handler)
 {
     auto ptr = world.lock();
@@ -104,6 +222,8 @@ void Move(Weak<World> world, float dt)
             {
                 //moving
                 tf.v.v2 += move_sqr * mover.dir.v2;
+
+                SightSyncronize(world, (uint32_t)entity);
             }
         }
     }
@@ -169,7 +289,7 @@ void MoveAlongPath(Weak<World> world)
                     tf.angle = static_cast<short>
                         (std::atan2f(mover.dir.v2.y, mover.dir.v2.x));
 
-                    mover.speed = 0.1f;
+                    mover.speed = 1.f;
                     path.flag = Moving;
 
                     if (ptr->all_of<SightComponent>(entity))

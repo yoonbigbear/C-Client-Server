@@ -125,7 +125,7 @@ void MoveAlongPath(Weak<Scene> scene, float dt)
                         tf.angle = static_cast<short>
                             (std::atan2f(mover.dir.v2.y, mover.dir.v2.x));
 
-                        mover.speed = 0.1;
+                        mover.speed = 1;
                         path.flag = Moving;
                     }
                 }

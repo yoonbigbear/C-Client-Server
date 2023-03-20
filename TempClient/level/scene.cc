@@ -79,6 +79,13 @@ void Scene::Enter(const EntityInfo* info)
 
         if (info->flag() == EntityFlag::Player)
             auto& player = emplace<MyPlayer>(eid);
+
+        if (info->spd() > 0)
+        {
+            auto& pathList = emplace_or_replace<PathList>(eid);
+            pathList.paths.emplace_back(Vec(info->endpos().x()
+                , info->endpos().y(), info->endpos().z()));
+        }
     }
 }
 
@@ -97,6 +104,13 @@ void Scene::Enter(const Vector<EntityInfo>& info)
             auto& cylinder = emplace<CylinderData>(entity);
             cylinder.height = 2.f;
             cylinder.radius = 0.6f;
+
+            if (e.spd() > 0)
+            {
+                auto& pathList = emplace_or_replace<PathList>(entity);
+                pathList.paths.emplace_back(Vec(e.endpos().x()
+                    , e.endpos().y(), e.endpos().z()));
+            }
         }
     }
 }

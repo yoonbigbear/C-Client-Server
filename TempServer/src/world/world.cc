@@ -49,7 +49,7 @@ void World::Enter(Shared<ClientSession> session)
     
     //sight
     auto& sight_comp = emplace<SightComponent>(entity);
-    sight_comp.range = 500;
+    sight_comp.range = 50;
 
     //query sight entities
     auto entities_in_sight = field_->Query(tf.v.v2, sight_comp.range);
@@ -61,30 +61,48 @@ void World::Enter(Shared<ClientSession> session)
     }
     std::sort(datas.begin(), datas.end());
 
-    //send entity infos to me
+    //EnterResp
     {
         flatbuffers::FlatBufferBuilder fbb(64);
         EnterWorldRespT resp;
-        resp.entity = std::make_unique<EntityInfo>(
-            VecTo<fbVec>(tf.v.v3),
-            0,
-            (uint32_t)entity,
-            tf.angle,
-            EntityFlag::Player);
 
+        {
+            fbVec pos = VecTo<fbVec>(tf.v.v3);
+            fbVec endpos = pos;
+            float speed = 0.f;
+            if (all_of<Mover>(entity))
+            {
+                auto mover = get<Mover>(entity);
+                endpos = VecTo<fbVec>(mover.dest);
+                speed = mover.speed;
+            }
+            auto sender_info = EntityInfo{
+                   pos, endpos, speed,
+                   0,(uint32_t)entity,
+                   tf.angle, EntityFlag::Player };
+            resp.entity = std::make_unique<EntityInfo>(
+                pos, endpos, speed, 0, (uint32_t)entity, tf.angle,
+                EntityFlag::Player);
+        }
         for (auto e : datas)
         {
+            _ASSERT(valid((entt::entity)e->eid));
             if (all_of<Transform>((entt::entity)e->eid))
             {
                 auto target_tf = get<Transform>((entt::entity)e->eid);
-
+                fbVec pos = VecTo<fbVec>(tf.v.v3);
+                fbVec endpos = pos;
+                float speed = 0.f;
+                
+                if (all_of<Mover>((entt::entity)e->eid))
+                {
+                    auto mover = get<Mover>((entt::entity)e->eid);
+                    endpos = VecTo<fbVec>(mover.dest);
+                    speed = mover.speed;
+                }
                 resp.sight_entities.emplace_back(EntityInfo{
-                     VecTo<fbVec>(tf.v.v3),
-                     0,
-                    (uint32_t)e->eid,
-                    target_tf.angle,
-                        (EntityFlag)e->flag
-                    });
+                     pos, endpos, speed, 0, (uint32_t)e->eid, target_tf.angle,
+                        (EntityFlag)e->flag });
             }
         }
         
@@ -94,64 +112,8 @@ void World::Enter(Shared<ClientSession> session)
         LOG_INFO("[SERVER] send EnterWorldResp: ");
     }
 
-    //send my data to new sight entities.
-    {
-        flatbuffers::FlatBufferBuilder fbb(256);
-        EnterSyncT sync;
-        sync.enter_entity = std::make_unique<EntityInfo>(EntityInfo{
-                                      VecTo<fbVec>(tf.v.v3),//pos
-                                      1,//tid
-                                      (uint32_t)entity,//eid
-                                      static_cast<int16_t>(tf.angle), //angle
-                                      EntityFlag::Player });//flag
-        fbb.Finish(EnterSync::Pack(fbb, &sync));
-       
-        
-        Vector<EntityData*> new_list;
-        std::set_difference(datas.begin(),
-            datas.end(),
-            sight_comp.objects.begin(),
-            sight_comp.objects.end(), 
-            std::inserter(new_list, new_list.begin()));
-        for (auto data : new_list)
-        {
-            if (data->eid != (uint32_t)entity)
-            {
-                if (all_of<NetComponent>(entt::entity(data->eid)))
-                {
-                    auto net = get<NetComponent>(entt::entity(data->eid));
-                    net.session->Send((uint16_t)PacketId::EnterSync,
-                        fbb.GetSize(), fbb.GetBufferPointer());
-                }
-                sight_comp.objects.emplace_back(data);
-            }
-        }
-    }
+    SightSyncronize(shared(), (uint32_t)entity);
 
-    //send leave to entities out of sight.
-    {
-        flatbuffers::FlatBufferBuilder fbb(256);
-        LeaveSyncT sync;
-        sync.leave_entity = ((uint32_t)entity);//flag
-        fbb.Finish(LeaveSync::Pack(fbb, &sync));
-
-        Vector<EntityData*> out_list;
-        std::set_difference(sight_comp.objects.begin(), sight_comp.objects.end(),
-            datas.begin(), datas.end(), 
-            std::inserter(out_list, out_list.begin()));
-        for (auto data : out_list)
-        {
-            if (data->eid != (uint32_t)entity)
-            {
-                if (all_of<NetComponent>(entt::entity(data->eid)))
-                {
-                    auto net = get<NetComponent>(entt::entity(data->eid));
-                    net.session->Send((uint16_t)PacketId::LeaveSync,
-                        fbb.GetSize(), fbb.GetBufferPointer());
-                }
-            }
-        }
-    }
     LOG_INFO("Enter World {}", static_cast<std::uint32_t>(entity));
 }
 
@@ -187,7 +149,7 @@ void World::Enter(int npcid)
     }
 
     auto& sight_comp = emplace<SightComponent>(entity);
-    sight_comp.range = 500.f;
+    sight_comp.range = 50.f;
 
     LOG_INFO("npc enter world {}", static_cast<std::uint32_t>(entity));
 
@@ -201,12 +163,13 @@ void World::Update(float dt)
     Wander(shared(), dt);
     Move(shared(), dt);
 
+
     //Broadcast(BroadcastChat("broadcast from server"));
 }
 
 void World::SpawnAI()
 {
-    int aicount = 10;
+    int aicount = 50;
     for (int i = 0; i < aicount; ++i)
     {
         Enter(1);
@@ -237,7 +200,7 @@ bool World::HandleMove(uint32_t eid, const Vec& dest)
             mover.dir = tf->v.v2 - mover.dest.v2;
             mover.dir.v2.Normalize();
 
-            mover.speed = 0.1;
+            mover.speed = 1.f;
         }
     }
     return false;

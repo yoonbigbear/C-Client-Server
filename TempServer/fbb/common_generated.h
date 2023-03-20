@@ -102,6 +102,8 @@ FLATBUFFERS_STRUCT_END(fbVec, 12);
 FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(4) EntityInfo FLATBUFFERS_FINAL_CLASS {
  private:
   fbVec pos_;
+  fbVec endpos_;
+  float spd_;
   uint32_t table_id_;
   uint32_t entity_id_;
   int16_t angle_;
@@ -112,8 +114,10 @@ FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(4) EntityInfo FLATBUFFERS_FINAL_CLASS {
   EntityInfo() {
     memset(static_cast<void *>(this), 0, sizeof(EntityInfo));
   }
-  EntityInfo(const fbVec &_pos, uint32_t _table_id, uint32_t _entity_id, int16_t _angle, EntityFlag _flag)
+  EntityInfo(const fbVec &_pos, const fbVec &_endpos, float _spd, uint32_t _table_id, uint32_t _entity_id, int16_t _angle, EntityFlag _flag)
       : pos_(_pos),
+        endpos_(_endpos),
+        spd_(flatbuffers::EndianScalar(_spd)),
         table_id_(flatbuffers::EndianScalar(_table_id)),
         entity_id_(flatbuffers::EndianScalar(_entity_id)),
         angle_(flatbuffers::EndianScalar(_angle)),
@@ -123,6 +127,12 @@ FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(4) EntityInfo FLATBUFFERS_FINAL_CLASS {
   }
   const fbVec &pos() const {
     return pos_;
+  }
+  const fbVec &endpos() const {
+    return endpos_;
+  }
+  float spd() const {
+    return flatbuffers::EndianScalar(spd_);
   }
   uint32_t table_id() const {
     return flatbuffers::EndianScalar(table_id_);
@@ -137,6 +147,6 @@ FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(4) EntityInfo FLATBUFFERS_FINAL_CLASS {
     return static_cast<EntityFlag>(flatbuffers::EndianScalar(flag_));
   }
 };
-FLATBUFFERS_STRUCT_END(EntityInfo, 24);
+FLATBUFFERS_STRUCT_END(EntityInfo, 40);
 
 #endif  // FLATBUFFERS_GENERATED_COMMON_H_
