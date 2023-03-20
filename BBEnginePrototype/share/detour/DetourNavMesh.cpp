@@ -1178,11 +1178,6 @@ int dtNavMesh::getMaxTiles() const
 	return m_maxTiles;
 }
 
-dtMeshTile* dtNavMesh::getTile(int i)
-{
-	return &m_tiles[i];
-}
-
 const dtMeshTile* dtNavMesh::getTile(int i) const
 {
 	return &m_tiles[i];

@@ -12,7 +12,9 @@ public:
 
 public:
     auto container() { return container_; }
+    auto current_scene() { return container_[current_scene_]; }
 
 private:
     UnorderedMap<int32_t, Shared<Scene>> container_;
+    int current_scene_ = 0;
 };

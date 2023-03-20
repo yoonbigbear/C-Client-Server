@@ -5,6 +5,7 @@
 #include "ecs/systems.h"
 
 #include "fbb/packets_generated.h"
+#include "fbb/world_generated.h"
 
 
 NetClient::NetClient(asio::io_context& io_context, asio::ip::tcp::socket socket)
@@ -22,20 +23,32 @@ void NetClient::Initialize()
     TcpSession::Initialize();
 
     Bind((unsigned short)PacketId::Chat_Sync, Chat_Sync);
-    Bind((unsigned short)PacketId::Sight_Sync, Sight_Sync);
+    Bind((unsigned short)PacketId::EnterSync, Enter_Sync);
+    Bind((unsigned short)PacketId::LeaveSync, Leave_Sync);
     Bind((unsigned short)PacketId::Move_Sync, Move_Sync);
+    Bind((unsigned short)PacketId::Move_Resp, Move_Resp);
+    Bind((unsigned short)PacketId::EnterWorld_Resp, EnterWorld_Resp);
 }
 
-bool NetClient::Bind(uint16_t id, std::function<void(std::vector<uint8_t>&)> fn)
+bool NetClient::Bind(uint16_t id, PacketFunc fn)
 {
     return packet_handler_.Bind(id, fn);
+}
+
+void NetClient::Send(uint16_t id, uint16_t size, uint8_t* buf)
+{
+    PacketHeader header{ id , size };
+    std::vector<uint8_t> data(sizeof(PacketHeader) + size);
+    memcpy(data.data(), &header, sizeof(PacketHeader));
+    memcpy(data.data() + sizeof(PacketHeader), buf, size);
+    TcpSession::Send(data);
 }
 
 bool NetClient::Connect(const std::string& host, const uint16_t port)
 {
     try
     {
-        Gui::instance().log.AddLog("[info] connect to %s:%d\n", host.c_str(), port);
+        LOG_INFO("connect to %s:%d", host.c_str(), port);
         asio::ip::tcp::resolver resolver(io_context_);
         asio::ip::tcp::resolver::results_type endpoints =
             resolver.resolve(host, std::to_string(port));
@@ -43,7 +56,7 @@ bool NetClient::Connect(const std::string& host, const uint16_t port)
     }
     catch (std::exception& e)
     {
-        Gui::instance().log.AddLog("[error] client exception: %s\n", e.what());
+        LOG_ERR("client exception: %s", e.what());
         return false;
     }
     return true;
@@ -56,22 +69,20 @@ void NetClient::ConnectToServer(const asio::ip::tcp::resolver::results_type& end
         {
             if (!ec)
             {
-                Gui::instance().log.AddLog("[info] connected server\n");
+                LOG_INFO("connected server");
                 Gui::instance().login.login = true;
                 Initialize();
 
-                EntityInfo info(
-                    Vec3(RandomGenerator::Real(-10, 10), 0, RandomGenerator::Real(-10, 10)),
-                    EntityFlag::Player, 0,0);
-                auto scene = SceneManager::instance().Get(0).lock();
-                if (scene)
-                {
-                    scene->Enter(info);
-                }
+                flatbuffers::FlatBufferBuilder fbb(256);
+                EnterWorldReqT req;
+                fbb.Finish(EnterWorldReq::Pack(fbb, &req));
+                Send((uint16_t)PacketId::EnterWorld_Req,
+                        fbb.GetSize(), fbb.GetBufferPointer());
+                LOG_INFO("send EnterWorldReq\n");
             }
             else
             {
-                Gui::instance().log.AddLog("[error] connect failed\n");
+                LOG_ERR("connect failed");
                 Disconnect();
             }
         });
@@ -82,6 +93,6 @@ void NetClient::ReadPackets()
     auto list = recv_buffer().Get();
     for (auto& e : list)
     {
-        packet_handler_.Invoke(e.first)(e.second);
+        packet_handler_.Invoke(e.first)(this, e.second);
     }
 }

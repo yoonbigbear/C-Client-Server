@@ -1,18 +1,8 @@
 #pragma once
 
-#include "types.h"
-
-struct Transform
-{
-    vec v;
-};
-
-struct MoveInfo
-{
-    vec dest;
-    vec dir;
-    float speed;
-};
+#include "pre.h"
+#include "net_client.h"
+#include "share/ecs/share_component.h"
 
 struct CylinderData
 {
@@ -24,7 +14,7 @@ struct CylinderData
     float radius;
 };
 
-struct EntityData
+struct MyPlayer
 {
-    uint32_t eid;
+    Shared<NetClient> session;
 };

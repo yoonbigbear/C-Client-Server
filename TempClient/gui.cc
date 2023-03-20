@@ -1,5 +1,12 @@
 #include "gui.h"
 
+
+
+
+void Gui::Initialize()
+{
+}
+
 void Gui::Draw()
 {
     login.Draw();

@@ -1,11 +1,14 @@
 #pragma once
 
 #include <functional>
+#include "types.h"
+
+using PacketFunc = std::function<void(void* session, std::vector<uint8_t>&)>;
 
 class PacketHandler
 {
 public:
-    bool Bind(unsigned short id, std::function<void(std::vector<uint8_t>&)> callback)
+    bool Bind(unsigned short id, PacketFunc callback)
     {
         if (packet_handler_.contains(id))
             return false;
@@ -20,5 +23,5 @@ public:
     }
 
 private:
-    std::unordered_map<unsigned short, std::function<void(std::vector<uint8_t>&)>> packet_handler_;
+    std::unordered_map<unsigned short, PacketFunc> packet_handler_;
 };

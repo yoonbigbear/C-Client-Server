@@ -19,7 +19,6 @@
 #ifndef DETOURCOMMON_H
 #define DETOURCOMMON_H
 
-#include "DetourStatus.h"
 #include "DetourMath.h"
 #include <stddef.h>
 

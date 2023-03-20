@@ -10,37 +10,52 @@ enum class PacketId : int16_t {
   Chat_Req = 0,
   Chat_Resp = 1,
   Chat_Sync = 2,
-  Sight_Sync = 3,
-  Move_Sync = 4,
+  EnterSync = 3,
+  LeaveSync = 4,
+  Move_Req = 5,
+  Move_Resp = 6,
+  Move_Sync = 7,
+  EnterWorld_Req = 8,
+  EnterWorld_Resp = 9,
   MIN = Chat_Req,
-  MAX = Move_Sync
+  MAX = EnterWorld_Resp
 };
 
-inline const PacketId (&EnumValuesPacketId())[5] {
+inline const PacketId (&EnumValuesPacketId())[10] {
   static const PacketId values[] = {
     PacketId::Chat_Req,
     PacketId::Chat_Resp,
     PacketId::Chat_Sync,
-    PacketId::Sight_Sync,
-    PacketId::Move_Sync
+    PacketId::EnterSync,
+    PacketId::LeaveSync,
+    PacketId::Move_Req,
+    PacketId::Move_Resp,
+    PacketId::Move_Sync,
+    PacketId::EnterWorld_Req,
+    PacketId::EnterWorld_Resp
   };
   return values;
 }
 
 inline const char * const *EnumNamesPacketId() {
-  static const char * const names[6] = {
+  static const char * const names[11] = {
     "Chat_Req",
     "Chat_Resp",
     "Chat_Sync",
-    "Sight_Sync",
+    "EnterSync",
+    "LeaveSync",
+    "Move_Req",
+    "Move_Resp",
     "Move_Sync",
+    "EnterWorld_Req",
+    "EnterWorld_Resp",
     nullptr
   };
   return names;
 }
 
 inline const char *EnumNamePacketId(PacketId e) {
-  if (flatbuffers::IsOutRange(e, PacketId::Chat_Req, PacketId::Move_Sync)) return "";
+  if (flatbuffers::IsOutRange(e, PacketId::Chat_Req, PacketId::EnterWorld_Resp)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesPacketId()[index];
 }

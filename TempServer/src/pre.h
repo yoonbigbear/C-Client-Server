@@ -31,7 +31,6 @@
 #define  ASSERT_RETURN(expr, ret) if(expr){ LOG_ERROR(#expr); return ret;};
 #define  ASSERT_ERROR(expr) if(expr) { LOG_ERROR(#expr);};
 
-
 //// "Protocol_"À» »« ÆÐÅ¶id
 //#define BUILD_PACKET(protocol, ...)   \
 //net::Message<Protocol, flatbuffers::FlatBufferBuilder> pkt; \

@@ -1,7 +1,10 @@
 #pragma once
 
+#define _CLIENT
 #define _ASIO
 #define _BOX2D
+
+#pragma comment(lib, "BBEnginePrototype.lib")
 
 #include <iostream>
 #include <vector>

@@ -3,6 +3,10 @@
 #include "pre.h"
 #include "box2d/b2_dynamic_tree.h"
 
+#include <share/detour/DetourNavMesh.h>
+
+#define ENTITYDATA(proxy) EntityData* entitydata = reinterpret_cast<EntityData*>(proxy);
+
 class BroadPhaseBox
 {
 public:
@@ -18,10 +22,10 @@ class Field
 {
 public:
     void Initialize(const AABB2& boundary);
-    bool Spawn(const vec2& pos, const AABB2& box, 
+    bool Spawn(const Vec& pos, const AABB2& box,
         void* entity_data, int32_t& out_proxy);
 
-    Vector<void*> Query(const vec2& pos, float range);
+    Vector<void*> Query(const Vec& pos, float range);
 
 private:
 
@@ -30,7 +34,7 @@ private:
         return boundary_.Contains(box);
     }
 
-    bool Contains(const vec2& pos)
+    bool Contains(const Vec& pos)
     {
         //navigation
         return true;

@@ -1,15 +1,41 @@
 
 include "common.fbs";
 
-table SightSync
+table EnterSync
 {
-	entities : [EntityInfo];
+	enter_entity : EntityInfo;
+}
+
+table LeaveSync
+{
+	leave_entity : uint;
+}
+
+table MoveReq
+{
+	dest : fbVec;
+	eid : uint;	
+}
+
+table MoveResp
+{
+	error_code : ErrorCode = 0;
 }
 
 table MoveSync
 {
-	dest : Vec3;
-	dir  : Vec3;
+	dest : fbVec;
 	spd	: float;
 	eid : uint;
+}
+
+table EnterWorldReq
+{
+	eid : uint;
+}
+
+table EnterWorldResp
+{
+	entity : EntityInfo;
+	sight_entities : [EntityInfo];
 }

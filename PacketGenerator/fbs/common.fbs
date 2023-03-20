@@ -6,7 +6,16 @@ enum EntityFlag : byte
 	Resource,
 }
 
-struct Vec3
+enum ErrorCode : ushort
+{
+	None = 0,
+	PacketError,
+	InValidSession,
+	InValidPos = 101,
+	
+}
+
+struct fbVec
 {
 	x : float;
 	y : float;
@@ -15,8 +24,10 @@ struct Vec3
 
 struct EntityInfo
 {
-	pos : Vec3;
-	flag : EntityFlag;
+	pos : fbVec;
 	table_id : uint;
 	entity_id : uint;
+	angle : short;
+	flag : EntityFlag;	
+	
 }

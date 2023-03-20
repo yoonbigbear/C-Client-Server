@@ -1,41 +1,59 @@
 #pragma once
 
-#include <entt/entt.hpp>
 #include "components.h"
+
+#include "world/world.h"
 
 #include "fbb/world_generated.h"
 #include "fbb/chat_generated.h"
 #include "fbb/packets_generated.h"
 
-static void ChatREQ(std::vector<uint8_t>& data)
+static void ChatREQ(void* session, std::vector<uint8_t>& data)
 {
     auto req = flatbuffers::GetRoot<ChatReq>(data.data());
     printf(req->chat()->c_str());
+    LOG_INFO("[SERVER] recev ChatREQ : ");
+}
+static void MoveREQ(void* session, std::vector<uint8_t>& data)
+{
+    auto req = flatbuffers::GetRoot<MoveReq>(data.data());
+    auto pack = req->UnPack();
+
+    flatbuffers::FlatBufferBuilder fbb(64);
+    MoveRespT resp;
+
+    //move
+    if (auto ptr = reinterpret_cast<ClientSession*>(session); ptr)
+    {
+        LOG_INFO("[SERVER] recv Move Request: ");
+
+        if (auto world = ptr->world().lock(); world)
+        {
+            if (!world->HandleMove(pack->eid, VecTo<fbVec, Vec>(*pack->dest)))
+                resp.error_code = ErrorCode::InValidPos;
+        }
+        else
+        {
+            resp.error_code = ErrorCode::InValidSession;
+        }
+
+        //respond
+        fbb.Finish(MoveResp::Pack(fbb, &resp));
+        ptr->Send((uint16_t)PacketId::Move_Resp, fbb.GetSize(), fbb.GetBufferPointer());
+    }
 }
 
-static void BroadcastSightSync(const entt::registry& registry,
-    const Vector<void*>& entities,
-    Weak<ClientSession> session, uint32_t except)
-{
-    flatbuffers::FlatBufferBuilder fbb(256);
-    SightSyncT sync;
-    for (auto target : entities)
-    {
-        EntityData* data = (EntityData*)target;
-        if (data->eid != except)
-        {
-            auto tf = registry.get<const PositionComponent>((entt::entity)data->eid);
-            sync.entities.emplace_back(EntityInfo{
-                VecToXYZ<Vec3>(tf.v),
-                data->flag,
-                data->tid,
-                data->eid });
-        }
-    }
-    fbb.Finish(SightSync::Pack(fbb, &sync));
 
+static void EnterWorldResp(Weak<ClientSession> session, Unique<EntityInfo> info)
+{
+    flatbuffers::FlatBufferBuilder fbb(64);
+    EnterWorldRespT resp;
+    resp.entity = std::move(info);
+    fbb.Finish(EnterWorldResp::Pack(fbb, &resp));
     if (auto ptr = session.lock(); ptr)
-        ptr->Send((uint16_t)PacketId::Sight_Sync, fbb.GetSize(), fbb.GetBufferPointer());
+        ptr->Send((uint16_t)PacketId::EnterWorld_Resp, fbb.GetSize(), fbb.GetBufferPointer());
+
+    LOG_INFO("[SERVER] send EnterWorldResp: ");
 }
 
 static std::vector<uint8_t> BroadcastChat(const std::string& str)
@@ -54,15 +72,14 @@ static std::vector<uint8_t> BroadcastChat(const std::string& str)
     return data;
 }
 
-static void SyncMove(const MoveComponent& mover,
+static void SyncMove(const Mover& mover,
     Weak<ClientSession> session,
     uint32_t eid)
 {
     flatbuffers::FlatBufferBuilder fbb(256);
     MoveSyncT sync;
-    sync.dest = std::make_unique<Vec3>(VecToXYZ<Vec3>(mover.dest));
+    sync.dest = VecToUnique<fbVec>(mover.dest);
     sync.spd = mover.speed;
-    sync.dir = std::make_unique<Vec3>(VecToXYZ<Vec3>(mover.dir));
     sync.eid = eid;
     fbb.Finish(MoveSync::Pack(fbb, &sync));
     if (auto ptr = session.lock(); ptr)

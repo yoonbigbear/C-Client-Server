@@ -1,5 +1,7 @@
 #include "scene.h"
 
+#include "ecs/systems.h"
+
 void Scene::Initialize(const char* filepath)
 {
     nav_mesh_.Initialize(filepath);
@@ -18,74 +20,178 @@ void Scene::Initialize(const char* filepath)
         //}
     //};
 
-    //아마 멀티쓰레드 상황에서 registry가 우선 완전히 생성되어야 하는 포인트가 있는듯?
-    //우선 임시로 Init 부분에서 registry를 생성해주도록 작업.
-    auto group = registry_.group<>(entt::get<const Transform, const CylinderData>);
+    if (!entt::locator<Scene>::has_value())
+    {
+        entt::locator<Scene>::emplace();
+    }
 }
 
 void Scene::Draw()
 {
-    nav_mesh_.Render();
+    nav_mesh_.Render(&dd_);
 
+    //draw objects
     {
-        auto group = registry_.group<>(entt::get<const Transform, const CylinderData>);
-        for (auto [entity, tf, cylinder] : group.each())
+        auto vw = view<const Transform, const CylinderData>();
+        for (auto [entity, tf, cylinder] : vw.each())
         {
-            Draw::Cylinder(&tf.v.v3.x, cylinder.radius, cylinder.height, cylinder.max_climb, startCol);
+            float dtpos[3] = { tf.v.v3.x, tf.v.v3.z, tf.v.v3.y };
+            Draw::Cylinder(dtpos, cylinder.radius, cylinder.height, cylinder.max_climb, startCol);
         }
     }
+
+    //draw path lines
+    /*{
+        auto vw = view<const Transform, const PathList>();
+        for (auto [entity, tf, path] : vw.each())
+        {
+
+            Draw::Line(&tf.v.v3.x, 2.0, startCol);
+            for (auto e : path.paths)
+            {
+                Draw::Line(&path.paths.front().v3.x, 2.0, startCol);
+            }
+        }
+    }*/
+
 }
 
 void Scene::Update(float dt)
 {
-    if (auto queue = ReleaseCommandQueue(); !queue.empty())
+    ReleaseCommandQueue();
+
+    MoveAlongPath(shared(), dt);
+}
+
+void Scene::Enter(const EntityInfo* info)
+{
+    ENTITY(info->entity_id());
+    auto eid = create(entity);
+    if (valid(eid))
     {
-        for (auto& invoke : queue)
-        {
-            invoke();
-        }
+        auto& tf = emplace<Transform>(eid);
+        memcpy(&tf.v.v3, &info->pos(), sizeof(Vec));
+        tf.angle = info->angle();
+
+        auto& cylinder = emplace<CylinderData>(eid);
+        cylinder.height = 2.f;
+        cylinder.radius = 0.6f;
+
+        if (info->flag() == EntityFlag::Player)
+            auto& player = emplace<MyPlayer>(eid);
     }
+}
 
-    //move
+void Scene::Enter(const Vector<EntityInfo>& info)
+{
+    for (auto& e : info)
     {
-        auto view = registry_.view<Transform, MoveInfo>();
-        for (auto [entity, tf, mover] : view.each())
-        {
-            auto dist = mover.dest.v2 - tf.v.v2;
-            auto len_sqr = dist.LengthSquared();
-            auto move_sqr = dt * mover.speed * mover.dir.v2;
+        auto entity = create((entt::entity)e.entity_id());
 
-            if (len_sqr < b2Dot(move_sqr,move_sqr))
-            {
-                tf.v = mover.dest;
-            }
-            else
-            {
-                auto mv = dt * mover.speed * dist;
-                tf.v.v2 += move_sqr;
-            }
+        if (valid(entity))
+        {
+            auto& tf = emplace<Transform>(entity);
+            memcpy(&tf.v.v3, &e.pos(), sizeof(Vec));
+            tf.angle = e.angle();
+
+            auto& cylinder = emplace<CylinderData>(entity);
+            cylinder.height = 2.f;
+            cylinder.radius = 0.6f;
         }
     }
 }
 
-void Scene::Enter(const EntityInfo& info)
+void Scene::Leave(uint32_t eid)
 {
-    auto entity = registry_.create();
-
-    auto& tf = registry_.emplace<Transform>(entity);
-    auto& cylinder = registry_.emplace<CylinderData>(entity);
-    memcpy(&tf.v.v3, &info.pos(), sizeof(Vec3));
-
-    cylinder.height = 2.f;
-    cylinder.radius = 0.6f;
+    ENTITY(eid);
+    if (valid(entity))
+    {
+        destroy(entity);
+    }
 }
 
-void Scene::Move(uint32_t entity, const vec& dest, const vec& dir, float spd)
+void Scene::Leave(const Vector<uint32_t>& info)
 {
-    auto& mover = registry_.emplace_or_replace<MoveInfo>((entt::entity)entity);
-    mover.dir = dir;
-    mover.dest = dest;
-    mover.speed = spd;
+    for (auto& e : info)
+    {
+        ENTITY(e);
+        if (valid(entity))
+        {
+            destroy(entity);
+        }
+    }
+}
+
+bool Scene::MoveRequest(Vec& start, Vec& end)
+{
+    auto player = view<MyPlayer>();
+    for (auto [entity, myplayer] : player.each())
+    {
+        float t;
+        if (nav_mesh_.ScreenRay(&start.v3.x, &end.v3.x, t))
+        {
+            auto tf = try_get<Transform>(entity);
+            if (tf)
+            {
+                if (t < 1.0f)
+                {
+                    //ray hit.
+                    auto hit_point = t * start.v3;
+
+
+                    List<Vec> path;
+                    if (nav_mesh_.FindPath(tf->v, hit_point, path, dtQueryFilter()))
+                    {
+                        //replace path list if exists
+                        auto& pathlist = emplace_or_replace<PathList>(entity);
+                        std::swap(pathlist.paths, path);
+                    }
+                }
+                else
+                {
+                    //no hit. no path.
+                    LOG_ERR("No hit screen ray");
+                }
+            }
+        }
+        else
+        {
+            //failed raycasting
+            LOG_ERR("Failed screen ray");
+            LOG_INFO("startpoint %f %f %f",
+                start.v3.x, start.v3.y, start.v3.z);
+            LOG_INFO("endpoint %f %f %f",
+                end.v3.x, end.v3.y, end.v3.z);
+        }
+        return true;
+    }
+    LOG_ERR("Not found my player");
+    return false;
+}
+
+void Scene::MoveRequest(uint32_t eid, Vec& end, float spd)
+{
+    ENTITY(eid);
+
+    if (valid(entity))
+    {
+        auto& mover = emplace_or_replace<Mover>(entity);
+        mover.dest = end;
+
+        auto tf = try_get<Transform>(entity);
+        if (tf)
+        {
+            mover.dir = mover.dest.v2 - tf->v.v2;
+            mover.dir.v2.Normalize();
+            mover.speed = spd;
+        }
+
+        if (all_of<MyPlayer>(entity))
+        {
+            auto session = get<MyPlayer>(entity);
+            Move_Req(session.session, mover.dest.v3, eid);
+        }
+    }
 }
 
 void Scene::AddCommandQueue(std::function<void(void)> command)
@@ -96,7 +202,7 @@ void Scene::AddCommandQueue(std::function<void(void)> command)
     }
 }
 
-std::vector<std::function<void(void)>> Scene::ReleaseCommandQueue()
+void Scene::ReleaseCommandQueue()
 {
     std::vector<std::function<void(void)>> commands;
     {
@@ -107,6 +213,10 @@ std::vector<std::function<void(void)>> Scene::ReleaseCommandQueue()
             command_queue_.clear();
         }
     }
-    return commands;
+
+    for (auto& invoke : commands)
+    {
+        invoke();
+    }
 }
 

@@ -1,9 +1,9 @@
 #pragma once
 
 #include "tcp_server.h"
-#include "world/world.h"
 #include "net/client_session.h"
 
+class World;
 class Server : public TcpServer
 {
 public:
@@ -27,7 +27,7 @@ public:
 private:
     std::mutex lock_;
 
-    World world_;
+    Shared<World> world_;
     uint32_t total_sessions_ = 0;
     Vector<Shared<ClientSession>> enter_queue;
 

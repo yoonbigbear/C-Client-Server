@@ -35,7 +35,7 @@ int main()
     LOG_INFO("Server Initialize!!");
     server.Initialize();
 
-    SimulateTimer<20> timer;
+    SimulateTimer<20.0> timer;
     timer.Reset();
     LOG_INFO("Server Start!!");
     while (true)

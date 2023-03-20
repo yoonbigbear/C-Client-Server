@@ -6,7 +6,7 @@
 
 #include "flatbuffers/flatbuffers.h"
 
-struct Vec3;
+struct fbVec;
 
 struct EntityInfo;
 
@@ -43,17 +43,46 @@ inline const char *EnumNameEntityFlag(EntityFlag e) {
   return EnumNamesEntityFlag()[index];
 }
 
-FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(4) Vec3 FLATBUFFERS_FINAL_CLASS {
+enum class ErrorCode : uint16_t {
+  None = 0,
+  PacketError = 1,
+  InValidSession = 2,
+  InValidPos = 101,
+  MIN = None,
+  MAX = InValidPos
+};
+
+inline const ErrorCode (&EnumValuesErrorCode())[4] {
+  static const ErrorCode values[] = {
+    ErrorCode::None,
+    ErrorCode::PacketError,
+    ErrorCode::InValidSession,
+    ErrorCode::InValidPos
+  };
+  return values;
+}
+
+inline const char *EnumNameErrorCode(ErrorCode e) {
+  switch (e) {
+    case ErrorCode::None: return "None";
+    case ErrorCode::PacketError: return "PacketError";
+    case ErrorCode::InValidSession: return "InValidSession";
+    case ErrorCode::InValidPos: return "InValidPos";
+    default: return "";
+  }
+}
+
+FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(4) fbVec FLATBUFFERS_FINAL_CLASS {
  private:
   float x_;
   float y_;
   float z_;
 
  public:
-  Vec3() {
-    memset(static_cast<void *>(this), 0, sizeof(Vec3));
+  fbVec() {
+    memset(static_cast<void *>(this), 0, sizeof(fbVec));
   }
-  Vec3(float _x, float _y, float _z)
+  fbVec(float _x, float _y, float _z)
       : x_(flatbuffers::EndianScalar(_x)),
         y_(flatbuffers::EndianScalar(_y)),
         z_(flatbuffers::EndianScalar(_z)) {
@@ -68,40 +97,44 @@ FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(4) Vec3 FLATBUFFERS_FINAL_CLASS {
     return flatbuffers::EndianScalar(z_);
   }
 };
-FLATBUFFERS_STRUCT_END(Vec3, 12);
+FLATBUFFERS_STRUCT_END(fbVec, 12);
 
 FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(4) EntityInfo FLATBUFFERS_FINAL_CLASS {
  private:
-  Vec3 pos_;
-  int8_t flag_;
-  int8_t padding0__;  int16_t padding1__;
+  fbVec pos_;
   uint32_t table_id_;
   uint32_t entity_id_;
+  int16_t angle_;
+  int8_t flag_;
+  int8_t padding0__;
 
  public:
   EntityInfo() {
     memset(static_cast<void *>(this), 0, sizeof(EntityInfo));
   }
-  EntityInfo(const Vec3 &_pos, EntityFlag _flag, uint32_t _table_id, uint32_t _entity_id)
+  EntityInfo(const fbVec &_pos, uint32_t _table_id, uint32_t _entity_id, int16_t _angle, EntityFlag _flag)
       : pos_(_pos),
-        flag_(flatbuffers::EndianScalar(static_cast<int8_t>(_flag))),
-        padding0__(0),
-        padding1__(0),
         table_id_(flatbuffers::EndianScalar(_table_id)),
-        entity_id_(flatbuffers::EndianScalar(_entity_id)) {
-    (void)padding0__;    (void)padding1__;
+        entity_id_(flatbuffers::EndianScalar(_entity_id)),
+        angle_(flatbuffers::EndianScalar(_angle)),
+        flag_(flatbuffers::EndianScalar(static_cast<int8_t>(_flag))),
+        padding0__(0) {
+    (void)padding0__;
   }
-  const Vec3 &pos() const {
+  const fbVec &pos() const {
     return pos_;
-  }
-  EntityFlag flag() const {
-    return static_cast<EntityFlag>(flatbuffers::EndianScalar(flag_));
   }
   uint32_t table_id() const {
     return flatbuffers::EndianScalar(table_id_);
   }
   uint32_t entity_id() const {
     return flatbuffers::EndianScalar(entity_id_);
+  }
+  int16_t angle() const {
+    return flatbuffers::EndianScalar(angle_);
+  }
+  EntityFlag flag() const {
+    return static_cast<EntityFlag>(flatbuffers::EndianScalar(flag_));
   }
 };
 FLATBUFFERS_STRUCT_END(EntityInfo, 24);

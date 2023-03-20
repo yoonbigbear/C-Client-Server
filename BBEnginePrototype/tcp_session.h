@@ -28,6 +28,12 @@ public:
         }
     }
 
+    bool IsConnected() const
+    {
+        return socket_.is_open();
+    }
+
+protected:
     void Send(char* buf, size_t size)
     {
         Write(buf, size);
@@ -39,13 +45,6 @@ public:
         Write(buf, buf.size());
         //asio::post(io_context_, [&]() {Write(buf, buf.size()); });
     }
-    bool IsConnected() const
-    {
-        return socket_.is_open();
-    }
-
-protected:
-
     void Write(std::vector<uint8_t>& buf, size_t size)
     {
         asio::async_write(socket_, asio::buffer(buf.data(), size),

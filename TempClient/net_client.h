@@ -12,9 +12,10 @@ public:
     virtual void Initialize() override final;
 
     bool Connect(const std::string& host, const uint16_t port);
-    bool Bind(uint16_t id, std::function<void(Vector<uint8_t>&)> fn);
+    bool Bind(uint16_t id, PacketFunc fn);
+    void Send(uint16_t id, uint16_t size, uint8_t* buf);
     void ReadPackets();
-    
+
 private:
     void ConnectToServer(const asio::ip::tcp::resolver::results_type& endpoints);
 

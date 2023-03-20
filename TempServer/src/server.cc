@@ -1,10 +1,12 @@
 #include "server.h"
 
 #include "logger.h"
+#include "world/world.h"
 
 bool Server::Initialize()
 {
-    world_.Initialize();
+    world_ = std::make_shared<World>();
+    world_->Initialize();
 
     TcpServer::Initialize();
 
@@ -40,7 +42,7 @@ void Server::Update(float dt)
 {
     EnterWorld();
 
-    world_.Update(dt);
+    world_->Update(dt);
 }
 
 void Server::EnterQueue(Shared<ClientSession> session)
@@ -54,7 +56,7 @@ void Server::EnterWorld()
     auto lg = std::lock_guard(lock_);
     for (auto& e : enter_queue)
     {
-        world_.Enter(e);
+        world_->Enter(e);
     }
     enter_queue.clear();
 }

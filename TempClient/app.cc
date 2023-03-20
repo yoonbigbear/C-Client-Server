@@ -50,14 +50,11 @@ void App::Initialize()
 
 void App::Run()
 {
-    /*
-    * SceneManager 스레드 동기화 필요
-    */
-    
     //Simulation Thread
     simulation_thread_ = std::async(std::launch::async, [this] {
-    SimulateTimer<30> timer;
+    SimulateTimer<30.0> timer;
     timer.Reset();
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
     while (true)
     {
         timer.Frame();
@@ -79,7 +76,7 @@ void App::Run()
 
     // Main Thread
     SDL_Event event;
-    RenderTimer<60> timer;
+    RenderTimer<60.0> timer;
     timer.Reset();
     while (true)
     {
@@ -96,8 +93,25 @@ void App::Run()
         graphics_.BeginScene();
         {
             graphics_.Input(&event);
+            
+            //temp
+            {
+               /* float t = 1.0f;
+                SceneManager::instance().current_scene()->navmesh().ScreenRay(
+                    graphics_.camera().ray_start, graphics_.camera().ray_end, t);
+
+                if (t < 1.0f)
+                {
+                    float pos[3]{
+                        graphics_.camera().ray_start[0] * t,
+                    graphics_.camera().ray_start[1] * t,
+                    graphics_.camera().ray_start[2] * t };
+                    Draw::Cylinder(pos, 1, 2, 1, startCol);
+                }*/
+            }
 
             auto scenes = SceneManager::instance().container();
+
             for (auto& [key, val] : scenes)
             {
                 val->Draw();

@@ -1,9 +1,8 @@
 #pragma once
+#include "share/detour/DebugDraw.h"
 
 #include "bb_util.h"
 #include "SDL_opengl.h"
-#include "level/detour/DebugDraw.h"
-
 
 enum SamplePolyAreas
 {
@@ -163,4 +162,16 @@ public:
 
 		dd.depthMask(true);
     }
+	static void Line(const float* a, float lineWidth, const unsigned int col)
+	{
+		DebugDrawGLBB dd;
+		dd.depthMask(false);
+		dd.begin(DU_DRAW_LINES, lineWidth);
+
+		dd.vertex(a[0], a[1], a[2], col);
+		//dd.vertex(b[0], b[1], b[2], col);
+
+		dd.end();
+		dd.depthMask(true);
+	}
 };

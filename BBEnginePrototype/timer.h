@@ -5,7 +5,7 @@
 
 auto now() { return std::chrono::steady_clock::now().time_since_epoch(); }
 
-template <size_t _Fps>
+template <double _Fps>
 class RenderTimer
 {
 public:
@@ -30,11 +30,11 @@ public:
     }
 
 private:
-    const float FRAMERATE = 1 / _Fps;
+    const double FRAMERATE = 1 / _Fps;
     uint32_t previous;
 };
 
-template <size_t _Fps>
+template <double _Fps>
 class SimulateTimer
 {
 public:
@@ -63,9 +63,8 @@ public:
     }
 
 public:
-    const double FRAMERATE = 1 / _Fps;
     double time_acc = 0.0;
-
+    const double FRAMERATE = 1 / _Fps;
 private:
     uint64_t previous;
 };

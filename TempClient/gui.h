@@ -1,5 +1,8 @@
 #pragma once
 
+#include "pre.h"
+#include <format>
+
 #include "imgui.h"
 #include "singleton.h"
 
@@ -8,10 +11,21 @@
 #include "widget/log_widget.h"
 #include "widget/console_widget.h"
 
+#define LOG_INFO(Log, ...) Gui::instance().log.AddLog(std::format(\
+"[info] {} \n", std::format(Log, ##__VA_ARGS__)).c_str());
+#define LOG_WARN(Log, ...) Gui::instance().log.AddLog(std::format(\
+"[warn] {} \n", std::format(Log, ##__VA_ARGS__)).c_str());
+#define LOG_ERR(Log, ...) Gui::instance().log.AddLog(std::format(\
+"[error] {} \n", std::format(Log, ##__VA_ARGS__)).c_str());
+
+#define CHAT_LOG(Log, ...) Gui::instance().console.AddLog(std::format(\
+" {} \n", ##__VA_ARGS__).c_str());
 
 class Gui : public Singleton<Gui>
 {
 public:
+    void Initialize();
+
     static void GuiList()
     {
         ImGui::ShowDemoWindow();

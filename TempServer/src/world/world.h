@@ -6,11 +6,13 @@
 
 #include "net/client_session.h"
 #include "packet_handler.h"
-#include "field.h"
 
-
-class World
+class Field;
+class Navigation;
+class World : public entt::registry, public std::enable_shared_from_this<World>
 {
+    auto shared() { return shared_from_this(); }
+
 public:
     void Initialize();
     void Enter(Shared<ClientSession> session);
@@ -21,7 +23,27 @@ public:
 
     void Broadcast(Vector<uint8_t>&& data);
 
+public:
+    void Create() noexcept
+    {
+        if (!entt::locator<World>::has_value())
+        {
+            entt::locator<World>::emplace();
+        }
+    }
+    [[nodiscard]] static World& Get() noexcept
+    {
+        return entt::locator<World>::value();
+    }
+
+public:
+    bool HandleMove(uint32_t eid, const Vec& dest);
+
+public:
+    Weak<Field> field() { return field_; }
+    Weak<Navigation> navigation() { return navigation_; }
+
 private:
-    entt::registry registry_;
-    Field field_;
+    Shared<Field> field_;
+    Shared<Navigation> navigation_;
 };

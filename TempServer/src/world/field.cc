@@ -5,7 +5,7 @@ void Field::Initialize(const AABB2& bound)
     boundary_ = bound;
 }
 
-bool Field::Spawn(const vec2& pos, const AABB2& box, void* entity_data,
+bool Field::Spawn(const Vec& pos, const AABB2& box, void* entity_data,
     int32_t& out_proxy)
 {
     if (Contains(box) && Contains(pos))
@@ -16,14 +16,14 @@ bool Field::Spawn(const vec2& pos, const AABB2& box, void* entity_data,
     return false;
 }
 
-Vector<void*> Field::Query(const vec2& pos, float range)
+Vector<void*> Field::Query(const Vec& pos, float range)
 {
     auto sight_half = range * 0.5f;
     auto sight = AABB2();
-    sight.lowerBound.x = pos.x - sight_half;
-    sight.lowerBound.y = pos.y - sight_half;
-    sight.upperBound.x = pos.x + sight_half;
-    sight.upperBound.y = pos.y + sight_half;
+    sight.lowerBound.x = pos.v2.x - sight_half;
+    sight.lowerBound.y = pos.v2.y - sight_half;
+    sight.upperBound.x = pos.v2.x + sight_half;
+    sight.upperBound.y = pos.v2.y + sight_half;
 
     BroadPhaseBox collisions;
     broad_phase_.Query<BroadPhaseBox>(&collisions, sight);

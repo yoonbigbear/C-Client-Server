@@ -20,6 +20,6 @@ private:
     asio::io_context io_context_;
     std::future<void> io_thread_;
     Shared<NetClient> net_;
-    //thread unsafe
+
     std::future<void> simulation_thread_;
 };

@@ -8,83 +8,271 @@
 
 #include "common_generated.h"
 
-struct SightSync;
-struct SightSyncBuilder;
-struct SightSyncT;
+struct EnterSync;
+struct EnterSyncBuilder;
+struct EnterSyncT;
+
+struct LeaveSync;
+struct LeaveSyncBuilder;
+struct LeaveSyncT;
+
+struct MoveReq;
+struct MoveReqBuilder;
+struct MoveReqT;
+
+struct MoveResp;
+struct MoveRespBuilder;
+struct MoveRespT;
 
 struct MoveSync;
 struct MoveSyncBuilder;
 struct MoveSyncT;
 
-struct SightSyncT : public flatbuffers::NativeTable {
-  typedef SightSync TableType;
-  std::vector<EntityInfo> entities;
-  SightSyncT() {
+struct EnterWorldReq;
+struct EnterWorldReqBuilder;
+struct EnterWorldReqT;
+
+struct EnterWorldResp;
+struct EnterWorldRespBuilder;
+struct EnterWorldRespT;
+
+struct EnterSyncT : public flatbuffers::NativeTable {
+  typedef EnterSync TableType;
+  std::unique_ptr<EntityInfo> enter_entity;
+  EnterSyncT() {
   }
 };
 
-struct SightSync FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
-  typedef SightSyncT NativeTableType;
-  typedef SightSyncBuilder Builder;
+struct EnterSync FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef EnterSyncT NativeTableType;
+  typedef EnterSyncBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_ENTITIES = 4
+    VT_ENTER_ENTITY = 4
   };
-  const flatbuffers::Vector<const EntityInfo *> *entities() const {
-    return GetPointer<const flatbuffers::Vector<const EntityInfo *> *>(VT_ENTITIES);
+  const EntityInfo *enter_entity() const {
+    return GetStruct<const EntityInfo *>(VT_ENTER_ENTITY);
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyOffset(verifier, VT_ENTITIES) &&
-           verifier.VerifyVector(entities()) &&
+           VerifyField<EntityInfo>(verifier, VT_ENTER_ENTITY) &&
            verifier.EndTable();
   }
-  SightSyncT *UnPack(const flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  void UnPackTo(SightSyncT *_o, const flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  static flatbuffers::Offset<SightSync> Pack(flatbuffers::FlatBufferBuilder &_fbb, const SightSyncT* _o, const flatbuffers::rehasher_function_t *_rehasher = nullptr);
+  EnterSyncT *UnPack(const flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(EnterSyncT *_o, const flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static flatbuffers::Offset<EnterSync> Pack(flatbuffers::FlatBufferBuilder &_fbb, const EnterSyncT* _o, const flatbuffers::rehasher_function_t *_rehasher = nullptr);
 };
 
-struct SightSyncBuilder {
-  typedef SightSync Table;
+struct EnterSyncBuilder {
+  typedef EnterSync Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
-  void add_entities(flatbuffers::Offset<flatbuffers::Vector<const EntityInfo *>> entities) {
-    fbb_.AddOffset(SightSync::VT_ENTITIES, entities);
+  void add_enter_entity(const EntityInfo *enter_entity) {
+    fbb_.AddStruct(EnterSync::VT_ENTER_ENTITY, enter_entity);
   }
-  explicit SightSyncBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+  explicit EnterSyncBuilder(flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  SightSyncBuilder &operator=(const SightSyncBuilder &);
-  flatbuffers::Offset<SightSync> Finish() {
+  EnterSyncBuilder &operator=(const EnterSyncBuilder &);
+  flatbuffers::Offset<EnterSync> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = flatbuffers::Offset<SightSync>(end);
+    auto o = flatbuffers::Offset<EnterSync>(end);
     return o;
   }
 };
 
-inline flatbuffers::Offset<SightSync> CreateSightSync(
+inline flatbuffers::Offset<EnterSync> CreateEnterSync(
     flatbuffers::FlatBufferBuilder &_fbb,
-    flatbuffers::Offset<flatbuffers::Vector<const EntityInfo *>> entities = 0) {
-  SightSyncBuilder builder_(_fbb);
-  builder_.add_entities(entities);
+    const EntityInfo *enter_entity = 0) {
+  EnterSyncBuilder builder_(_fbb);
+  builder_.add_enter_entity(enter_entity);
   return builder_.Finish();
 }
 
-inline flatbuffers::Offset<SightSync> CreateSightSyncDirect(
+flatbuffers::Offset<EnterSync> CreateEnterSync(flatbuffers::FlatBufferBuilder &_fbb, const EnterSyncT *_o, const flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct LeaveSyncT : public flatbuffers::NativeTable {
+  typedef LeaveSync TableType;
+  uint32_t leave_entity;
+  LeaveSyncT()
+      : leave_entity(0) {
+  }
+};
+
+struct LeaveSync FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef LeaveSyncT NativeTableType;
+  typedef LeaveSyncBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_LEAVE_ENTITY = 4
+  };
+  uint32_t leave_entity() const {
+    return GetField<uint32_t>(VT_LEAVE_ENTITY, 0);
+  }
+  bool Verify(flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint32_t>(verifier, VT_LEAVE_ENTITY) &&
+           verifier.EndTable();
+  }
+  LeaveSyncT *UnPack(const flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(LeaveSyncT *_o, const flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static flatbuffers::Offset<LeaveSync> Pack(flatbuffers::FlatBufferBuilder &_fbb, const LeaveSyncT* _o, const flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct LeaveSyncBuilder {
+  typedef LeaveSync Table;
+  flatbuffers::FlatBufferBuilder &fbb_;
+  flatbuffers::uoffset_t start_;
+  void add_leave_entity(uint32_t leave_entity) {
+    fbb_.AddElement<uint32_t>(LeaveSync::VT_LEAVE_ENTITY, leave_entity, 0);
+  }
+  explicit LeaveSyncBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  LeaveSyncBuilder &operator=(const LeaveSyncBuilder &);
+  flatbuffers::Offset<LeaveSync> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = flatbuffers::Offset<LeaveSync>(end);
+    return o;
+  }
+};
+
+inline flatbuffers::Offset<LeaveSync> CreateLeaveSync(
     flatbuffers::FlatBufferBuilder &_fbb,
-    const std::vector<EntityInfo> *entities = nullptr) {
-  auto entities__ = entities ? _fbb.CreateVectorOfStructs<EntityInfo>(*entities) : 0;
-  return CreateSightSync(
-      _fbb,
-      entities__);
+    uint32_t leave_entity = 0) {
+  LeaveSyncBuilder builder_(_fbb);
+  builder_.add_leave_entity(leave_entity);
+  return builder_.Finish();
 }
 
-flatbuffers::Offset<SightSync> CreateSightSync(flatbuffers::FlatBufferBuilder &_fbb, const SightSyncT *_o, const flatbuffers::rehasher_function_t *_rehasher = nullptr);
+flatbuffers::Offset<LeaveSync> CreateLeaveSync(flatbuffers::FlatBufferBuilder &_fbb, const LeaveSyncT *_o, const flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct MoveReqT : public flatbuffers::NativeTable {
+  typedef MoveReq TableType;
+  std::unique_ptr<fbVec> dest;
+  uint32_t eid;
+  MoveReqT()
+      : eid(0) {
+  }
+};
+
+struct MoveReq FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef MoveReqT NativeTableType;
+  typedef MoveReqBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_DEST = 4,
+    VT_EID = 6
+  };
+  const fbVec *dest() const {
+    return GetStruct<const fbVec *>(VT_DEST);
+  }
+  uint32_t eid() const {
+    return GetField<uint32_t>(VT_EID, 0);
+  }
+  bool Verify(flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<fbVec>(verifier, VT_DEST) &&
+           VerifyField<uint32_t>(verifier, VT_EID) &&
+           verifier.EndTable();
+  }
+  MoveReqT *UnPack(const flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(MoveReqT *_o, const flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static flatbuffers::Offset<MoveReq> Pack(flatbuffers::FlatBufferBuilder &_fbb, const MoveReqT* _o, const flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct MoveReqBuilder {
+  typedef MoveReq Table;
+  flatbuffers::FlatBufferBuilder &fbb_;
+  flatbuffers::uoffset_t start_;
+  void add_dest(const fbVec *dest) {
+    fbb_.AddStruct(MoveReq::VT_DEST, dest);
+  }
+  void add_eid(uint32_t eid) {
+    fbb_.AddElement<uint32_t>(MoveReq::VT_EID, eid, 0);
+  }
+  explicit MoveReqBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  MoveReqBuilder &operator=(const MoveReqBuilder &);
+  flatbuffers::Offset<MoveReq> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = flatbuffers::Offset<MoveReq>(end);
+    return o;
+  }
+};
+
+inline flatbuffers::Offset<MoveReq> CreateMoveReq(
+    flatbuffers::FlatBufferBuilder &_fbb,
+    const fbVec *dest = 0,
+    uint32_t eid = 0) {
+  MoveReqBuilder builder_(_fbb);
+  builder_.add_eid(eid);
+  builder_.add_dest(dest);
+  return builder_.Finish();
+}
+
+flatbuffers::Offset<MoveReq> CreateMoveReq(flatbuffers::FlatBufferBuilder &_fbb, const MoveReqT *_o, const flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct MoveRespT : public flatbuffers::NativeTable {
+  typedef MoveResp TableType;
+  ErrorCode error_code;
+  MoveRespT()
+      : error_code(ErrorCode::None) {
+  }
+};
+
+struct MoveResp FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef MoveRespT NativeTableType;
+  typedef MoveRespBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_ERROR_CODE = 4
+  };
+  ErrorCode error_code() const {
+    return static_cast<ErrorCode>(GetField<uint16_t>(VT_ERROR_CODE, 0));
+  }
+  bool Verify(flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint16_t>(verifier, VT_ERROR_CODE) &&
+           verifier.EndTable();
+  }
+  MoveRespT *UnPack(const flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(MoveRespT *_o, const flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static flatbuffers::Offset<MoveResp> Pack(flatbuffers::FlatBufferBuilder &_fbb, const MoveRespT* _o, const flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct MoveRespBuilder {
+  typedef MoveResp Table;
+  flatbuffers::FlatBufferBuilder &fbb_;
+  flatbuffers::uoffset_t start_;
+  void add_error_code(ErrorCode error_code) {
+    fbb_.AddElement<uint16_t>(MoveResp::VT_ERROR_CODE, static_cast<uint16_t>(error_code), 0);
+  }
+  explicit MoveRespBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  MoveRespBuilder &operator=(const MoveRespBuilder &);
+  flatbuffers::Offset<MoveResp> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = flatbuffers::Offset<MoveResp>(end);
+    return o;
+  }
+};
+
+inline flatbuffers::Offset<MoveResp> CreateMoveResp(
+    flatbuffers::FlatBufferBuilder &_fbb,
+    ErrorCode error_code = ErrorCode::None) {
+  MoveRespBuilder builder_(_fbb);
+  builder_.add_error_code(error_code);
+  return builder_.Finish();
+}
+
+flatbuffers::Offset<MoveResp> CreateMoveResp(flatbuffers::FlatBufferBuilder &_fbb, const MoveRespT *_o, const flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
 struct MoveSyncT : public flatbuffers::NativeTable {
   typedef MoveSync TableType;
-  std::unique_ptr<Vec3> dest;
-  std::unique_ptr<Vec3> dir;
+  std::unique_ptr<fbVec> dest;
   float spd;
   uint32_t eid;
   MoveSyncT()
@@ -98,15 +286,11 @@ struct MoveSync FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   typedef MoveSyncBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_DEST = 4,
-    VT_DIR = 6,
-    VT_SPD = 8,
-    VT_EID = 10
+    VT_SPD = 6,
+    VT_EID = 8
   };
-  const Vec3 *dest() const {
-    return GetStruct<const Vec3 *>(VT_DEST);
-  }
-  const Vec3 *dir() const {
-    return GetStruct<const Vec3 *>(VT_DIR);
+  const fbVec *dest() const {
+    return GetStruct<const fbVec *>(VT_DEST);
   }
   float spd() const {
     return GetField<float>(VT_SPD, 0.0f);
@@ -116,8 +300,7 @@ struct MoveSync FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyField<Vec3>(verifier, VT_DEST) &&
-           VerifyField<Vec3>(verifier, VT_DIR) &&
+           VerifyField<fbVec>(verifier, VT_DEST) &&
            VerifyField<float>(verifier, VT_SPD) &&
            VerifyField<uint32_t>(verifier, VT_EID) &&
            verifier.EndTable();
@@ -131,11 +314,8 @@ struct MoveSyncBuilder {
   typedef MoveSync Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
-  void add_dest(const Vec3 *dest) {
+  void add_dest(const fbVec *dest) {
     fbb_.AddStruct(MoveSync::VT_DEST, dest);
-  }
-  void add_dir(const Vec3 *dir) {
-    fbb_.AddStruct(MoveSync::VT_DIR, dir);
   }
   void add_spd(float spd) {
     fbb_.AddElement<float>(MoveSync::VT_SPD, spd, 0.0f);
@@ -157,44 +337,257 @@ struct MoveSyncBuilder {
 
 inline flatbuffers::Offset<MoveSync> CreateMoveSync(
     flatbuffers::FlatBufferBuilder &_fbb,
-    const Vec3 *dest = 0,
-    const Vec3 *dir = 0,
+    const fbVec *dest = 0,
     float spd = 0.0f,
     uint32_t eid = 0) {
   MoveSyncBuilder builder_(_fbb);
   builder_.add_eid(eid);
   builder_.add_spd(spd);
-  builder_.add_dir(dir);
   builder_.add_dest(dest);
   return builder_.Finish();
 }
 
 flatbuffers::Offset<MoveSync> CreateMoveSync(flatbuffers::FlatBufferBuilder &_fbb, const MoveSyncT *_o, const flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
-inline SightSyncT *SightSync::UnPack(const flatbuffers::resolver_function_t *_resolver) const {
-  std::unique_ptr<SightSyncT> _o = std::unique_ptr<SightSyncT>(new SightSyncT());
+struct EnterWorldReqT : public flatbuffers::NativeTable {
+  typedef EnterWorldReq TableType;
+  uint32_t eid;
+  EnterWorldReqT()
+      : eid(0) {
+  }
+};
+
+struct EnterWorldReq FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef EnterWorldReqT NativeTableType;
+  typedef EnterWorldReqBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_EID = 4
+  };
+  uint32_t eid() const {
+    return GetField<uint32_t>(VT_EID, 0);
+  }
+  bool Verify(flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint32_t>(verifier, VT_EID) &&
+           verifier.EndTable();
+  }
+  EnterWorldReqT *UnPack(const flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(EnterWorldReqT *_o, const flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static flatbuffers::Offset<EnterWorldReq> Pack(flatbuffers::FlatBufferBuilder &_fbb, const EnterWorldReqT* _o, const flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct EnterWorldReqBuilder {
+  typedef EnterWorldReq Table;
+  flatbuffers::FlatBufferBuilder &fbb_;
+  flatbuffers::uoffset_t start_;
+  void add_eid(uint32_t eid) {
+    fbb_.AddElement<uint32_t>(EnterWorldReq::VT_EID, eid, 0);
+  }
+  explicit EnterWorldReqBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  EnterWorldReqBuilder &operator=(const EnterWorldReqBuilder &);
+  flatbuffers::Offset<EnterWorldReq> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = flatbuffers::Offset<EnterWorldReq>(end);
+    return o;
+  }
+};
+
+inline flatbuffers::Offset<EnterWorldReq> CreateEnterWorldReq(
+    flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t eid = 0) {
+  EnterWorldReqBuilder builder_(_fbb);
+  builder_.add_eid(eid);
+  return builder_.Finish();
+}
+
+flatbuffers::Offset<EnterWorldReq> CreateEnterWorldReq(flatbuffers::FlatBufferBuilder &_fbb, const EnterWorldReqT *_o, const flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct EnterWorldRespT : public flatbuffers::NativeTable {
+  typedef EnterWorldResp TableType;
+  std::unique_ptr<EntityInfo> entity;
+  std::vector<EntityInfo> sight_entities;
+  EnterWorldRespT() {
+  }
+};
+
+struct EnterWorldResp FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef EnterWorldRespT NativeTableType;
+  typedef EnterWorldRespBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_ENTITY = 4,
+    VT_SIGHT_ENTITIES = 6
+  };
+  const EntityInfo *entity() const {
+    return GetStruct<const EntityInfo *>(VT_ENTITY);
+  }
+  const flatbuffers::Vector<const EntityInfo *> *sight_entities() const {
+    return GetPointer<const flatbuffers::Vector<const EntityInfo *> *>(VT_SIGHT_ENTITIES);
+  }
+  bool Verify(flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<EntityInfo>(verifier, VT_ENTITY) &&
+           VerifyOffset(verifier, VT_SIGHT_ENTITIES) &&
+           verifier.VerifyVector(sight_entities()) &&
+           verifier.EndTable();
+  }
+  EnterWorldRespT *UnPack(const flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(EnterWorldRespT *_o, const flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static flatbuffers::Offset<EnterWorldResp> Pack(flatbuffers::FlatBufferBuilder &_fbb, const EnterWorldRespT* _o, const flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct EnterWorldRespBuilder {
+  typedef EnterWorldResp Table;
+  flatbuffers::FlatBufferBuilder &fbb_;
+  flatbuffers::uoffset_t start_;
+  void add_entity(const EntityInfo *entity) {
+    fbb_.AddStruct(EnterWorldResp::VT_ENTITY, entity);
+  }
+  void add_sight_entities(flatbuffers::Offset<flatbuffers::Vector<const EntityInfo *>> sight_entities) {
+    fbb_.AddOffset(EnterWorldResp::VT_SIGHT_ENTITIES, sight_entities);
+  }
+  explicit EnterWorldRespBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  EnterWorldRespBuilder &operator=(const EnterWorldRespBuilder &);
+  flatbuffers::Offset<EnterWorldResp> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = flatbuffers::Offset<EnterWorldResp>(end);
+    return o;
+  }
+};
+
+inline flatbuffers::Offset<EnterWorldResp> CreateEnterWorldResp(
+    flatbuffers::FlatBufferBuilder &_fbb,
+    const EntityInfo *entity = 0,
+    flatbuffers::Offset<flatbuffers::Vector<const EntityInfo *>> sight_entities = 0) {
+  EnterWorldRespBuilder builder_(_fbb);
+  builder_.add_sight_entities(sight_entities);
+  builder_.add_entity(entity);
+  return builder_.Finish();
+}
+
+inline flatbuffers::Offset<EnterWorldResp> CreateEnterWorldRespDirect(
+    flatbuffers::FlatBufferBuilder &_fbb,
+    const EntityInfo *entity = 0,
+    const std::vector<EntityInfo> *sight_entities = nullptr) {
+  auto sight_entities__ = sight_entities ? _fbb.CreateVectorOfStructs<EntityInfo>(*sight_entities) : 0;
+  return CreateEnterWorldResp(
+      _fbb,
+      entity,
+      sight_entities__);
+}
+
+flatbuffers::Offset<EnterWorldResp> CreateEnterWorldResp(flatbuffers::FlatBufferBuilder &_fbb, const EnterWorldRespT *_o, const flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+inline EnterSyncT *EnterSync::UnPack(const flatbuffers::resolver_function_t *_resolver) const {
+  std::unique_ptr<EnterSyncT> _o = std::unique_ptr<EnterSyncT>(new EnterSyncT());
   UnPackTo(_o.get(), _resolver);
   return _o.release();
 }
 
-inline void SightSync::UnPackTo(SightSyncT *_o, const flatbuffers::resolver_function_t *_resolver) const {
+inline void EnterSync::UnPackTo(EnterSyncT *_o, const flatbuffers::resolver_function_t *_resolver) const {
   (void)_o;
   (void)_resolver;
-  { auto _e = entities(); if (_e) { _o->entities.resize(_e->size()); for (flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->entities[_i] = *_e->Get(_i); } } }
+  { auto _e = enter_entity(); if (_e) _o->enter_entity = std::unique_ptr<EntityInfo>(new EntityInfo(*_e)); }
 }
 
-inline flatbuffers::Offset<SightSync> SightSync::Pack(flatbuffers::FlatBufferBuilder &_fbb, const SightSyncT* _o, const flatbuffers::rehasher_function_t *_rehasher) {
-  return CreateSightSync(_fbb, _o, _rehasher);
+inline flatbuffers::Offset<EnterSync> EnterSync::Pack(flatbuffers::FlatBufferBuilder &_fbb, const EnterSyncT* _o, const flatbuffers::rehasher_function_t *_rehasher) {
+  return CreateEnterSync(_fbb, _o, _rehasher);
 }
 
-inline flatbuffers::Offset<SightSync> CreateSightSync(flatbuffers::FlatBufferBuilder &_fbb, const SightSyncT *_o, const flatbuffers::rehasher_function_t *_rehasher) {
+inline flatbuffers::Offset<EnterSync> CreateEnterSync(flatbuffers::FlatBufferBuilder &_fbb, const EnterSyncT *_o, const flatbuffers::rehasher_function_t *_rehasher) {
   (void)_rehasher;
   (void)_o;
-  struct _VectorArgs { flatbuffers::FlatBufferBuilder *__fbb; const SightSyncT* __o; const flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
-  auto _entities = _o->entities.size() ? _fbb.CreateVectorOfStructs(_o->entities) : 0;
-  return CreateSightSync(
+  struct _VectorArgs { flatbuffers::FlatBufferBuilder *__fbb; const EnterSyncT* __o; const flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _enter_entity = _o->enter_entity ? _o->enter_entity.get() : 0;
+  return CreateEnterSync(
       _fbb,
-      _entities);
+      _enter_entity);
+}
+
+inline LeaveSyncT *LeaveSync::UnPack(const flatbuffers::resolver_function_t *_resolver) const {
+  std::unique_ptr<LeaveSyncT> _o = std::unique_ptr<LeaveSyncT>(new LeaveSyncT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void LeaveSync::UnPackTo(LeaveSyncT *_o, const flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = leave_entity(); _o->leave_entity = _e; }
+}
+
+inline flatbuffers::Offset<LeaveSync> LeaveSync::Pack(flatbuffers::FlatBufferBuilder &_fbb, const LeaveSyncT* _o, const flatbuffers::rehasher_function_t *_rehasher) {
+  return CreateLeaveSync(_fbb, _o, _rehasher);
+}
+
+inline flatbuffers::Offset<LeaveSync> CreateLeaveSync(flatbuffers::FlatBufferBuilder &_fbb, const LeaveSyncT *_o, const flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { flatbuffers::FlatBufferBuilder *__fbb; const LeaveSyncT* __o; const flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _leave_entity = _o->leave_entity;
+  return CreateLeaveSync(
+      _fbb,
+      _leave_entity);
+}
+
+inline MoveReqT *MoveReq::UnPack(const flatbuffers::resolver_function_t *_resolver) const {
+  std::unique_ptr<MoveReqT> _o = std::unique_ptr<MoveReqT>(new MoveReqT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void MoveReq::UnPackTo(MoveReqT *_o, const flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = dest(); if (_e) _o->dest = std::unique_ptr<fbVec>(new fbVec(*_e)); }
+  { auto _e = eid(); _o->eid = _e; }
+}
+
+inline flatbuffers::Offset<MoveReq> MoveReq::Pack(flatbuffers::FlatBufferBuilder &_fbb, const MoveReqT* _o, const flatbuffers::rehasher_function_t *_rehasher) {
+  return CreateMoveReq(_fbb, _o, _rehasher);
+}
+
+inline flatbuffers::Offset<MoveReq> CreateMoveReq(flatbuffers::FlatBufferBuilder &_fbb, const MoveReqT *_o, const flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { flatbuffers::FlatBufferBuilder *__fbb; const MoveReqT* __o; const flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _dest = _o->dest ? _o->dest.get() : 0;
+  auto _eid = _o->eid;
+  return CreateMoveReq(
+      _fbb,
+      _dest,
+      _eid);
+}
+
+inline MoveRespT *MoveResp::UnPack(const flatbuffers::resolver_function_t *_resolver) const {
+  std::unique_ptr<MoveRespT> _o = std::unique_ptr<MoveRespT>(new MoveRespT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void MoveResp::UnPackTo(MoveRespT *_o, const flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = error_code(); _o->error_code = _e; }
+}
+
+inline flatbuffers::Offset<MoveResp> MoveResp::Pack(flatbuffers::FlatBufferBuilder &_fbb, const MoveRespT* _o, const flatbuffers::rehasher_function_t *_rehasher) {
+  return CreateMoveResp(_fbb, _o, _rehasher);
+}
+
+inline flatbuffers::Offset<MoveResp> CreateMoveResp(flatbuffers::FlatBufferBuilder &_fbb, const MoveRespT *_o, const flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { flatbuffers::FlatBufferBuilder *__fbb; const MoveRespT* __o; const flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _error_code = _o->error_code;
+  return CreateMoveResp(
+      _fbb,
+      _error_code);
 }
 
 inline MoveSyncT *MoveSync::UnPack(const flatbuffers::resolver_function_t *_resolver) const {
@@ -206,8 +599,7 @@ inline MoveSyncT *MoveSync::UnPack(const flatbuffers::resolver_function_t *_reso
 inline void MoveSync::UnPackTo(MoveSyncT *_o, const flatbuffers::resolver_function_t *_resolver) const {
   (void)_o;
   (void)_resolver;
-  { auto _e = dest(); if (_e) _o->dest = std::unique_ptr<Vec3>(new Vec3(*_e)); }
-  { auto _e = dir(); if (_e) _o->dir = std::unique_ptr<Vec3>(new Vec3(*_e)); }
+  { auto _e = dest(); if (_e) _o->dest = std::unique_ptr<fbVec>(new fbVec(*_e)); }
   { auto _e = spd(); _o->spd = _e; }
   { auto _e = eid(); _o->eid = _e; }
 }
@@ -221,15 +613,68 @@ inline flatbuffers::Offset<MoveSync> CreateMoveSync(flatbuffers::FlatBufferBuild
   (void)_o;
   struct _VectorArgs { flatbuffers::FlatBufferBuilder *__fbb; const MoveSyncT* __o; const flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
   auto _dest = _o->dest ? _o->dest.get() : 0;
-  auto _dir = _o->dir ? _o->dir.get() : 0;
   auto _spd = _o->spd;
   auto _eid = _o->eid;
   return CreateMoveSync(
       _fbb,
       _dest,
-      _dir,
       _spd,
       _eid);
+}
+
+inline EnterWorldReqT *EnterWorldReq::UnPack(const flatbuffers::resolver_function_t *_resolver) const {
+  std::unique_ptr<EnterWorldReqT> _o = std::unique_ptr<EnterWorldReqT>(new EnterWorldReqT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void EnterWorldReq::UnPackTo(EnterWorldReqT *_o, const flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = eid(); _o->eid = _e; }
+}
+
+inline flatbuffers::Offset<EnterWorldReq> EnterWorldReq::Pack(flatbuffers::FlatBufferBuilder &_fbb, const EnterWorldReqT* _o, const flatbuffers::rehasher_function_t *_rehasher) {
+  return CreateEnterWorldReq(_fbb, _o, _rehasher);
+}
+
+inline flatbuffers::Offset<EnterWorldReq> CreateEnterWorldReq(flatbuffers::FlatBufferBuilder &_fbb, const EnterWorldReqT *_o, const flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { flatbuffers::FlatBufferBuilder *__fbb; const EnterWorldReqT* __o; const flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _eid = _o->eid;
+  return CreateEnterWorldReq(
+      _fbb,
+      _eid);
+}
+
+inline EnterWorldRespT *EnterWorldResp::UnPack(const flatbuffers::resolver_function_t *_resolver) const {
+  std::unique_ptr<EnterWorldRespT> _o = std::unique_ptr<EnterWorldRespT>(new EnterWorldRespT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void EnterWorldResp::UnPackTo(EnterWorldRespT *_o, const flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = entity(); if (_e) _o->entity = std::unique_ptr<EntityInfo>(new EntityInfo(*_e)); }
+  { auto _e = sight_entities(); if (_e) { _o->sight_entities.resize(_e->size()); for (flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->sight_entities[_i] = *_e->Get(_i); } } }
+}
+
+inline flatbuffers::Offset<EnterWorldResp> EnterWorldResp::Pack(flatbuffers::FlatBufferBuilder &_fbb, const EnterWorldRespT* _o, const flatbuffers::rehasher_function_t *_rehasher) {
+  return CreateEnterWorldResp(_fbb, _o, _rehasher);
+}
+
+inline flatbuffers::Offset<EnterWorldResp> CreateEnterWorldResp(flatbuffers::FlatBufferBuilder &_fbb, const EnterWorldRespT *_o, const flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { flatbuffers::FlatBufferBuilder *__fbb; const EnterWorldRespT* __o; const flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _entity = _o->entity ? _o->entity.get() : 0;
+  auto _sight_entities = _o->sight_entities.size() ? _fbb.CreateVectorOfStructs(_o->sight_entities) : 0;
+  return CreateEnterWorldResp(
+      _fbb,
+      _entity,
+      _sight_entities);
 }
 
 #endif  // FLATBUFFERS_GENERATED_WORLD_H_

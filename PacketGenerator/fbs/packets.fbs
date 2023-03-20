@@ -5,7 +5,13 @@ enum PacketId : short
 	Chat_Resp,
 	Chat_Sync,
 	
-	Sight_Sync,
+	EnterSync,
+	LeaveSync,
 	
+	Move_Req,
+	Move_Resp,
 	Move_Sync,
+	
+	EnterWorld_Req,
+	EnterWorld_Resp,
 }

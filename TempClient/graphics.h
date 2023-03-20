@@ -79,7 +79,7 @@ public:
 
 public:
     SDL_Window* window() { return window_; }
-
+    Camera& camera() { return camera_; }
 private:
 
     Camera camera_;

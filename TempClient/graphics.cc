@@ -89,9 +89,8 @@ void Graphics::BeginScene()
 {
     ImGuiIO& io = ImGui::GetIO();
 
-    GLint viewport[4];
     glViewport(0, 0, (int)io.DisplaySize.x, (int)io.DisplaySize.y);
-    glGetIntegerv(GL_VIEWPORT, viewport);
+    glGetIntegerv(GL_VIEWPORT, camera_.viewport);
 
     //clear screen
     glClearColor(0.3f, 0.3f, 0.32f, 1.0f);
@@ -108,14 +107,27 @@ void Graphics::BeginScene()
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective (50.0f, (double)io.DisplaySize.x / (double)io.DisplaySize.y, 0.1, 1000);
+    gluPerspective(50.0f, (double)io.DisplaySize.x / (double)io.DisplaySize.y, 0.1, 1000);
+    glGetDoublev(GL_PROJECTION_MATRIX, camera_.projection_matrix);
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     glRotatef(camera_.euler[0], 1, 0, 0);
     glRotatef(camera_.euler[1], 0, 1, 0);
     glTranslatef(-camera_.pos[0], -camera_.pos[1], -camera_.pos[2]);
-    glGetDoublev(GL_MODELVIEW_MATRIX, camera_.modelview_matrix_);
+    glGetDoublev(GL_MODELVIEW_MATRIX, camera_.modelview_matrix);
+
+    GLdouble x, y, z;
+    gluUnProject(camera_.mouse_pos[0], camera_.mouse_pos[1], 0.0f,
+        camera_.modelview_matrix, camera_.projection_matrix, camera_.viewport, &x, &y, &z);
+    camera_.ray_start[0] = (float)x;
+    camera_.ray_start[1] = (float)y;
+    camera_.ray_start[2] = (float)z;
+    gluUnProject(camera_.mouse_pos[0], camera_.mouse_pos[1], 1.0f,
+        camera_.modelview_matrix, camera_.projection_matrix, camera_.viewport, &x, &y, &z);
+    camera_.ray_end[0] = (float)x;
+    camera_.ray_end[1] = (float)y;
+    camera_.ray_end[2] = (float)z;
 
     float keybSpeed = 22.0f;
     if (SDL_GetModState() & KMOD_SHIFT)
@@ -129,13 +141,13 @@ void Graphics::BeginScene()
 
     if (!ImGui::IsWindowFocused(ImGuiFocusedFlags_AnyWindow))
     {
-        camera_.pos[0] += movex * (float)camera_.modelview_matrix_[0];
-        camera_.pos[1] += movex * (float)camera_.modelview_matrix_[4];
-        camera_.pos[2] += movex * (float)camera_.modelview_matrix_[8];
+        camera_.pos[0] += movex * (float)camera_.modelview_matrix[0];
+        camera_.pos[1] += movex * (float)camera_.modelview_matrix[4];
+        camera_.pos[2] += movex * (float)camera_.modelview_matrix[8];
 
-        camera_.pos[0] += movey * (float)camera_.modelview_matrix_[2];
-        camera_.pos[1] += movey * (float)camera_.modelview_matrix_[6];
-        camera_.pos[2] += movey * (float)camera_.modelview_matrix_[10];
+        camera_.pos[0] += movey * (float)camera_.modelview_matrix[2];
+        camera_.pos[1] += movey * (float)camera_.modelview_matrix[6];
+        camera_.pos[2] += movey * (float)camera_.modelview_matrix[10];
 
         camera_.pos[1] += (camera_.moveUp - camera_.moveDown) * keybSpeed * io.DeltaTime;
     }

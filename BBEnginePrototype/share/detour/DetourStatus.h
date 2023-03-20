@@ -20,7 +20,6 @@
 #define DETOURSTATUS_H
 
 typedef unsigned int dtStatus;
-using dtReal = double;
 
 // High level status.
 static const unsigned int DT_FAILURE = 1u << 31;			// Operation failed.
