@@ -17,7 +17,7 @@ TCP MMO 서버를 제작하고 있습니다. ECS 구조를 통해 게임 컨텐�
 - [entt 3.11](https://github.com/skypjack/entt)
 - [box2d](https://box2d.org/)
 ## Visual Client
-![image](https://user-images.githubusercontent.com/101116747/224535294-11481ca8-87a1-4240-adba-2866c6ec096b.png)
+![image](https://user-images.githubusercontent.com/101116747/226402628-ff28b8e6-7617-4c06-a2ef-576a5829866c.png)
 
 It was developed for the convenience of client-server synchronization development during server development.
 We are making it possible to use the same code as the server.
