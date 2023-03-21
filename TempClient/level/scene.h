@@ -9,7 +9,7 @@
 #include "ecs/components.h"
 #include "ecs/systems.h"
 
-#include "scene.h"
+#include <entt/entt.hpp>
 
 class Scene : public entt::registry, public std::enable_shared_from_this<Scene>
 {
@@ -24,7 +24,7 @@ public:
     void Enter(const Vector<EntityInfo>& entities);
     void Leave(uint32_t entity);
     void Leave(const Vector<uint32_t>& entities);
-    bool MoveRequest(Vec& start, Vec& end);
+    bool ScreenRayMove(Vec& start, Vec& end);
     void MoveRequest(uint32_t eid, Vec& end, float spd);
 
 public:

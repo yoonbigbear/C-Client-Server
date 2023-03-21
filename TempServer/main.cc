@@ -1,3 +1,7 @@
+#define _CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
+
 #include "pre.h"
 #include <DbgHelp.h>
 #pragma comment(lib, "dbghelp.lib")
@@ -47,5 +51,8 @@ int main()
             server.Update(static_cast<float>(timer.FRAMERATE));
         }
     }
+    _CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_DEBUG);
+    _CrtDumpMemoryLeaks();
+
     return 0;
 }

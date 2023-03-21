@@ -1,7 +1,6 @@
 #pragma once
 
 #include "pre.h"
-#include "share/ecs/share_system.h"
 
 class Scene;
 class NetClient;

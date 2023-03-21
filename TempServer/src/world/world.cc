@@ -1,10 +1,11 @@
 #include "world.h"
 
 #include "components.h"
-#include <systems/systems.h>
-
-#include "field.h"
+#include "systems/systems.h"
+#include "net/client_session.h"
+#include "packet_handler.h"
 #include "share/navigation.h"
+#include "b2_world_tree.h"
 
 #include "fbb/chat_generated.h"
 #include "fbb/packets_generated.h"
@@ -13,10 +14,12 @@
 void World::Initialize()
 {
     navigation_ = std::make_shared<Navigation>();
-    field_ = std::make_shared<Field>();
+    field_ = std::make_shared<b2WorldTree>();
 
     navigation_->Initialize("../Resource/all_tiles_navmesh.bin");
     field_->Initialize(AABB2(Vec2(-100, -100), Vec2(100, 100)));
+
+    viewing_range_ = 500;
 
     SpawnAI();
 }
@@ -25,18 +28,20 @@ void World::Enter(Shared<ClientSession> session)
 {
     auto entity = create();
 
-    emplace<NetComponent>(entity, session);
+    if (session)
+    {
+        emplace<NetComponent>(entity, session);
+    }
 
     //start pos
     auto& tf = emplace<Transform>(entity);
     tf.v.v3.Set(RandomGenerator::Real(-50, 50), RandomGenerator::Real(-50, 50), 0);
-    tf.angle = static_cast<short>(std::atan2f(tf.v.v2.y, tf.v.v2.x));
+    tf.degree = static_cast<short>(std::atan2f(tf.v.v2.y, tf.v.v2.x));
 
     // entity info
-    auto& entity_data = emplace<EntityData>(entity);
-    entity_data.eid = (std::uint32_t)entity;
-    entity_data.flag = (uint8_t)EntityFlag::Player;
-    entity_data.tid = 1;
+    auto& proxy_data = emplace<Proxy>(entity);
+    proxy_data.eid = (std::uint32_t)entity;
+    proxy_data.flag = (uint8_t)EntityFlag::Player;
 
     //box collider
     auto& box_comp = emplace<AABBComponent>(entity);
@@ -45,74 +50,19 @@ void World::Enter(Shared<ClientSession> session)
     box_comp.box.upperBound = tf.v.v2 + half_box;
 
     //field
-    field_->Spawn(tf.v.v2, box_comp.box, (void*)&entity_data, entity_data.proxy);
-    
-    //sight
-    auto& sight_comp = emplace<SightComponent>(entity);
-    sight_comp.range = 50;
+    if (!field_->Spawn(tf.v.v2, box_comp.box, &proxy_data))
+    {
+        release(entity);
+        return;
+    }
 
     //query sight entities
-    auto entities_in_sight = field_->Query(tf.v.v2, sight_comp.range);
-    Vector<EntityData*> datas;
-    for (auto e : entities_in_sight)
-    {
-        ENTITYDATA(e);
-        datas.emplace_back(entitydata);
-    }
-    std::sort(datas.begin(), datas.end());
+    auto proxies_on_sight = field_->Query(tf.v.v2, viewing_range(), (uint32_t)entity);
+    std::sort(proxies_on_sight.begin(), proxies_on_sight.end());
 
-    //EnterResp
-    {
-        flatbuffers::FlatBufferBuilder fbb(64);
-        EnterWorldRespT resp;
-
-        {
-            fbVec pos = VecTo<fbVec>(tf.v.v3);
-            fbVec endpos = pos;
-            float speed = 0.f;
-            if (all_of<Mover>(entity))
-            {
-                auto mover = get<Mover>(entity);
-                endpos = VecTo<fbVec>(mover.dest);
-                speed = mover.speed;
-            }
-            auto sender_info = EntityInfo{
-                   pos, endpos, speed,
-                   0,(uint32_t)entity,
-                   tf.angle, EntityFlag::Player };
-            resp.entity = std::make_unique<EntityInfo>(
-                pos, endpos, speed, 0, (uint32_t)entity, tf.angle,
-                EntityFlag::Player);
-        }
-        for (auto e : datas)
-        {
-            _ASSERT(valid((entt::entity)e->eid));
-            if (all_of<Transform>((entt::entity)e->eid))
-            {
-                auto target_tf = get<Transform>((entt::entity)e->eid);
-                fbVec pos = VecTo<fbVec>(tf.v.v3);
-                fbVec endpos = pos;
-                float speed = 0.f;
-                
-                if (all_of<Mover>((entt::entity)e->eid))
-                {
-                    auto mover = get<Mover>((entt::entity)e->eid);
-                    endpos = VecTo<fbVec>(mover.dest);
-                    speed = mover.speed;
-                }
-                resp.sight_entities.emplace_back(EntityInfo{
-                     pos, endpos, speed, 0, (uint32_t)e->eid, target_tf.angle,
-                        (EntityFlag)e->flag });
-            }
-        }
-        
-        fbb.Finish(EnterWorldResp::Pack(fbb, &resp));
-        session->Send((uint16_t)PacketId::EnterWorld_Resp, fbb.GetSize(), fbb.GetBufferPointer());
-
-        LOG_INFO("[SERVER] send EnterWorldResp: ");
-    }
-
-    SightSyncronize(shared(), (uint32_t)entity);
+    //update sight
+    SendEnterResp(shared(), proxies_on_sight, entity);
+    SightSyncronize(shared(), proxies_on_sight, entity);
 
     LOG_INFO("Enter World {}", static_cast<std::uint32_t>(entity));
 }
@@ -122,10 +72,9 @@ void World::Enter(int npcid)
     auto entity = create();
 
     // entity info
-    auto& entity_data = emplace<EntityData>(entity);
-    entity_data.eid = (std::uint32_t)entity;
-    entity_data.flag = (uint8_t)EntityFlag::Player;
-    entity_data.tid = 1;
+    auto& proxy_data = emplace<Proxy>(entity);
+    proxy_data.eid = (std::uint32_t)entity;
+    proxy_data.flag = (uint8_t)EntityFlag::Player;
 
     // pos
     auto& tf = emplace<Transform>(entity);
@@ -138,7 +87,11 @@ void World::Enter(int npcid)
     box_comp.box.upperBound = tf.v.v2 + half_box;
 
     //field
-    field_->Spawn(tf.v.v2, box_comp.box, (void*)&entity_data, entity_data.proxy);
+    if (!field_->Spawn(tf.v.v2, box_comp.box, &proxy_data))
+    {
+        release(entity);
+        return;
+    }
 
     emplace<NpcComponent>(entity, npcid);
     {
@@ -148,11 +101,15 @@ void World::Enter(int npcid)
         wander.acc_time = 5;
     }
 
+    //query sight entities
     auto& sight_comp = emplace<SightComponent>(entity);
-    sight_comp.range = 50.f;
+    auto proxies_on_sight = field_->Query(tf.v.v2, viewing_range(), (uint32_t)entity);
+    std::sort(proxies_on_sight.begin(), proxies_on_sight.end());
+
+    //update sight
+    SightSyncronize(shared(), proxies_on_sight, entity);
 
     LOG_INFO("npc enter world {}", static_cast<std::uint32_t>(entity));
-
 }
 
 void World::Update(float dt)
@@ -161,15 +118,14 @@ void World::Update(float dt)
 
     //ai
     Wander(shared(), dt);
-    Move(shared(), dt);
-
+    UpdateMove(shared(), dt);
 
     //Broadcast(BroadcastChat("broadcast from server"));
 }
 
 void World::SpawnAI()
 {
-    int aicount = 50;
+    int aicount = 10;
     for (int i = 0; i < aicount; ++i)
     {
         Enter(1);

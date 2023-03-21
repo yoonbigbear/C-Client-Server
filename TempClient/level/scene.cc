@@ -71,14 +71,14 @@ void Scene::Enter(const EntityInfo* info)
     {
         auto& tf = emplace<Transform>(eid);
         memcpy(&tf.v.v3, &info->pos(), sizeof(Vec));
-        tf.angle = info->angle();
+        tf.degree = info->degree();
 
         auto& cylinder = emplace<CylinderData>(eid);
         cylinder.height = 2.f;
         cylinder.radius = 0.6f;
 
         if (info->flag() == EntityFlag::Player)
-            auto& player = emplace<MyPlayer>(eid);
+            auto& player = emplace<PlayerSession>(eid);
 
         if (info->spd() > 0)
         {
@@ -99,7 +99,7 @@ void Scene::Enter(const Vector<EntityInfo>& info)
         {
             auto& tf = emplace<Transform>(entity);
             memcpy(&tf.v.v3, &e.pos(), sizeof(Vec));
-            tf.angle = e.angle();
+            tf.degree = e.degree();
 
             auto& cylinder = emplace<CylinderData>(entity);
             cylinder.height = 2.f;
@@ -136,9 +136,9 @@ void Scene::Leave(const Vector<uint32_t>& info)
     }
 }
 
-bool Scene::MoveRequest(Vec& start, Vec& end)
+bool Scene::ScreenRayMove(Vec& start, Vec& end)
 {
-    auto player = view<MyPlayer>();
+    auto player = view<PlayerSession>();
     for (auto [entity, myplayer] : player.each())
     {
         float t;
@@ -152,13 +152,20 @@ bool Scene::MoveRequest(Vec& start, Vec& end)
                     //ray hit.
                     auto hit_point = t * start.v3;
 
+                    Draw::DrawBoxWire(hit_point.x, hit_point.y, hit_point.z,
+                        hit_point.x + 10, hit_point.y + 10, hit_point.z + 10,
+                        duRGBA(192, 0, 128, 255), 5);
 
                     List<Vec> path;
-                    if (nav_mesh_.FindPath(tf->v, hit_point, path, dtQueryFilter()))
+                    if (nav_mesh_.FindPath(tf->v, 
+                        Vec(hit_point.x, hit_point.y, hit_point.z), path, dtQueryFilter()))
                     {
+                        LOG_INFO("pathend %f %f %f",
+                            path.front().v3.x, path.front().v3.y, path.front().v3.z);
                         //replace path list if exists
                         auto& pathlist = emplace_or_replace<PathList>(entity);
                         std::swap(pathlist.paths, path);
+
                     }
                 }
                 else
@@ -172,10 +179,6 @@ bool Scene::MoveRequest(Vec& start, Vec& end)
         {
             //failed raycasting
             LOG_ERR("Failed screen ray");
-            LOG_INFO("startpoint %f %f %f",
-                start.v3.x, start.v3.y, start.v3.z);
-            LOG_INFO("endpoint %f %f %f",
-                end.v3.x, end.v3.y, end.v3.z);
         }
         return true;
     }
@@ -200,9 +203,9 @@ void Scene::MoveRequest(uint32_t eid, Vec& end, float spd)
             mover.speed = spd;
         }
 
-        if (all_of<MyPlayer>(entity))
+        if (all_of<PlayerSession>(entity))
         {
-            auto session = get<MyPlayer>(entity);
+            auto session = get<PlayerSession>(entity);
             Move_Req(session.session, mover.dest.v3, eid);
         }
     }

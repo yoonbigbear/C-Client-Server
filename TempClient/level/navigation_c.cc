@@ -48,7 +48,7 @@ static bool intersectSegmentTriangle(const float* sp, const float* sq,
 	float& t)
 {
 	float v, w;
-	float ab[3], ac[3], qp[3], ap[3], norm[3], e[3];
+	float ab[3]{ 0, }, ac[3]{ 0, }, qp[3]{ 0, }, ap[3]{ 0, }, norm[3]{ 0, }, e[3]{0,};
 	rcVsub(ab, b, a);
 	rcVsub(ac, c, a);
 	rcVsub(qp, sp, sq);
@@ -85,7 +85,6 @@ static bool intersectSegmentTriangle(const float* sp, const float* sq,
 
 bool Navigation_C::ScreenRay(float* src, float* dst, float& tmin)
 {
-	tmin = 1.0f;
 	bool hit = false;
 	auto max_tiles = nav_mesh_->getMaxTiles();
 	for (int i = 0; i < max_tiles; ++i)
@@ -99,48 +98,25 @@ bool Navigation_C::ScreenRay(float* src, float* dst, float& tmin)
 			tile->header->bmax, btmin, btmax))
 			continue;
 
-
+		tmin = 1.0f;
 		for (int j = 0; j < tile->header->polyCount; ++j)
 		{
-
 			const dtPoly* p = &tile->polys[j];
-			if (p->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)	// Skip off-mesh links.
-				continue;
-
 			const dtPolyDetail* pd = &tile->detailMeshes[j];
 
 			for (int k = 0; k < pd->triCount; ++k)
 			{
 				const unsigned char* tris = &tile->detailTris[(pd->triBase + k) * 4];
-				for (int o = 0; o < 3; ++o)
+
+				float t = 1;
+				if (intersectSegmentTriangle(src, dst,
+					&tile->verts[p->verts[tris[0]]],
+					&tile->verts[p->verts[tris[0 + 1]]],
+					&tile->verts[p->verts[tris[0 + 2]]], t))
 				{
-					if (tris[o] < p->vertCount)
-					{
-						float t = 1;
-						if (intersectSegmentTriangle(src, dst,
-							&tile->verts[p->verts[tris[o]] * 3],
-							&tile->verts[p->verts[tris[o + 1]] * 3],
-							&tile->verts[p->verts[tris[o + 2]] * 3], t))
-						{
-							if (t < tmin)
-								tmin = t;
-							hit = true;
-						}
-					}
-					else
-					{
-						float t = 1;
-						
-						if (intersectSegmentTriangle(src, dst,
-							&tile->detailVerts[(pd->vertBase + tris[o] - p->vertCount) * 3],
-							&tile->detailVerts[(pd->vertBase + tris[o+1] - p->vertCount) * 3],
-							& tile->detailVerts[(pd->vertBase + tris[o+2] - p->vertCount) * 3], t))
-						{
-							if (t < tmin)
-								tmin = t;
-							hit = true;
-						}
-					}
+					if (t < tmin)
+						tmin = t;
+					hit = true;
 				}
 			}
 		}

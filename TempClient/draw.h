@@ -174,4 +174,24 @@ public:
 		dd.end();
 		dd.depthMask(true);
 	}
+	static void DrawCircle(const float x, const float y, const float z,
+		const float r, const unsigned int col, float lineWidth)
+	{
+		DebugDrawGLBB dd;
+		dd.depthMask(false);
+		dd.begin(DU_DRAW_LINES, lineWidth);
+		duAppendCircle(&dd, x, y, z, r, col);
+		dd.end();
+		dd.depthMask(true);
+	}
+	static void DrawBoxWire(float minx, float miny, float minz,
+		float maxx, float maxy, float maxz, const unsigned int col, float lineWidth)
+	{
+		DebugDrawGLBB dd;
+		dd.depthMask(false);
+		dd.begin(DU_DRAW_LINES, lineWidth);
+		duAppendBoxWire(&dd, minx, miny, minz, maxx, maxy, maxz, col);
+		dd.end();
+		dd.depthMask(true);
+	}
 };

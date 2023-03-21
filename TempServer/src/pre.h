@@ -22,6 +22,7 @@
 #include <bb_math.h>
 #endif //  _BOX2D
 
+#include <entt/entt.hpp>
 
 #include "logger.h"
 #include "random_generator.h"

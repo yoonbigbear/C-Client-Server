@@ -1,6 +1,6 @@
 #include "systems.h"
 
-
+#include "level/scene.h"
 #include "net_client.h"
 #include "manager/scene_manager.h"
 
@@ -122,7 +122,7 @@ void MoveAlongPath(Weak<Scene> scene, float dt)
                         mover.dir.v2.Normalize();
 
                         //move angle
-                        tf.angle = static_cast<short>
+                        tf.degree = static_cast<short>
                             (std::atan2f(mover.dir.v2.y, mover.dir.v2.x));
 
                         mover.speed = 1;

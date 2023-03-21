@@ -89,23 +89,22 @@ void Camera::Input(SDL_Event* event)
 			[this]() {
 				Vec start = Vec(ray_start);
 				Vec end = Vec(ray_end);
-				//SceneManager::instance().current_scene()->MoveRequest(start, end);
 			}
 		);
 	}
 
 	const uint8_t* keystate = SDL_GetKeyboardState(NULL);
-	moveFront = std::clamp(moveFront + io.DeltaTime * 4 * ((keystate[SDL_SCANCODE_W]
-		|| keystate[SDL_SCANCODE_UP]) ? 1 : -1), 0.0f, 1.0f);
-	moveLeft = std::clamp(moveLeft + io.DeltaTime * 4 * ((keystate[SDL_SCANCODE_A]
-		|| keystate[SDL_SCANCODE_LEFT]) ? 1 : -1), 0.0f, 1.0f);
-	moveBack = std::clamp(moveBack + io.DeltaTime * 4 * ((keystate[SDL_SCANCODE_S]
-		|| keystate[SDL_SCANCODE_DOWN]) ? 1 : -1), 0.0f, 1.0f);
-	moveRight = std::clamp(moveRight + io.DeltaTime * 4 * ((keystate[SDL_SCANCODE_D]
-		|| keystate[SDL_SCANCODE_RIGHT]) ? 1 : -1), 0.0f, 1.0f);
-	moveUp = std::clamp(moveUp + io.DeltaTime * 4 * ((keystate[SDL_SCANCODE_Q]
-		|| keystate[SDL_SCANCODE_PAGEUP]) ? 1 : -1), 0.0f, 1.0f);
-	moveDown = std::clamp(moveDown + io.DeltaTime * 4 * ((keystate[SDL_SCANCODE_E]
-		|| keystate[SDL_SCANCODE_PAGEDOWN]) ? 1 : -1), 0.0f, 1.0f);
+	moveFront = std::clamp(moveFront + io.DeltaTime * 4 * (keystate[SDL_SCANCODE_W]
+		? 1 : -1), 0.0f, 1.0f);
+	moveLeft = std::clamp(moveLeft + io.DeltaTime * 4 * (keystate[SDL_SCANCODE_A]
+		? 1 : -1), 0.0f, 1.0f);
+	moveBack = std::clamp(moveBack + io.DeltaTime * 4 * (keystate[SDL_SCANCODE_S]
+		? 1 : -1), 0.0f, 1.0f);
+	moveRight = std::clamp(moveRight + io.DeltaTime * 4 * (keystate[SDL_SCANCODE_D]
+		? 1 : -1), 0.0f, 1.0f);
+	moveUp = std::clamp(moveUp + io.DeltaTime * 4 * (keystate[SDL_SCANCODE_Q]
+		? 1 : -1), 0.0f, 1.0f);
+	moveDown = std::clamp(moveDown + io.DeltaTime * 4 * (keystate[SDL_SCANCODE_E]
+		? 1 : -1), 0.0f, 1.0f);
 }
 

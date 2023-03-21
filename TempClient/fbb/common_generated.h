@@ -140,7 +140,7 @@ FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(4) EntityInfo FLATBUFFERS_FINAL_CLASS {
   uint32_t entity_id() const {
     return flatbuffers::EndianScalar(entity_id_);
   }
-  int16_t angle() const {
+  int16_t degree() const {
     return flatbuffers::EndianScalar(angle_);
   }
   EntityFlag flag() const {

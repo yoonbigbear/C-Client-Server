@@ -1,6 +1,6 @@
 #include "client_session.h"
 
-#include "systems/system_packet_handler.h"
+#include "systems/systems.h"
 
 #include "fbb/packets_generated.h"
 
@@ -8,9 +8,8 @@ void ClientSession::Initialize()
 {
     TcpSession::Initialize();
 
-    Bind((uint16_t)PacketId::Chat_Req, ChatREQ);
-    //Bind((uint16_t)PacketId::EnterWorld_Req, EnterWorldREQ);
-    Bind((uint16_t)PacketId::Move_Req, MoveREQ);
+    Bind((uint16_t)PacketId::Chat_Req, RecvChatReq);
+    //Bind((uint16_t)PacketId::Move_Req, RecvMoveReq);
 }
 
 bool ClientSession::Bind(uint16_t id, PacketFunc fn)

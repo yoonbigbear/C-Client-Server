@@ -2,7 +2,7 @@
 
 #include "pre.h"
 
-#include "net_client.h"
+#include "my_player.h"
 #include "graphics.h"
 
 class App
@@ -19,7 +19,6 @@ private:
     Graphics graphics_;
     asio::io_context io_context_;
     std::future<void> io_thread_;
-    Shared<NetClient> net_;
-
+    MyPlayer my_player_;
     std::future<void> simulation_thread_;
 };

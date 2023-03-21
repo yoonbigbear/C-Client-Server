@@ -2,12 +2,8 @@
 
 #include "pre.h"
 
-#include "entt/entt.hpp"
-
-#include "net/client_session.h"
-#include "packet_handler.h"
-
-class Field;
+class ClientSession;
+class b2WorldTree;
 class Navigation;
 class World : public entt::registry, public std::enable_shared_from_this<World>
 {
@@ -15,7 +11,7 @@ class World : public entt::registry, public std::enable_shared_from_this<World>
 
 public:
     void Initialize();
-    void Enter(Shared<ClientSession> session);
+    void Enter(Shared<class ClientSession> session);
     void Enter(int npcid);
     void Update(float dt);
 
@@ -40,10 +36,12 @@ public:
     bool HandleMove(uint32_t eid, const Vec& dest);
 
 public:
-    Weak<Field> field() { return field_; }
-    Weak<Navigation> navigation() { return navigation_; }
+    Weak<class b2WorldTree> world_tree() { return field_; }
+    Weak<class Navigation> navigation() { return navigation_; }
+    float viewing_range() { return viewing_range_; }
 
 private:
-    Shared<Field> field_;
-    Shared<Navigation> navigation_;
+    float viewing_range_;
+    Shared<class b2WorldTree> field_;
+    Shared<class Navigation> navigation_;
 };

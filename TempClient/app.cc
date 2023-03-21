@@ -27,7 +27,7 @@ void App::Initialize()
         });
 
     //create my temp player
-    net_ = std::make_shared<NetClient>(io_context_, asio::ip::tcp::socket(io_context_));
+    my_player_.net_ = std::make_shared<NetClient>(io_context_, asio::ip::tcp::socket(io_context_));
 
     //graphics initialize
     graphics_.Initialize();
@@ -38,12 +38,12 @@ void App::Initialize()
     Gui::instance().login.onClickConnect +=
         [this](const std::string& host, const uint16_t port)
     {
-        net_->Connect(host, port);
+        my_player_.net_->Connect(host, port);
     };
     Gui::instance().login.onClickDisconnect +=
         [this]()
     {
-        net_->Disconnect();
+        my_player_.net_->Disconnect();
         Gui::instance().login.login = false;
     };
 }
@@ -68,7 +68,7 @@ void App::Run()
                     val->Update(static_cast<float>(timer.FRAMERATE));
                 }
 
-                net_->ReadPackets();
+                my_player_.net_->ReadPackets();
             }
         }
     }
@@ -93,22 +93,7 @@ void App::Run()
         graphics_.BeginScene();
         {
             graphics_.Input(&event);
-            
-            //temp
-            {
-               /* float t = 1.0f;
-                SceneManager::instance().current_scene()->navmesh().ScreenRay(
-                    graphics_.camera().ray_start, graphics_.camera().ray_end, t);
-
-                if (t < 1.0f)
-                {
-                    float pos[3]{
-                        graphics_.camera().ray_start[0] * t,
-                    graphics_.camera().ray_start[1] * t,
-                    graphics_.camera().ray_start[2] * t };
-                    Draw::Cylinder(pos, 1, 2, 1, startCol);
-                }*/
-            }
+            my_player_.Input();
 
             auto scenes = SceneManager::instance().container();
 

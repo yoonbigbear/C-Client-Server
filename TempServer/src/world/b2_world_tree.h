@@ -3,9 +3,14 @@
 #include "pre.h"
 #include "box2d/b2_dynamic_tree.h"
 
-#include <share/detour/DetourNavMesh.h>
+#define PROXY(proxy) Proxy* proxy_ptr = reinterpret_cast<Proxy*>(proxy);
 
-#define ENTITYDATA(proxy) EntityData* entitydata = reinterpret_cast<EntityData*>(proxy);
+struct Proxy
+{
+    uint8_t flag;
+    std::uint32_t eid;
+    int32_t proxy_id;
+};
 
 class BroadPhaseBox
 {
@@ -18,14 +23,14 @@ public:
     Vector<int32_t> collisions;
 };
 
-class Field
+class b2WorldTree
 {
 public:
     void Initialize(const AABB2& boundary);
     bool Spawn(const Vec& pos, const AABB2& box,
-        void* entity_data, int32_t& out_proxy);
+        Proxy* entity_data);
 
-    Vector<void*> Query(const Vec& pos, float range);
+    Vector<Proxy*> Query(const Vec& pos, float range, uint32_t except);
 
 private:
 
