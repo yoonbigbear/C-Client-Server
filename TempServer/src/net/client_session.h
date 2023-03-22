@@ -4,7 +4,7 @@
 #include "tcp_session.h"
 #include "packet_handler.h"
 
-class World;
+class Region;
 class ClientSession : public TcpSession
 {
 public:
@@ -12,15 +12,13 @@ public:
         :TcpSession(io_context, std::move(socket)) {}
 
     virtual void Initialize() override final;
-    bool Bind(uint16_t id, PacketFunc fn);
     void Send(uint16_t id, uint16_t size, uint8_t* buf);
     void Send(std::vector<uint8_t>& buf);
-
+    void ReadPackets();
 public:
-    Weak<World> world() { return world_; }
-    void world(Shared<World> ptr) { world_ = ptr; }
+    Weak<Region> world() { return world_; }
+    void world(Shared<Region> ptr) { world_ = ptr; }
 
 private:
-    PacketHandler packet_handler_;
-    Shared<World> world_;
+    Shared<Region> world_;
 };

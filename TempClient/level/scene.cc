@@ -58,6 +58,7 @@ void Scene::Draw()
 
 void Scene::Update(float dt)
 {
+
     ReleaseCommandQueue();
 
     MoveAlongPath(shared(), dt);
@@ -149,29 +150,26 @@ bool Scene::ScreenRayMove(Vec& start, Vec& end)
             {
                 if (t < 1.0f)
                 {
+                    float pos[3];
+                    pos[0] = start.v3.x + (end.v3.x - start.v3.x) * t;
+                    pos[1] = start.v3.z + (end.v3.z - start.v3.z) * t;
+                    pos[2] = start.v3.y + (end.v3.y - start.v3.y) * t;
                     //ray hit.
-                    auto hit_point = t * start.v3;
 
-                    Draw::DrawBoxWire(hit_point.x, hit_point.y, hit_point.z,
-                        hit_point.x + 10, hit_point.y + 10, hit_point.z + 10,
-                        duRGBA(192, 0, 128, 255), 5);
+                    Draw::DrawCircle(pos[0], pos[2], pos[1], 5,
+                        duRGBA(0, 0, 0, 255), 2);
 
                     List<Vec> path;
                     if (nav_mesh_.FindPath(tf->v, 
-                        Vec(hit_point.x, hit_point.y, hit_point.z), path, dtQueryFilter()))
+                        Vec(pos[0], pos[1], pos[2]), path, dtQueryFilter()))
                     {
-                        LOG_INFO("pathend %f %f %f",
+                        LOG_INFO("pathend {} {} {}",
                             path.front().v3.x, path.front().v3.y, path.front().v3.z);
                         //replace path list if exists
                         auto& pathlist = emplace_or_replace<PathList>(entity);
                         std::swap(pathlist.paths, path);
 
                     }
-                }
-                else
-                {
-                    //no hit. no path.
-                    LOG_ERR("No hit screen ray");
                 }
             }
         }

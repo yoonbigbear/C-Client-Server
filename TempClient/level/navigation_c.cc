@@ -48,7 +48,7 @@ static bool intersectSegmentTriangle(const float* sp, const float* sq,
 	float& t)
 {
 	float v, w;
-	float ab[3]{ 0, }, ac[3]{ 0, }, qp[3]{ 0, }, ap[3]{ 0, }, norm[3]{ 0, }, e[3]{0,};
+	float ab[3], ac[3], qp[3], ap[3], norm[3], e[3];
 	rcVsub(ab, b, a);
 	rcVsub(ac, c, a);
 	rcVsub(qp, sp, sq);
@@ -87,6 +87,9 @@ bool Navigation_C::ScreenRay(float* src, float* dst, float& tmin)
 {
 	bool hit = false;
 	auto max_tiles = nav_mesh_->getMaxTiles();
+	tmin = 1.0f;
+	float t = 1;
+
 	for (int i = 0; i < max_tiles; ++i)
 	{
 		const dtMeshTile* tile = nav_mesh_->getTile(i);
@@ -98,7 +101,6 @@ bool Navigation_C::ScreenRay(float* src, float* dst, float& tmin)
 			tile->header->bmax, btmin, btmax))
 			continue;
 
-		tmin = 1.0f;
 		for (int j = 0; j < tile->header->polyCount; ++j)
 		{
 			const dtPoly* p = &tile->polys[j];
@@ -108,17 +110,17 @@ bool Navigation_C::ScreenRay(float* src, float* dst, float& tmin)
 			{
 				const unsigned char* tris = &tile->detailTris[(pd->triBase + k) * 4];
 
-				float t = 1;
 				if (intersectSegmentTriangle(src, dst,
-					&tile->verts[p->verts[tris[0]]],
-					&tile->verts[p->verts[tris[0 + 1]]],
-					&tile->verts[p->verts[tris[0 + 2]]], t))
+					&tile->verts[p->verts[tris[0]] * 3],
+					&tile->verts[p->verts[tris[0 + 1]] * 3],
+					&tile->verts[p->verts[tris[0 + 2]] * 3], t))
 				{
 					if (t < tmin)
 						tmin = t;
 					hit = true;
 				}
 			}
+
 		}
 	}
 	return hit;

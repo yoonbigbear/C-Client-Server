@@ -18,7 +18,7 @@
 #define LOG_ERROR(fmt, ...) spdlog::error(fmt, ##__VA_ARGS__);
 #define LOG_CRITICAL(fmt, ...) spdlog::critical(fmt, ##__VA_ARGS__);
 
-#elif
+#else
 ///////////////////////////////////////////
 //기본 콘솔 디버그
 ///////////////////////////////////////////

@@ -2,11 +2,11 @@
 
 #include "components.h"
 
-#include "world/world.h"
+#include "world/region.h"
 #include "share/navigation.h"
 
 
-void Wander(Weak<World> world, float dt)
+void Wander(Weak<Region> world, float dt)
 {
     auto world_ptr = world.lock();
     _ASSERT(world_ptr);

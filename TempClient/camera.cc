@@ -81,7 +81,7 @@ void Camera::Input(SDL_Event* event)
 	}
 
 	if (/*processHitTest*/ 
-		ImGui::IsMouseClicked(ImGuiMouseButton_Left) &&
+		ImGui::IsMouseDown(ImGuiMouseButton_Left) &&
 		!ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow))
 	{
 		
@@ -89,6 +89,7 @@ void Camera::Input(SDL_Event* event)
 			[this]() {
 				Vec start = Vec(ray_start);
 				Vec end = Vec(ray_end);
+				SceneManager::instance().current_scene()->ScreenRayMove(start, end);
 			}
 		);
 	}

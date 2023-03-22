@@ -1,15 +1,22 @@
 #include "server.h"
 
 #include "logger.h"
-#include "world/world.h"
+#include "world/region.h"
+
+#include "packet_handler.h"
+#include "fbb/packets_generated.h"
+#include "systems/systems.h"
 
 bool Server::Initialize()
 {
-    world_ = std::make_shared<World>();
+    world_ = std::make_shared<Region>();
     world_->Initialize();
 
     TcpServer::Initialize();
 
+    PacketHandler::instance().Bind((uint16_t)PacketId::Chat_Req, RecvChatReq);
+    PacketHandler::instance().Bind((uint16_t)PacketId::EnterWorld_Req, EnterRegion);
+    PacketHandler::instance().Bind((uint16_t)PacketId::Move_Req, RecvMoveReq);
     return true;
 }
 
@@ -17,7 +24,7 @@ void Server::HandleAccept(const asio::error_code& error, asio::ip::tcp::socket s
 {
     if (!error)
     {
-        LOG_INFO("[SERVER] Accept New Session. Total :");
+        LOG_INFO("Accept New Session. Total :");
 
         total_sessions_++;
         Shared<ClientSession> new_connection =

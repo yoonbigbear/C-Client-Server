@@ -2,19 +2,9 @@
 
 #include "systems/systems.h"
 
-#include "fbb/packets_generated.h"
-
 void ClientSession::Initialize()
 {
     TcpSession::Initialize();
-
-    Bind((uint16_t)PacketId::Chat_Req, RecvChatReq);
-    //Bind((uint16_t)PacketId::Move_Req, RecvMoveReq);
-}
-
-bool ClientSession::Bind(uint16_t id, PacketFunc fn)
-{
-    return packet_handler_.Bind(id, fn);
 }
 
 void ClientSession::Send(uint16_t id, uint16_t size, uint8_t* buf)
@@ -29,4 +19,13 @@ void ClientSession::Send(uint16_t id, uint16_t size, uint8_t* buf)
 void ClientSession::Send(std::vector<uint8_t>& buf)
 {
     TcpSession::Send(buf);
+}
+
+void ClientSession::ReadPackets()
+{
+    auto list = recv_buffer().Get();
+    for (auto& e : list)
+    {
+        PacketHandler::instance().Invoke(e.first)(this, e.second);
+    }
 }

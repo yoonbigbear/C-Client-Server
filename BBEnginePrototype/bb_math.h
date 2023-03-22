@@ -176,23 +176,21 @@ struct Vector2
 
 };
 
-class AABB2
+struct AABB2
 {
 public:
     AABB2() {}
     AABB2(Vector2&& min, Vector2&& max)
         :min(min)
         , max(max) {}
-    AABB2(const Vector2& center, float hw, float hh, int32_t entity)
+    AABB2(const Vector2& center, float hw, float hh)
     {
         Lower(center, hw, hh);
         Upper(center, hw, hh);
-        userdata = entity;
     }
 
     Vector2 min;
     Vector2 max;
-    int32_t userdata;
 
     inline float SurfaceArea() const { return width() * height(); }
 

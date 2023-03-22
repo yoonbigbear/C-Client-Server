@@ -2,6 +2,9 @@
 
 #include "manager/scene_manager.h"
 #include "timer.h"
+#include "packet_handler.h"
+
+#include "fbb/packets_generated.h"
 
 App::~App()
 { //End
@@ -46,6 +49,14 @@ void App::Initialize()
         my_player_.net_->Disconnect();
         Gui::instance().login.login = false;
     };
+
+
+    PacketHandler::instance().Bind((unsigned short)PacketId::Chat_Sync, Chat_Sync);
+    PacketHandler::instance().Bind((unsigned short)PacketId::EnterSync, Enter_Sync);
+    PacketHandler::instance().Bind((unsigned short)PacketId::LeaveSync, Leave_Sync);
+    PacketHandler::instance().Bind((unsigned short)PacketId::Move_Sync, Move_Sync);
+    PacketHandler::instance().Bind((unsigned short)PacketId::Move_Resp, Move_Resp);
+    PacketHandler::instance().Bind((unsigned short)PacketId::EnterWorld_Resp, EnterWorld_Resp);
 }
 
 void App::Run()

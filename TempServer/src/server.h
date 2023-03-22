@@ -3,7 +3,7 @@
 #include "tcp_server.h"
 #include "net/client_session.h"
 
-class World;
+class Region;
 class Server : public TcpServer
 {
 public:
@@ -27,7 +27,7 @@ public:
 private:
     std::mutex lock_;
 
-    Shared<World> world_;
+    Shared<Region> world_;
     uint32_t total_sessions_ = 0;
     Vector<Shared<ClientSession>> enter_queue;
 

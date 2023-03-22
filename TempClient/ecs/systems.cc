@@ -92,7 +92,6 @@ void Move_Req(Weak<NetClient> session, const Vec3& dst, uint32_t eid)
 
 void MoveAlongPath(Weak<Scene> scene, float dt)
 {
-
     auto ptr = scene.lock();
     if (ptr)
     {
@@ -127,6 +126,13 @@ void MoveAlongPath(Weak<Scene> scene, float dt)
 
                         mover.speed = 1;
                         path.flag = Moving;
+
+                        //Send MovePacket
+                        if (ptr->all_of<PlayerSession>(entity))
+                        {
+                            auto& net = ptr->get<PlayerSession>(entity);
+                            Move_Req(net.session, mover.dest.v3, (uint32_t)entity);
+                        }
                     }
                 }
                 break;

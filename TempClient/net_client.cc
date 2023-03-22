@@ -21,18 +21,6 @@ NetClient::~NetClient()
 void NetClient::Initialize()
 {
     TcpSession::Initialize();
-
-    Bind((unsigned short)PacketId::Chat_Sync, Chat_Sync);
-    Bind((unsigned short)PacketId::EnterSync, Enter_Sync);
-    Bind((unsigned short)PacketId::LeaveSync, Leave_Sync);
-    Bind((unsigned short)PacketId::Move_Sync, Move_Sync);
-    Bind((unsigned short)PacketId::Move_Resp, Move_Resp);
-    Bind((unsigned short)PacketId::EnterWorld_Resp, EnterWorld_Resp);
-}
-
-bool NetClient::Bind(uint16_t id, PacketFunc fn)
-{
-    return packet_handler_.Bind(id, fn);
 }
 
 void NetClient::Send(uint16_t id, uint16_t size, uint8_t* buf)
@@ -93,6 +81,6 @@ void NetClient::ReadPackets()
     auto list = recv_buffer().Get();
     for (auto& e : list)
     {
-        packet_handler_.Invoke(e.first)(this, e.second);
+        PacketHandler::instance().Invoke(e.first)(this, e.second);
     }
 }

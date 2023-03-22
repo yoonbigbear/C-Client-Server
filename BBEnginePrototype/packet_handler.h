@@ -1,11 +1,12 @@
 #pragma once
 
+#include "singleton.h"
 #include <functional>
 #include "types.h"
 
 using PacketFunc = std::function<void(void* session, std::vector<uint8_t>&)>;
 
-class PacketHandler
+class PacketHandler : public Singleton<PacketHandler>
 {
 public:
     bool Bind(unsigned short id, PacketFunc callback)

@@ -3,14 +3,18 @@
 
 #include "components.h"
 
-#include <world/world.h>
+#include <world/region.h>
 #include <world/b2_world_tree.h>
 
 #include "fbb/common_generated.h"
 #include "fbb/world_generated.h"
 #include "fbb/packets_generated.h"
 
-void SendEnterResp(Weak<World> world, const Vector<Proxy*>& new_list, entt::entity caller)
+void EnterRegion(void* session_ptr, std::vector<uint8_t>& data)
+{
+
+}
+void SendEnterResp(Weak<Region> world, const Vector<Proxy*>& new_list, entt::entity caller)
 {
     auto world_ptr = world.lock();
     _ASSERT(world_ptr && world_ptr->all_of<Transform>(caller) &&
@@ -75,7 +79,7 @@ void SendEnterResp(Weak<World> world, const Vector<Proxy*>& new_list, entt::enti
     LOG_INFO("[SERVER] send EnterWorldResp: ");
 }
 
-void SightSyncronize(Weak<World> world, Vector<Proxy*>& proxies, entt::entity caller)
+void SightSyncronize(Weak<Region> world, Vector<Proxy*>& proxies, entt::entity caller)
 {
     auto world_ptr = world.lock();
     _ASSERT(world_ptr);
@@ -109,7 +113,7 @@ void SightSyncronize(Weak<World> world, Vector<Proxy*>& proxies, entt::entity ca
     // update 
     std::swap(sight.objects, proxies);
 }
-void SendEnterSync(Weak<World> world, Unique<EntityInfo> sender,
+void SendEnterSync(Weak<Region> world, Unique<EntityInfo> sender,
     const Vector<Proxy*>& new_list, const Vector<Proxy*>& before_list)
 {
     auto world_ptr = world.lock();
@@ -143,7 +147,7 @@ void SendEnterSync(Weak<World> world, Unique<EntityInfo> sender,
         }
     }
 }
-void SendLeaveSync(Weak<World> world, uint32_t sender,
+void SendLeaveSync(Weak<Region> world, uint32_t sender,
     const Vector<Proxy*>& new_list, const Vector<Proxy*>& before_list)
 {
     auto world_ptr = world.lock();
@@ -214,7 +218,7 @@ void RecvMoveReq(void* session_ptr, std::vector<uint8_t>& data)
     }
 }
 
-void UpdateMove(Weak<World> world, float dt)
+void UpdateMove(Weak<Region> world, float dt)
 {
     auto world_ptr = world.lock();
     _ASSERT(world_ptr);
@@ -252,7 +256,7 @@ void UpdateMove(Weak<World> world, float dt)
     }
 }
 
-void MoveAlongPath(Weak<World> world)
+void MoveAlongPath(Weak<Region> world)
 {
     auto ptr = world.lock();
     _ASSERT(ptr);

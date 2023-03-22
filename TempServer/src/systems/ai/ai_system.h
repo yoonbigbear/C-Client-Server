@@ -2,6 +2,6 @@
 
 #include "pre.h"
 
-class World;
+class Region;
 
-void Wander(Weak<World> world, float dt);
+void Wander(Weak<Region> world, float dt);
