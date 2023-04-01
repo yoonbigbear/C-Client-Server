@@ -1,7 +1,9 @@
 #pragma once
 
+#include "pre.h"
 #include "tcp_server.h"
-#include "net/client_session.h"
+#include "net/user.h"
+
 
 class Region;
 class Server : public TcpServer
@@ -17,7 +19,7 @@ public:
 
     void Update(float dt);
 
-    void EnterQueue(Shared<ClientSession> session);
+    void EnterQueue(Shared<User> session);
     void EnterWorld();
     
     virtual void HandleAccept(const asio::error_code& error,
@@ -28,7 +30,6 @@ private:
     std::mutex lock_;
 
     Shared<Region> world_;
-    uint32_t total_sessions_ = 0;
-    Vector<Shared<ClientSession>> enter_queue;
-
+    Vector<Shared<User>> enter_queue;
+    UnorderedSet<Shared<User>> TcpSessions;
 };

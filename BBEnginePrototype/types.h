@@ -5,7 +5,11 @@
 #include <queue>
 #include <string>
 #include <list>
+#include <deque>
+#include <map>
+#include <set>
 #include <unordered_map>
+#include <unordered_set>
 
 #ifdef _BOX2D
 union Vec
@@ -56,12 +60,13 @@ struct AABB2 {
 } AABB2;
 #endif
 
+#define __unused [[maybe_unused]]
+
 template<typename T>
 using Unique = std::unique_ptr<T>;
 template<typename T>
 using Shared = std::shared_ptr<T>;
-template<typename T>
-using Weak = std::weak_ptr<T>;
+
 
 using String = std::string;
 
@@ -69,16 +74,25 @@ template<typename T>
 using Vector = std::vector<T>;
 template<typename _Key, typename _Val>
 using UnorderedMap = std::unordered_map<_Key, _Val>;
+template<typename _Key>
+using UnorderedSet = std::unordered_set<_Key>;
+template<typename T>
+using Set = std::set<T>;
+template<typename _Key, typename _Val>
+using Map = std::map<_Key, _Val>;
 template<typename T>
 using Queue = std::queue<T>;
 template<typename T>
 using List = std::list<T>;
+template<typename T>
+using Deque = std::deque<T>;
 
 template<typename T>
 inline T VecTo(const Vec& v)
 {
     return T(v.v3.x, v.v3.y, v.v3.z);
 }
+
 template<typename T>
 inline std::unique_ptr<T> VecToUnique(const Vec& v)
 {
@@ -105,4 +119,4 @@ inline std::shared_ptr<_Out> VecToShared(const _In& v)
     return std::make_shared<_Out>(v.x(), v.y(), v.z());
 }
 
-#define ENTITY(eid) entt::entity entity = (entt::entity)eid;
+#define TOENTITY(eid) entt::entity entity = static_cast<entt::entity>(eid);

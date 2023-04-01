@@ -15,40 +15,41 @@ class Scene : public entt::registry, public std::enable_shared_from_this<Scene>
 {
     auto shared() { return shared_from_this(); }
 public:
-    void Initialize(const char* filepath);
+    bool Initialize(const char* filepath);
     void Update(float dt);
     void Draw();
 
 public:
-    void Enter(const EntityInfo* info);
-    void Enter(const Vector<EntityInfo>& entities);
-    void Leave(uint32_t entity);
-    void Leave(const Vector<uint32_t>& entities);
-    bool ScreenRayMove(Vec& start, Vec& end);
-    void MoveRequest(uint32_t eid, Vec& end, float spd);
+    entt::entity EnterPlayer(const EntityInfo* info);
+    entt::entity Enter(const EntityInfo* info);
+    void Leave(uint32_t server_eid);
+    void Leave(entt::entity client_eid);
+    bool ScreenRayMove(Vec& start, Vec& end, entt::entity eid);
+    void MoveRequest(entt::entity eid, Vec& end, float spd);
+
 
 public:
-    void Create() noexcept
+    entt::entity ServerEidToClientEid(uint32_t server_eid)
     {
-        if (!entt::locator<Scene>::has_value())
-        {
-            entt::locator<Scene>::emplace();
-        }
+        return mapped_eid_.contains(server_eid) ? mapped_eid_[server_eid] : entt::null;
     }
-    [[nodiscard]] static Scene& Get() noexcept
+    entt::entity Create(uint32_t server_eid)
     {
-        return entt::locator<Scene>::value();
+        auto entity = create();
+        mapped_eid_[server_eid] = entity;
+        return entity;
     }
 
+public:
     Navigation_C& navmesh() { return nav_mesh_; }
+
 public:
     void AddCommandQueue(std::function<void(void)> command);
-    
 private:
     void ReleaseCommandQueue();
 
 private:
-    UnorderedMap<uint32_t, entt::entity> hash_entities_;
+    UnorderedMap<uint32_t, entt::entity> mapped_eid_;
 
     DebugDrawGLBB dd_;
     Navigation_C nav_mesh_;

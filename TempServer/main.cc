@@ -37,7 +37,8 @@ int main()
     Server server(11000);
 
     LOG_INFO("Server Initialize!!");
-    server.Initialize();
+    if (!server.Initialize())
+        return -1;
 
     SimulateTimer<20.0> timer;
     timer.Reset();

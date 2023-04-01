@@ -2,14 +2,7 @@
 
 #include "pre.h"
 
-#include "SDL.h"
-#if defined(IMGUI_IMPL_OPENGL_ES2)
-#include <SDL_opengles2.h>
-#else
-#include <SDL_opengl.h>
-#endif
-
-class Camera
+class Camera : public Singleton<Camera>
 {
 public:
     void Initialize()
@@ -28,11 +21,10 @@ public:
 	bool movedDuringRotate = false;
     bool processHitTest = false;
     bool processHitTestShift = false;
-
     int mouse_pos[2] = { 0, 0 };
     int orig_mouse_pos[2] = { 0, 0 }; // Used to compute mouse movement totals across frames.
-    float euler[2] = { 45, -45 };
-    float pos[3] = { 0, 5, 0 };
+    float euler[2] = { 52.7500000f, 33.0000000f };
+    float pos[3] = { -55.7055855f, 107.503059f, 80.4015350f };
     float camnear = 0.1f;
     float camfar = 1000;
     float orig_eulers[2] = { 0, 0 }; // Used to compute rotational changes across frames.

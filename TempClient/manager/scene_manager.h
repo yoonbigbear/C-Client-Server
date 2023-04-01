@@ -8,7 +8,7 @@ class SceneManager : public Singleton<SceneManager>
 public:
     bool Add(int32_t scene_id, const char* filepath);
     void Del(int32_t scene_id);
-    Weak<Scene> Get(int32_t scene_id);
+    Shared<Scene> Get(int32_t scene_id);
 
 public:
     auto container() { return container_; }

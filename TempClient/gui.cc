@@ -5,6 +5,7 @@
 
 void Gui::Initialize()
 {
+    
 }
 
 void Gui::Draw()

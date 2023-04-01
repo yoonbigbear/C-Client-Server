@@ -2,16 +2,11 @@
 
 #include "pre.h"
 
-void EnterRegion(void* session_ptr, std::vector<uint8_t>& data);
-void SendEnterResp(Weak<class Region> world, const Vector<struct Proxy*>& new_list, entt::entity caller);
-void SightSyncronize(Weak<class Region> world, Vector<struct Proxy*>& proxies, entt::entity caller);
-void SendEnterSync(Weak<class Region> world, Unique<struct EntityInfo> sender,
-    const Vector<struct Proxy*>& new_list, const Vector<struct Proxy*>& before_list);
+void Send_EnterNeighborsResp(class Region& world, entt::entity caller);
+void Send_MoveSync(const Vec& dest, float speed, entt::entity sender, Shared<class User> receiver);
+void Recv_EnterWorldReq(void* session, Vector<uint8_t>& data);
+void Recv_MoveReq(void* session, Vector<uint8_t>& data);
 
-void SendLeaveSync(Weak<class Region> world, uint32_t sender, const Vector<struct Proxy*>& new_list,
-    const Vector<struct Proxy*>& before_list);
-void SendMoveSync(const struct Mover& mover, Weak<class ClientSession> session, uint32_t eid);
-void RecvMoveReq(void* session_ptr, std::vector<uint8_t>& data);
-
-void UpdateMove(Weak<class Region> world, float dt);
-void MoveAlongPath(Weak<class Region> world);
+void UpdateMove(class Region& world, float dt);
+void MoveAlongPath(class Region& world);
+void UpdateNeighbors(class Region& world, Set<entt::entity>& proxies, entt::entity caller);

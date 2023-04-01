@@ -3,13 +3,16 @@
 #include "pre.h"
 #include "box2d/b2_dynamic_tree.h"
 
-#define PROXY(proxy) Proxy* proxy_ptr = reinterpret_cast<Proxy*>(proxy);
+#define TOPROXYPTR(proxy) Proxy* proxy_ptr = reinterpret_cast<Proxy*>(proxy);
 
 struct Proxy
 {
-    uint8_t flag;
+public:
+    ~Proxy();
+    
     std::uint32_t eid;
     int32_t proxy_id;
+    b2Shape* b2shape;
 };
 
 class BroadPhaseBox
@@ -27,10 +30,10 @@ class b2WorldTree
 {
 public:
     void Initialize(const AABB2& boundary);
-    bool Spawn(const Vec& pos, const AABB2& box,
-        Proxy* entity_data);
-
-    Vector<Proxy*> Query(const Vec& pos, float range, uint32_t except);
+    bool Spawn(const Vec& pos, float radius, Proxy* entity_data);
+    void Despawn(const Proxy& proxy_data);
+    bool Move(const Vec& pos, const Proxy& proxy_data);
+    Set<entt::entity> Query(const Vec& pos, float range, entt::entity except = entt::null);
 
 private:
 

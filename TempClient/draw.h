@@ -150,7 +150,7 @@ public:
 
 		duDebugDrawCircle(&dd, pos[0], pos[1] + c, pos[2], r, BB::RGBA<0, 0, 0, 64>::VAL, 1.0f);
 
-		unsigned int colb = BB::RGBA < 0, 0, 0, 196>::VAL;
+		auto colb = BB::RGBA < 0, 0, 0, 196>::VAL;
 		dd.begin(DU_DRAW_LINES);
 		dd.vertex(pos[0], pos[1] - c, pos[2], colb);
 		dd.vertex(pos[0], pos[1] + c, pos[2], colb);

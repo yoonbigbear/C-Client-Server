@@ -20,7 +20,7 @@ namespace BB
     template<int r, int g, int b, int a>
     struct RGBA
     { 
-        enum 
+        enum : unsigned int
         { 
             VAL = ((unsigned int)r) | ((unsigned int)g << 8) | ((unsigned int)b << 16) 
             | ((unsigned int)a << 24) 

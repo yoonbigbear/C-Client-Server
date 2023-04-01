@@ -64,7 +64,8 @@ dtQueryFilter::dtQueryFilter() :
 	m_includeFlags(0xffff),
 	m_excludeFlags(0)
 {
-	memset(m_areaCost, 1, DT_MAX_AREAS * sizeof(float));
+	for (int i = 0; i < DT_MAX_AREAS; ++i)
+		m_areaCost[i] = 1.0f;
 }
 
 #ifdef DT_VIRTUAL_QUERYFILTER

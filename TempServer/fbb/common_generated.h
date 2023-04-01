@@ -10,39 +10,6 @@ struct fbVec;
 
 struct EntityInfo;
 
-enum class EntityFlag : int8_t {
-  Player = 0,
-  Monster = 1,
-  Resource = 2,
-  MIN = Player,
-  MAX = Resource
-};
-
-inline const EntityFlag (&EnumValuesEntityFlag())[3] {
-  static const EntityFlag values[] = {
-    EntityFlag::Player,
-    EntityFlag::Monster,
-    EntityFlag::Resource
-  };
-  return values;
-}
-
-inline const char * const *EnumNamesEntityFlag() {
-  static const char * const names[4] = {
-    "Player",
-    "Monster",
-    "Resource",
-    nullptr
-  };
-  return names;
-}
-
-inline const char *EnumNameEntityFlag(EntityFlag e) {
-  if (flatbuffers::IsOutRange(e, EntityFlag::Player, EntityFlag::Resource)) return "";
-  const size_t index = static_cast<size_t>(e);
-  return EnumNamesEntityFlag()[index];
-}
-
 enum class ErrorCode : uint16_t {
   None = 0,
   PacketError = 1,
@@ -107,21 +74,19 @@ FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(4) EntityInfo FLATBUFFERS_FINAL_CLASS {
   uint32_t table_id_;
   uint32_t entity_id_;
   int16_t angle_;
-  int8_t flag_;
-  int8_t padding0__;
+  int16_t padding0__;
 
  public:
   EntityInfo() {
     memset(static_cast<void *>(this), 0, sizeof(EntityInfo));
   }
-  EntityInfo(const fbVec &_pos, const fbVec &_endpos, float _spd, uint32_t _table_id, uint32_t _entity_id, int16_t _angle, EntityFlag _flag)
+  EntityInfo(const fbVec &_pos, const fbVec &_endpos, float _spd, uint32_t _table_id, uint32_t _entity_id, int16_t _angle)
       : pos_(_pos),
         endpos_(_endpos),
         spd_(flatbuffers::EndianScalar(_spd)),
         table_id_(flatbuffers::EndianScalar(_table_id)),
         entity_id_(flatbuffers::EndianScalar(_entity_id)),
         angle_(flatbuffers::EndianScalar(_angle)),
-        flag_(flatbuffers::EndianScalar(static_cast<int8_t>(_flag))),
         padding0__(0) {
     (void)padding0__;
   }
@@ -140,11 +105,8 @@ FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(4) EntityInfo FLATBUFFERS_FINAL_CLASS {
   uint32_t entity_id() const {
     return flatbuffers::EndianScalar(entity_id_);
   }
-  int16_t degree() const {
+  int16_t angle() const {
     return flatbuffers::EndianScalar(angle_);
-  }
-  EntityFlag flag() const {
-    return static_cast<EntityFlag>(flatbuffers::EndianScalar(flag_));
   }
 };
 FLATBUFFERS_STRUCT_END(EntityInfo, 40);

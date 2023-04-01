@@ -2,6 +2,6 @@
 
 #include "pre.h"
 
-void RecvChatReq(void* session, std::vector<uint8_t>& data);
+void Recv_ChatReq(void* session, std::vector<uint8_t>& data);
 
 std::vector<uint8_t> BroadcastChat(const std::string& str);

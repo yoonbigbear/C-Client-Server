@@ -2,6 +2,7 @@
 
 #include "pre.h"
 #include <format>
+#include <source_location>
 
 #include "imgui.h"
 #include "singleton.h"
@@ -15,11 +16,25 @@
 "[info] {} \n", std::format(Log, ##__VA_ARGS__)).c_str());
 #define LOG_WARN(Log, ...) Gui::instance().log.AddLog(std::format(\
 "[warn] {} \n", std::format(Log, ##__VA_ARGS__)).c_str());
-#define LOG_ERR(Log, ...) Gui::instance().log.AddLog(std::format(\
-"[error] {} \n", std::format(Log, ##__VA_ARGS__)).c_str());
+#define LOG_ERR(Log, ...) {Gui::instance().log.AddLog(std::format(\
+"[error] {} ", std::format(Log, ##__VA_ARGS__)).c_str());\
+ Gui::instance().log.AddLog(std::format("{} line:[{}]\n", \
+std::source_location::current().file_name(),\
+std::source_location::current().line()).c_str());}
 
 #define CHAT_LOG(Log, ...) Gui::instance().console.AddLog(std::format(\
 " {} \n", ##__VA_ARGS__).c_str());
+
+#ifdef _DEBUG
+#define DEBUG_RETURN(boolean, Log, ...) if(!boolean){\
+LOG_ERR(Log,##__VA_ARGS__); return;}
+
+#define DEBUG_RETURN_VALUE(boolean, value, Log, ...) if(!boolean){\
+LOG_ERR(Log,##__VA_ARGS__); return value;}
+#else
+#define DEBUG_RETURN(boolean, Log, ...);
+#define DEBUG_RETURN_VALUE(boolean, value, Log, ...);
+#endif
 
 class Gui : public Singleton<Gui>
 {
@@ -29,35 +44,6 @@ public:
     static void GuiList()
     {
         ImGui::ShowDemoWindow();
-        //// Our state
-        //bool show_demo_window = true;
-        //bool show_another_window = false;
-        // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
-        //if (show_demo_window)
-             //ImGui::ShowDemoWindow(&show_demo_window);
-
-        // 2. Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
-        //{
-        //    static float f = 0.0f;
-        //    static int counter = 0;
-
-        //    ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
-
-        //    ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-        //    //ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-        //    //ImGui::Checkbox("Another Window", &show_another_window);
-
-        //    ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-        //    //ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
-
-        //    if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-        //        counter++;
-        //    ImGui::SameLine();
-        //    ImGui::Text("counter = %d", counter);
-
-        //    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-        //    ImGui::End();
-        //}
     }
     void Draw();
 

@@ -29,8 +29,9 @@
 #include "types.h"
 
 //assert check
-#define  ASSERT_RETURN(expr, ret) if(expr){ LOG_ERROR(#expr); return ret;};
-#define  ASSERT_ERROR(expr) if(expr) { LOG_ERROR(#expr);};
+#define  DEBUG_RETURN_VALUE(expr, ret) if(expr){ LOG_ERROR(#expr); return ret;};
+#define  DEBUG_RETURN(expr) if(!expr){ LOG_ERROR(#expr); return;};
+#define  DEBUG_ERROR(expr) if(expr) { LOG_ERROR(#expr);};
 
 //// "Protocol_"À» »« ÆÐÅ¶id
 //#define BUILD_PACKET(protocol, ...)   \

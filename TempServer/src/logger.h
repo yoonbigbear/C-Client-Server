@@ -2,6 +2,8 @@
 
 #include "pre.h"
 
+#include <source_location>
+
 #ifdef _SPDLOG
 #include <spdlog/spdlog.h>
 #include <spdlog/stopwatch.h>

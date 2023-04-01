@@ -1,7 +1,6 @@
 #pragma once
 
 #include "pre.h"
-#include "net_client.h"
 
 
 struct EntityData
@@ -21,6 +20,7 @@ enum MoveFlag : uint8_t
 struct Transform
 {
     Vec v;
+    float speed;
     short degree;
 };
 
@@ -33,12 +33,11 @@ struct Mover
 {
     Vec dest;
     Vec dir;
-    float speed;
 };
 
 struct SightComponent
 {
-    Vector<EntityData*> objects;
+    Vector<EntityData*> neighbors;
 };
 
 struct NpcComponent
@@ -54,7 +53,7 @@ struct WanderComponent
 
 struct PathList
 {
-    List<Vec> paths;
+    Deque<Vec> paths;
     MoveFlag flag;
 };
 
@@ -70,5 +69,5 @@ struct CylinderData
 
 struct PlayerSession
 {
-    Shared<NetClient> session;
+   class NetTcp* session;
 };

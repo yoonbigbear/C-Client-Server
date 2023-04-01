@@ -1,17 +1,18 @@
 
 enum PacketId : short
 {
-	Chat_Req,
-	Chat_Resp,
-	Chat_Sync,
+	ChatReq,
+	ChatResp,
+	ChatSync,
 	
-	EnterSync,
-	LeaveSync,
+	EnterNeighborsSync,
+	LeaveNeighborsSync,
+	UpdateNeighborsSync,
 	
-	Move_Req,
-	Move_Resp,
-	Move_Sync,
+	MoveReq,
+	MoveResp,
+	MoveSync,
 	
-	EnterWorld_Req,
-	EnterWorld_Resp,
+	EnterWorldReq,
+	EnterWorldResp,
 }

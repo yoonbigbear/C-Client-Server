@@ -8,6 +8,7 @@
 #endif
 
 #include "manager/scene_manager.h"
+#include "player_client.h"
 
 void Camera::Input(SDL_Event* event)
 {
@@ -80,16 +81,16 @@ void Camera::Input(SDL_Event* event)
 		break;
 	}
 
-	if (/*processHitTest*/ 
-		ImGui::IsMouseDown(ImGuiMouseButton_Left) &&
+	if (/*processHitTest*/
+		ImGui::IsMouseClicked(ImGuiMouseButton_Left) &&
 		!ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow))
 	{
-		
 		SceneManager::instance().current_scene()->AddCommandQueue(
 			[this]() {
-				Vec start = Vec(ray_start);
-				Vec end = Vec(ray_end);
-				SceneManager::instance().current_scene()->ScreenRayMove(start, end);
+				Vec start = Vec(Camera::instance().ray_start);
+				Vec end = Vec(Camera::instance().ray_end);
+				SceneManager::instance().current_scene()->ScreenRayMove(start, end,
+					(entt::entity)PlayerClient::instance().eid);
 			}
 		);
 	}
@@ -107,5 +108,7 @@ void Camera::Input(SDL_Event* event)
 		? 1 : -1), 0.0f, 1.0f);
 	moveDown = std::clamp(moveDown + io.DeltaTime * 4 * (keystate[SDL_SCANCODE_E]
 		? 1 : -1), 0.0f, 1.0f);
+
+
 }
 

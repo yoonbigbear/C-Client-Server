@@ -15,7 +15,7 @@ public:
         :io_context_(io_context)
         , socket_(std::move(socket)) {}
     virtual ~TcpSession() {}
-    virtual void Initialize()
+    void Initialize()
     {
         socket_.set_option(tcp::no_delay(true));
         Read();
@@ -27,7 +27,6 @@ public:
             asio::post(io_context_, [this]() {socket_.close(); });
         }
     }
-
     bool IsConnected() const
     {
         return socket_.is_open();
@@ -85,16 +84,26 @@ protected:
                 {
                     if (length > 0)
                     {
-                        PacketHeader header;
-                        memmove(&header, recv_buffer_.data(), sizeof(PacketHeader));
-                        std::vector<uint8_t>body_vec(header.size);
-                        memmove(body_vec.data(), recv_buffer_.data() + sizeof(PacketHeader), header.size);
-                        recv_packets_.Add(header.id, std::move(body_vec));
-                        Read();
+                        try
+                        {
+                            PacketHeader header;
+                            memmove(&header, recv_buffer_.data(), sizeof(PacketHeader));
+                            std::vector<uint8_t>body_vec(header.size);
+                            memmove(body_vec.data(), recv_buffer_.data() + sizeof(PacketHeader), header.size);
+                            recv_packets_.Add(header.id, std::move(body_vec));
+                            Read();
+                        }
+                        catch (std::exception& e)
+                        {
+                            throw e;
+                            return;
+                        }
                     }
                 }
                 else
                 {
+                    Disconnect();
+                    return;
                     /*room_.leave(shared_from_this());*/
                 }
             });

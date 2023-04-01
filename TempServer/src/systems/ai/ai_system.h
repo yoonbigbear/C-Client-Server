@@ -4,4 +4,4 @@
 
 class Region;
 
-void Wander(Weak<Region> world, float dt);
+void Wander(Shared<Region> world, float dt);

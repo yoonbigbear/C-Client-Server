@@ -1,36 +1,77 @@
 #include "systems.h"
 
+#include "player_client.h"
 #include "level/scene.h"
-#include "net_client.h"
+#include "net_tcp.h"
 #include "manager/scene_manager.h"
-
 #include "fbb/chat_generated.h"
 #include "fbb/packets_generated.h"
 #include "fbb/world_generated.h"
 #include "fbb/common_generated.h"
 
-void Chat_Sync(void* session, Vector<uint8_t>& data)
+void Recv_ChatSync(void* session, Vector<uint8_t>& data)
 {
-    auto sync = flatbuffers::GetRoot<ChatSync>(data.data());
-    LOG_INFO("[info] received ChatSync");
+    LOG_INFO("Received ChatSync");
 
-    CHAT_LOG(sync->chat()->c_str());
+    auto net = reinterpret_cast<NetTcp*>(session);
+    DEBUG_RETURN(net, "null session");
+
+    auto sync = flatbuffers::GetRoot<ChatSync>(data.data());
+    __unused auto pack = sync->UnPack();
+    CHAT_LOG(pack->chat.c_str());
 }
 
-void EnterWorld_Resp(void* session, Vector<uint8_t>& data)
+void Recv_UpdateNeighborsSync(void* session, Vector<uint8_t>& data)
 {
+    LOG_INFO("Received UpdateNeighborSync");
+    auto resp = flatbuffers::GetRoot<UpdateNeighborsSync>(data.data());
+    auto t = resp->UnPack();
+
+    auto net = reinterpret_cast<NetTcp*>(session);
+    DEBUG_RETURN(net, "null session");
+
+    auto scene = SceneManager::instance().Get(PlayerClient::instance().cur_scene_id_);
+    for (auto& e : t->enter_entity)
+    {
+        scene->Enter(&e);
+    }
+    for (auto e : t->leave_entity)
+    {
+        scene->Leave(e);
+    }
+}
+
+void Recv_EnterWorldResp(void* session, Vector<uint8_t>& data)
+{
+    LOG_INFO("Received EnterWorldResp");
     auto resp = flatbuffers::GetRoot<EnterWorldResp>(data.data());
     auto t = resp->UnPack();
 
-    SceneManager::instance().current_scene()->Enter(t->entity.get());
-    LOG_INFO("received EnterWorldResp");
+    auto net = reinterpret_cast<NetTcp*>(session);
+    if (net)
+    {
+        //my player
+        auto eid = SceneManager::instance().current_scene()->EnterPlayer(t->entity.get());
+        auto& session_comp = SceneManager::instance().current_scene()->emplace<PlayerSession>(eid);
+        session_comp.session = net;
+        PlayerClient::instance().cur_scene_id_ = 0;
+        PlayerClient::instance().eid = eid;
+    }
+    else
+    {
+        LOG_ERR("null session");
+    }
 }
 
-void Enter_Sync(void* session, Vector<uint8_t>& data)
+void Recv_EnterNeighborsSync(void* session, Vector<uint8_t>& data)
 {
-    auto sync = flatbuffers::GetRoot<EnterSync>(data.data());
+    auto net = reinterpret_cast<NetTcp*>(session);
+    DEBUG_RETURN(net, "null session");
+
+    LOG_INFO("Received EnterNeighborsSync");
+
+    auto sync = flatbuffers::GetRoot<EnterNeighborsSync>(data.data());
     auto t = sync->UnPack();
-    LOG_INFO("received EnterSync");
 
     auto scene = SceneManager::instance().current_scene();
     if (scene)
@@ -39,11 +80,14 @@ void Enter_Sync(void* session, Vector<uint8_t>& data)
     }
 }
 
-void Leave_Sync(void* session, Vector<uint8_t>& data)
+void Recv_LeaveNeighborsSync(void* session, Vector<uint8_t>& data)
 {
-    auto sync = flatbuffers::GetRoot<LeaveSync>(data.data());
+    auto net = reinterpret_cast<NetTcp*>(session);
+    DEBUG_RETURN(net, "null session");
+
+    auto sync = flatbuffers::GetRoot<LeaveNeighborsSync>(data.data());
     auto t = sync->UnPack();
-    LOG_INFO("received LeaveSync");
+    LOG_INFO("Received LeaveNeighborsSync {}", t->leave_entity);
 
     auto scene = SceneManager::instance().current_scene();
     if (scene)
@@ -52,51 +96,58 @@ void Leave_Sync(void* session, Vector<uint8_t>& data)
     }
 }
 
-void Move_Sync(void* session, Vector<uint8_t>& data)
+void Recv_MoveSync(void* session, Vector<uint8_t>& data)
 {
+    auto net = reinterpret_cast<NetTcp*>(session);
+    DEBUG_RETURN(net, "null session");
+
     auto sync = flatbuffers::GetRoot<MoveSync>(data.data());
     auto t = sync->UnPack();
-    auto scene = SceneManager::instance().Get(0).lock();
+    LOG_INFO("Received MoveSync eid {}", t->eid);
+
+    auto scene = SceneManager::instance().current_scene();
     if (scene)
     {
         Vec dest;
         memcpy(&dest, t->dest.get(), sizeof(Vec));
-        scene->MoveRequest(t->eid, dest, t->spd);
+        auto entity = scene->ServerEidToClientEid(t->eid);
+        DEBUG_RETURN(scene->valid(entity), "Invalid entity id svr {} / client {}", t->eid, (uint32_t)entity);
+        scene->MoveRequest(entity, dest, t->spd);
     }
-    LOG_INFO("received MoveSync");
 }
 
-void Move_Resp(void* session, Vector<uint8_t>& data)
+void Recv_MoveResp(void* session, Vector<uint8_t>& data)
 {
+    auto net = reinterpret_cast<NetTcp*>(session);
+    DEBUG_RETURN(net, "null session");
+
+    LOG_INFO("Received MoveResp");
     auto resp = flatbuffers::GetRoot<MoveResp>(data.data());
     auto t = resp->UnPack();
 
     if (t->error_code != ErrorCode::None)
     {
-        LOG_ERR("recevied MoveError : {}", (int)t->error_code);
+        LOG_ERR("Recevied MoveError : {}", (int)t->error_code);
     }
-    LOG_INFO("received MoveResp");
 }
 
-void Move_Req(Weak<NetClient> session, const Vec3& dst, uint32_t eid)
+void Send_MoveReq(NetTcp* net, const Vec3& dst)
 {
+    LOG_INFO("Send MoveReq");
     flatbuffers::FlatBufferBuilder fbb(256);
     MoveReqT req;
     req.dest = VecToUnique<fbVec>(dst);
-    req.eid = (uint32_t)eid;
-    req.eid = eid;
     fbb.Finish(MoveReq::Pack(fbb, &req));
-    if (auto ptr = session.lock(); ptr)
-        ptr->Send((uint16_t)PacketId::Move_Req, fbb.GetSize(), fbb.GetBufferPointer());
+    net->Send((uint16_t)PacketId::MoveReq, fbb.GetSize(), fbb.GetBufferPointer());
 }
 
-void MoveAlongPath(Weak<Scene> scene, float dt)
+void MoveAlongPath(Shared<Scene> scene, float dt)
 {
-    auto ptr = scene.lock();
-    if (ptr)
+    if (scene)
     {
+        //decide move behaviour path
         {
-            auto view = ptr->view<PathList, Transform>();
+            auto view = scene->view<PathList, Transform>();
             for (const auto [entity, path, tf] : view.each())
             {
                 switch (path.flag)
@@ -107,12 +158,19 @@ void MoveAlongPath(Weak<Scene> scene, float dt)
                     if (path.paths.empty())
                     {
                         //reached destination.
-                        ptr->remove<PathList>(entity);
+                        scene->remove<PathList>(entity);
+                        tf.speed = 0;
+                        //Send MovePacket
+                        if (scene->all_of<PlayerSession>(entity))
+                        {
+                            auto& net = scene->get<PlayerSession>(entity);
+                            Send_MoveReq(net.session, tf.v.v3);
+                        }
                     }
                     else
                     {
                         //keep moving toward next path.
-                        auto& mover = ptr->emplace_or_replace<Mover>(entity);
+                        auto& mover = scene->emplace_or_replace<Mover>(entity);
                         mover.dest = path.paths.front();
                         path.paths.pop_front();
 
@@ -124,14 +182,14 @@ void MoveAlongPath(Weak<Scene> scene, float dt)
                         tf.degree = static_cast<short>
                             (std::atan2f(mover.dir.v2.y, mover.dir.v2.x));
 
-                        mover.speed = 1;
+                        tf.speed = 1;
                         path.flag = Moving;
 
                         //Send MovePacket
-                        if (ptr->all_of<PlayerSession>(entity))
+                        if (scene->all_of<PlayerSession>(entity))
                         {
-                            auto& net = ptr->get<PlayerSession>(entity);
-                            Move_Req(net.session, mover.dest.v3, (uint32_t)entity);
+                            auto& net = scene->get<PlayerSession>(entity);
+                            Send_MoveReq(net.session, mover.dest.v3);
                         }
                     }
                 }
@@ -149,24 +207,25 @@ void MoveAlongPath(Weak<Scene> scene, float dt)
             }
         }
 
+        //move
         {
-            auto view = ptr->view<Transform, const Mover>();
+            auto view = scene->view<Transform, const Mover>();
             for (auto [entity, tf, mover] : view.each())
             {
                 auto distance = mover.dest.v2 - tf.v.v2;
                 auto len_sqr = distance.LengthSquared();
-                auto movelen = dt * mover.speed;
+                auto movelen = dt * tf.speed;
 
                 if (len_sqr < (movelen * movelen))
                 {
                     tf.v = mover.dest;
                     //arrive
-                    auto path = ptr->try_get<PathList>(entity);
+                    auto path = scene->try_get<PathList>(entity);
                     if (path)
                     {
                         path->flag = MoveFlag::Arrive;
                     }
-                    ptr->remove<Mover>(entity);
+                    scene->remove<Mover>(entity);
                 }
                 else
                 {

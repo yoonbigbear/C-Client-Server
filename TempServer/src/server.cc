@@ -10,13 +10,14 @@
 bool Server::Initialize()
 {
     world_ = std::make_shared<Region>();
-    world_->Initialize();
+    if (!world_->Initialize())
+        return false;
 
     TcpServer::Initialize();
 
-    PacketHandler::instance().Bind((uint16_t)PacketId::Chat_Req, RecvChatReq);
-    PacketHandler::instance().Bind((uint16_t)PacketId::EnterWorld_Req, EnterRegion);
-    PacketHandler::instance().Bind((uint16_t)PacketId::Move_Req, RecvMoveReq);
+    BINDPACKET(EnterWorldReq);
+    BINDPACKET(MoveReq);
+
     return true;
 }
 
@@ -26,12 +27,9 @@ void Server::HandleAccept(const asio::error_code& error, asio::ip::tcp::socket s
     {
         LOG_INFO("Accept New Session. Total :");
 
-        total_sessions_++;
-        Shared<ClientSession> new_connection =
-            std::make_shared<ClientSession>(io_context_, std::move(socket));
-        new_connection->Initialize();
-
-        EnterQueue(new_connection);
+        Shared<User> new_user = std::make_shared<User>();
+        new_user->Initialize(std::make_shared<ClientSession>(io_context_, std::move(socket)));
+        EnterQueue(new_user);
     }
     else
     {
@@ -52,7 +50,7 @@ void Server::Update(float dt)
     world_->Update(dt);
 }
 
-void Server::EnterQueue(Shared<ClientSession> session)
+void Server::EnterQueue(Shared<User> session)
 {
     auto lg = std::lock_guard(lock_);
     enter_queue.emplace_back(session);
@@ -63,7 +61,7 @@ void Server::EnterWorld()
     auto lg = std::lock_guard(lock_);
     for (auto& e : enter_queue)
     {
-        world_->Enter(e);
+        e->eid((uint32_t)world_->EnterPlayer(e));
     }
     enter_queue.clear();
 }

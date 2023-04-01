@@ -15,7 +15,7 @@ public:
 	Navigation();
 	virtual ~Navigation();
 
-	void Initialize(const char* path);
+	bool Initialize(const char* path);
 	dtNavMesh* LoadAll(const char* path);
 	void Render(struct duDebugDraw* dd);
 
@@ -23,9 +23,9 @@ public:
 	_NODISCARD bool FindRandomPointInCircle(const Vec& center, float radius,
 		float* dtrandom, const dtQueryFilter& ft = dtQueryFilter());
 	_NODISCARD bool FindPath(const Vec& start, const Vec& end,
-		List<Vec>& out_path, const dtQueryFilter& ft = dtQueryFilter());
+		Deque<Vec>& out_path, const dtQueryFilter& ft = dtQueryFilter());
 	_NODISCARD bool FindPath(float* dtstart, float* dtend,
-		List<Vec>& out_path, const dtQueryFilter& ft = dtQueryFilter());
+		Deque<Vec>& out_path, const dtQueryFilter& ft = dtQueryFilter());
 	_NODISCARD bool Raycast(const Vec& start, dtPolyRef startref,
 		const Vec& end, dtRaycastHit& hit,
 		const dtQueryFilter& ft = dtQueryFilter());

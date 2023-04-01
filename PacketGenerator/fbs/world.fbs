@@ -1,20 +1,25 @@
 
 include "common.fbs";
 
-table EnterSync
+table EnterNeighborsSync
 {
 	enter_entity : EntityInfo;
 }
 
-table LeaveSync
+table LeaveNeighborsSync
 {
 	leave_entity : uint;
+}
+
+table UpdateNeighborsSync
+{
+	enter_entity : [EntityInfo];
+	leave_entity : [uint];
 }
 
 table MoveReq
 {
 	dest : fbVec;
-	eid : uint;	
 }
 
 table MoveResp
@@ -37,5 +42,4 @@ table EnterWorldReq
 table EnterWorldResp
 {
 	entity : EntityInfo;
-	sight_entities : [EntityInfo];
 }

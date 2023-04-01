@@ -2,7 +2,7 @@
 
 #include "components.h"
 #include "systems/systems.h"
-#include "net/client_session.h"
+#include "net/user.h"
 #include "packet_handler.h"
 #include "share/navigation.h"
 #include "b2_world_tree.h"
@@ -11,26 +11,29 @@
 #include "fbb/packets_generated.h"
 #include "fbb/world_generated.h"
 
-void Region::Initialize()
+bool Region::Initialize()
 {
     navigation_ = std::make_shared<Navigation>();
-    field_ = std::make_shared<b2WorldTree>();
+    world_tree_ = std::make_shared<b2WorldTree>();
 
-    navigation_->Initialize("../Resource/all_tiles_navmesh.bin");
-    field_->Initialize(AABB2(Vec2(-100, -100), Vec2(100, 100)));
+    if (!navigation_->Initialize("all_tiles_navmesh.bin"))
+        return false;
+    world_tree_->Initialize(AABB2(Vec2(-100, -100), Vec2(100, 100)));
 
-    viewing_range_ = 20;
+    viewing_range_ = 30;
 
     SpawnAI();
+
+    return true;
 }
 
-void Region::Enter(Shared<ClientSession> session)
+entt::entity Region::EnterPlayer(Shared<User> user)
 {
     auto entity = create();
 
-    if (session)
+    if (user)
     {
-        emplace<NetComponent>(entity, session);
+        emplace<NetComponent>(entity, user);
     }
 
     //start pos
@@ -41,56 +44,50 @@ void Region::Enter(Shared<ClientSession> session)
     // entity info
     auto& proxy_data = emplace<Proxy>(entity);
     proxy_data.eid = (std::uint32_t)entity;
-    proxy_data.flag = (uint8_t)EntityFlag::Player;
-
-    //box collider
-    auto& box_comp = emplace<AABBComponent>(entity);
-    auto half_box = Vec2(5.f, 5.f);
-    box_comp.box.lowerBound = tf.v.v2 - half_box;
-    box_comp.box.upperBound = tf.v.v2 + half_box;
 
     //field
-    if (!field_->Spawn(tf.v.v2, box_comp.box, &proxy_data))
+    if (!world_tree_->Spawn(tf.v.v2, 5.f, &proxy_data))
     {
-        release(entity);
-        return;
+        destroy(entity);
+        LOG_ERROR("b2tree create proxy failed");
+        return entt::null;
     }
 
     //query sight entities
-    auto proxies_on_sight = field_->Query(tf.v.v2, viewing_range(), (uint32_t)entity);
-    std::sort(proxies_on_sight.begin(), proxies_on_sight.end());
+    emplace<SightComponent>(entity);
+    auto proxies_on_sight = world_tree_->Query(tf.v.v2, viewing_range(), entity);
 
-    //update sight
-    SendEnterResp(shared(), proxies_on_sight, entity);
-    SightSyncronize(shared(), proxies_on_sight, entity);
+    //send the entites info on sight to the created player
+    Send_EnterNeighborsResp(*this, entity);
+
+    //send created player's enter packet to neighbors
+    UpdateNeighbors(*this, proxies_on_sight, entity);
+
+    user->world(shared());
 
     LOG_INFO("Enter World {}", static_cast<std::uint32_t>(entity));
+
+    return entity;
 }
 
-void Region::Enter(int npcid)
+entt::entity Region::Enter(int npcid)
 {
     auto entity = create();
 
-    // entity info
-    auto& proxy_data = emplace<Proxy>(entity);
-    proxy_data.eid = (std::uint32_t)entity;
-    proxy_data.flag = (uint8_t)EntityFlag::Player;
 
     // pos
     auto& tf = emplace<Transform>(entity);
     tf.v.v3.Set(RandomGenerator::Real(-50, 50), RandomGenerator::Real(-50, 50), 0);
-    
-    // collider
-    auto& box_comp = emplace<AABBComponent>(entity);
-    auto half_box = Vec2(5.f, 5.f);
-    box_comp.box.lowerBound = tf.v.v2 - half_box;
-    box_comp.box.upperBound = tf.v.v2 + half_box;
 
+    // collider
+    auto& proxy_data = emplace<Proxy>(entity);
+    proxy_data.eid = (std::uint32_t)entity;
+    
     //field
-    if (!field_->Spawn(tf.v.v2, box_comp.box, &proxy_data))
+    if (!world_tree_->Spawn(tf.v.v2, 5.f, &proxy_data))
     {
         release(entity);
-        return;
+        return entt::null;
     }
 
     emplace<NpcComponent>(entity, npcid);
@@ -102,14 +99,22 @@ void Region::Enter(int npcid)
     }
 
     //query sight entities
-    auto& sight_comp = emplace<SightComponent>(entity);
-    auto proxies_on_sight = field_->Query(tf.v.v2, viewing_range(), (uint32_t)entity);
-    std::sort(proxies_on_sight.begin(), proxies_on_sight.end());
+    emplace<SightComponent>(entity);
+    auto proxies_on_sight = world_tree_->Query(tf.v.v2, viewing_range(), entity);
 
     //update sight
-    SightSyncronize(shared(), proxies_on_sight, entity);
+    UpdateNeighbors(*this, proxies_on_sight, entity);
 
     LOG_INFO("npc enter world {}", static_cast<std::uint32_t>(entity));
+
+    return entity;
+}
+
+void Region::Leave(entt::entity eid)
+{
+    auto& proxydata = get<Proxy>(eid);
+    world_tree_->Despawn(proxydata);
+    destroy(eid);
 }
 
 void Region::Update(float dt)
@@ -119,23 +124,24 @@ void Region::Update(float dt)
         auto players = view<NetComponent>();
         for (auto [entity, net] : players.each())
         {
-            net.session->ReadPackets();
+            net.user->ReadPackets();
         }
     }
 
-    //move
-    MoveAlongPath(shared());
 
     //ai
-    //Wander(shared(), dt);
-    UpdateMove(shared(), dt);
+    Wander(shared(), dt);
+
+    //move
+    MoveAlongPath(*this);
+    UpdateMove(*this, dt);
 
     //Broadcast(BroadcastChat("broadcast from server"));
 }
 
 void Region::SpawnAI()
 {
-    int aicount = 21;
+    int aicount = 10;
     for (int i = 0; i < aicount; ++i)
     {
         Enter(1);
@@ -147,26 +153,31 @@ void Region::Broadcast(Vector<uint8_t>&& data)
     auto v = view<NetComponent>();
     for (auto&& [entity, net] : v.each())
     {
-        net.session->Send(data);
+        net.user->tcp()->Send(data);
     }
 }
 
 bool Region::HandleMove(uint32_t eid, const Vec& dest)
 {
-    ENTITY(eid);
+    TOENTITY(eid);
     if (valid(entity))
     {
         auto tf = try_get<Transform>(entity);
         if (tf)
         {
-            auto& mover = emplace_or_replace<Mover>(entity);
+            /*auto& mover = emplace_or_replace<Mover>(entity);
             mover.dest = dest;
 
             
             mover.dir = tf->v.v2 - mover.dest.v2;
-            mover.dir.v2.Normalize();
+            mover.dir.v2.Normalize();*/
 
-            mover.speed = 1.f;
+            auto& pathlist = emplace_or_replace<PathList>(entity);
+            pathlist.paths.emplace_back(dest);
+
+            tf->speed = 1.f;
+            
+            return true;
         }
     }
     return false;

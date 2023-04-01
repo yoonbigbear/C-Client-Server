@@ -2,8 +2,9 @@
 
 #include "manager/scene_manager.h"
 #include "timer.h"
+#include "player_client.h"
+#include "net_tcp.h"
 #include "packet_handler.h"
-
 #include "fbb/packets_generated.h"
 
 App::~App()
@@ -22,41 +23,38 @@ App::~App()
                 std::chrono::system_clock::duration(1000)));
 }
 
-void App::Initialize()
+bool App::Initialize()
 {
-    io_thread_ = std::async(std::launch::async, [this] {
-        while (true)
-        io_context_.run();
-        });
+    //create temp sample scene
+    if (!SceneManager::instance().Add(0, "all_tiles_navmesh.bin"))
+    {
+        return false;
+    }
 
     //create my temp player
-    my_player_.net_ = std::make_shared<NetClient>(io_context_, asio::ip::tcp::socket(io_context_));
+    PlayerClient::instance().Initialize();
+    PlayerClient::instance().net_ = std::make_shared<NetTcp>(io_context_, asio::ip::tcp::socket(io_context_));
 
     //graphics initialize
-    graphics_.Initialize();
+    Graphics::instance().Initialize();
+    Camera::instance().Initialize();
 
-    //create temp sample scene
-    SceneManager::instance().Add(0, "../Resource/all_tiles_navmesh.bin");
-
-    Gui::instance().login.onClickConnect +=
-        [this](const std::string& host, const uint16_t port)
-    {
-        my_player_.net_->Connect(host, port);
-    };
-    Gui::instance().login.onClickDisconnect +=
-        [this]()
-    {
-        my_player_.net_->Disconnect();
-        Gui::instance().login.login = false;
-    };
+    io_thread_ = std::async(std::launch::async, [this] {
+        while (true)
+            io_context_.run();
+        });
 
 
-    PacketHandler::instance().Bind((unsigned short)PacketId::Chat_Sync, Chat_Sync);
-    PacketHandler::instance().Bind((unsigned short)PacketId::EnterSync, Enter_Sync);
-    PacketHandler::instance().Bind((unsigned short)PacketId::LeaveSync, Leave_Sync);
-    PacketHandler::instance().Bind((unsigned short)PacketId::Move_Sync, Move_Sync);
-    PacketHandler::instance().Bind((unsigned short)PacketId::Move_Resp, Move_Resp);
-    PacketHandler::instance().Bind((unsigned short)PacketId::EnterWorld_Resp, EnterWorld_Resp);
+    BINDPACKET(ChatSync);
+    BINDPACKET(UpdateNeighborsSync);
+    BINDPACKET(EnterNeighborsSync);
+    BINDPACKET(LeaveNeighborsSync);
+    BINDPACKET(MoveSync);
+    BINDPACKET(MoveResp);
+    BINDPACKET(EnterWorldResp);
+
+
+    return true;
 }
 
 void App::Run()
@@ -68,20 +66,21 @@ void App::Run()
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
     while (true)
     {
-        timer.Frame();
-        {
-            while (timer.time_acc > timer.FRAMERATE)
+            timer.Frame();
             {
-                timer.time_acc -= timer.FRAMERATE;
-                auto scenes = SceneManager::instance().container();
-                for (auto& [key, val] : scenes)
+                while (timer.time_acc > timer.FRAMERATE)
                 {
-                    val->Update(static_cast<float>(timer.FRAMERATE));
+                    timer.time_acc -= timer.FRAMERATE;
+                   /* auto scenes = SceneManager::instance().container();
+                    for (auto& [key, val] : scenes)
+                    {
+                        val->Update(static_cast<float>(timer.FRAMERATE));
+                    }*/
+                    SceneManager::instance().current_scene()->Update(static_cast<float>(timer.FRAMERATE));
+                    PlayerClient::instance().Input();
+                    PlayerClient::instance().net_->ReadPackets();
                 }
-
-                my_player_.net_->ReadPackets();
             }
-        }
     }
         });
 
@@ -96,15 +95,14 @@ void App::Run()
         if (ImGui::IsKeyDown(ImGuiKey_Escape))
             return;
         if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE
-            && event.window.windowID == SDL_GetWindowID(graphics_.window()))
+            && event.window.windowID == SDL_GetWindowID(Graphics::instance().window()))
             return;
 
         timer.Frame();
 
-        graphics_.BeginScene();
+        Graphics::instance().BeginScene();
         {
-            graphics_.Input(&event);
-            my_player_.Input();
+            Camera::instance().Input(&event);
 
             auto scenes = SceneManager::instance().container();
 
@@ -112,10 +110,8 @@ void App::Run()
             {
                 val->Draw();
             }
-            //Gui::instance().login.render_frame = ImGui::GetIO().Framerate;
             Gui::instance().Draw();
-            //Gui::GuiList();
         }
-        graphics_.EndScene();
+        Graphics::instance().EndScene();
     }
 }

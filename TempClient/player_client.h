@@ -2,14 +2,16 @@
 
 #include "pre.h"
 
-class MyPlayer
+class PlayerClient : public Singleton<PlayerClient>
 {
 public:
+    void Initialize();
     void Input();
 
 public:
-    Shared<class NetClient> net_;
+    Shared<class NetTcp> net_;
     int cur_scene_id_;
+    entt::entity eid;
     float move_front_;
     float move_back_;
     float move_right_;

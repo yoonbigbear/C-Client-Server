@@ -2,7 +2,6 @@
 
 #include "pre.h"
 
-class ClientSession;
 class b2WorldTree;
 class Navigation;
 class Region : public entt::registry, public std::enable_shared_from_this<Region>
@@ -10,9 +9,10 @@ class Region : public entt::registry, public std::enable_shared_from_this<Region
     auto shared() { return shared_from_this(); }
 
 public:
-    void Initialize();
-    void Enter(Shared<class ClientSession> session);
-    void Enter(int npcid);
+    bool Initialize();
+    entt::entity EnterPlayer(Shared<class User> session);
+    entt::entity Enter(int npcid);
+    void Leave(entt::entity eid);
     void Update(float dt);
 
     void SpawnAI();
@@ -36,12 +36,12 @@ public:
     bool HandleMove(uint32_t eid, const Vec& dest);
 
 public:
-    Weak<class b2WorldTree> world_tree() { return field_; }
-    Weak<class Navigation> navigation() { return navigation_; }
+    Shared<class b2WorldTree> world_tree() { return world_tree_; }
+    Shared<class Navigation> navigation() { return navigation_; }
     float viewing_range() { return viewing_range_; }
 
 private:
     float viewing_range_;
-    Shared<class b2WorldTree> field_;
+    Shared<class b2WorldTree> world_tree_;
     Shared<class Navigation> navigation_;
 };

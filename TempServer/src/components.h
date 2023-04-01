@@ -1,7 +1,6 @@
 #pragma once
 
 #include "pre.h"
-#include "net/client_session.h"
 #include "fbb/common_generated.h"
 
 enum MoveFlag : uint8_t
@@ -14,23 +13,18 @@ struct Transform
 {
     Vec v;
     short degree;
-};
-
-struct AABBComponent
-{
-    AABB2 box;
+    float speed;
 };
 
 struct Mover
 {
     Vec dest;
     Vec dir;
-    float speed;
 };
 
 struct SightComponent
 {
-    Vector<struct Proxy*> objects;
+    Set<entt::entity> neighbors;
 };
 
 struct NpcComponent
@@ -46,12 +40,12 @@ struct WanderComponent
 
 struct PathList
 {
-    List<Vec> paths;
+    Deque<Vec> paths;
     MoveFlag flag;
 };
 
 struct NetComponent
 {
-    Shared<ClientSession> session;
+    Shared<class User> user;
 };
 

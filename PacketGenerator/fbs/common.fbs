@@ -1,11 +1,3 @@
-
-enum EntityFlag : byte
-{
-	Player,
-	Monster,
-	Resource,
-}
-
 enum ErrorCode : ushort
 {
 	None = 0,
@@ -30,6 +22,4 @@ struct EntityInfo
 	table_id : uint;
 	entity_id : uint;
 	angle : short;
-	flag : EntityFlag;	
-	
 }

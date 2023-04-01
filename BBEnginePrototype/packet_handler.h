@@ -4,6 +4,8 @@
 #include <functional>
 #include "types.h"
 
+#define BINDPACKET(id){PacketHandler::instance().Bind((unsigned short)PacketId::##id##, Recv_##id##); };
+
 using PacketFunc = std::function<void(void* session, std::vector<uint8_t>&)>;
 
 class PacketHandler : public Singleton<PacketHandler>

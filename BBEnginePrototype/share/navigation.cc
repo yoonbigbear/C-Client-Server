@@ -34,18 +34,20 @@ Navigation::~Navigation()
 	dtFreeNavMesh(nav_mesh_);
 }
 
-void Navigation::Initialize(const char* path)
+bool Navigation::Initialize(const char* path)
 {
 	dtFreeNavMesh(nav_mesh_);
 	nav_mesh_ = LoadAll(path);
-	if (nav_mesh_)
-		nav_query_->init(nav_mesh_, 2048);
+	if (!nav_mesh_)
+		return false;
+	nav_query_->init(nav_mesh_, 2048);
+	return true;
 }
 
 dtNavMesh* Navigation::LoadAll(const char* path)
 {
 	FILE* fp;
-	auto err = fopen_s(&fp, path, "rb");
+	[[maybe_unused]] auto err = fopen_s(&fp, path, "rb");
 	if (!fp) return 0;
 
 	// Read header.
@@ -150,20 +152,21 @@ bool Navigation::FindRandomPointInCircle(const Vec& center, float radius,
 }
 
 bool Navigation::FindPath(const Vec& start, const Vec& end,
-	List<Vec>& out_path, const dtQueryFilter& ft)
+	Deque<Vec>& out_path, const dtQueryFilter& ft)
 {
 	float dtstart[3] = { start.v3[0], start.v3[2], start.v3[1] };
 	float dtend[3] = { end.v3[0], end.v3[2], end.v3[1] };
 	return FindPath(dtstart, dtend, out_path, ft);
 }
 
-bool Navigation::FindPath(float* dtstart, float* dtend, List<Vec>& out_path, const dtQueryFilter& ft)
+bool Navigation::FindPath(float* dtstart, float* dtend, Deque<Vec>& out_path, const dtQueryFilter& ft)
 {
 	if (nav_query_)
 	{
 		dtPolyRef startref = 0;
 		dtPolyRef endref = 0;
 		dtRaycastHit hit;
+		hit.maxPath = 0;
 		if (Raycast(dtstart, startref, dtend, hit, ft))
 		{
 			if (hit.t < 1.f)
