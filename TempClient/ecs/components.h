@@ -71,3 +71,14 @@ struct PlayerSession
 {
    class NetTcp* session;
 };
+
+struct TimerComponent
+{
+    float sec;
+    Action<> action;
+};
+
+struct ColliderComponent
+{
+    Collider info;
+};

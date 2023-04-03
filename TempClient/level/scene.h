@@ -17,7 +17,8 @@ class Scene : public entt::registry, public std::enable_shared_from_this<Scene>
 public:
     bool Initialize(const char* filepath);
     void Update(float dt);
-    void Draw();
+
+    void Draw(); //Is not a thread safe. should fix//
 
 public:
     entt::entity EnterPlayer(const EntityInfo* info);

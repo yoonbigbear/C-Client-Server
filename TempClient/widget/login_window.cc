@@ -9,7 +9,7 @@ void LoginWindow::Draw()
         ImGui::Begin("Login");
 
         const char* ip = "127.0.0.1";
-        const char* ppw = "";
+        [[maybe_unused]]const char* ppw = "";
         uint16_t port = 11000;
 
         if (ImGui::Button("Connect"))

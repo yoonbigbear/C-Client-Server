@@ -18,6 +18,7 @@ static const unsigned int startCol = BB::RGBA<128, 25, 0, 192>::VAL;
 static const unsigned int endCol = BB::RGBA<51, 102, 0, 129>::VAL;
 static const unsigned int pathCol = BB::RGBA<0, 0, 0, 64>::VAL;
 
+
 class DebugDrawGLBB : public duDebugDraw
 {
 public:
@@ -139,8 +140,10 @@ public:
 class Draw
 {
 public:
-    static void Cylinder(const float* pos, float r, float h, float c, const unsigned int col)
+    static void DebugCylinder(const Vec& center, float r, float h, float c, const unsigned int col)
     {
+		auto pos = VecToDt(center);
+
 		DebugDrawGLBB dd;
 		dd.depthMask(false);
 
@@ -162,36 +165,59 @@ public:
 
 		dd.depthMask(true);
     }
-	static void Line(const float* a, float lineWidth, const unsigned int col)
+	static void DebugLine(const Vec& a, const Vec& b, const unsigned int col, float lineWidth)
 	{
+		auto dta = VecToDt(a);
+		auto dtb = VecToDt(b);
+
 		DebugDrawGLBB dd;
 		dd.depthMask(false);
 		dd.begin(DU_DRAW_LINES, lineWidth);
 
-		dd.vertex(a[0], a[1], a[2], col);
-		//dd.vertex(b[0], b[1], b[2], col);
+		dd.vertex(dta[0], dta[1], dta[2], col);
+		dd.vertex(dtb[0], dtb[1], dtb[2], col);
 
 		dd.end();
 		dd.depthMask(true);
 	}
-	static void DrawCircle(const float x, const float y, const float z,
-		const float r, const unsigned int col, float lineWidth)
+	static void DebugCircle(const Vec& pos, const float r, const unsigned int col, float lineWidth)
 	{
+		auto dtpos = VecToDt(pos);
+
 		DebugDrawGLBB dd;
 		dd.depthMask(false);
 		dd.begin(DU_DRAW_LINES, lineWidth);
-		duAppendCircle(&dd, x, y, z, r, col);
+		duAppendCircle(&dd, dtpos[0], dtpos[1], dtpos[2], r, col);
 		dd.end();
 		dd.depthMask(true);
 	}
-	static void DrawBoxWire(float minx, float miny, float minz,
-		float maxx, float maxy, float maxz, const unsigned int col, float lineWidth)
+	static void DebugBoxWire(const Vec& min, const Vec& max, const unsigned int col, float lineWidth)
 	{
+		auto dtmin = VecToDt(min);
+		auto dtmax = VecToDt(max);
+
 		DebugDrawGLBB dd;
 		dd.depthMask(false);
 		dd.begin(DU_DRAW_LINES, lineWidth);
-		duAppendBoxWire(&dd, minx, miny, minz, maxx, maxy, maxz, col);
+		duAppendBoxWire(&dd, dtmin[0], dtmin[1], dtmin[2], dtmax[0], dtmax[1], dtmax[2], col);
 		dd.end();
 		dd.depthMask(true);
+	}
+	static void DebugText(float x, float y, const char* str)
+	{
+		ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | 
+			ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | 
+			ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNav |
+			ImGuiWindowFlags_NoInputs;
+		ImGui::SetNextWindowPos(ImVec2(x, y));
+		ImGui::SetNextWindowBgAlpha(0.f); // Transparent background
+		//ImGui::SetWindowSize(ImVec2(200, 100));
+		if (ImGui::Begin(str, (bool*)1, window_flags))
+		{
+			ImGui::SetWindowFontScale(0.7f);
+			ImGui::Text(str);
+			ImGui::SetWindowFontScale(1.f);
+		}
+		ImGui::End();
 	}
 };

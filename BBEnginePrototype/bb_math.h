@@ -1,8 +1,9 @@
 #pragma once
 
-#include "random_generator.h"
 #include <xmmintrin.h>
+#include "types.h"
 
+#ifdef _BBENGINE
 struct Vector3
 {
     float x = 0.0f;
@@ -346,27 +347,10 @@ inline float Area(const AABB2& A)
     Vector2 d = A.max - A.min;
     return 2.0f * (d.x * d.y + d.y * d.x);
 }
+#endif
 
-short UnitVectorToRadian(const float x, const float y)
-{
-    return  static_cast<short>(std::atan2f(y, x) + 180.f);
-}
-
-Vector2 RadianToUnitVector(float rad)
-{
-    return Vector2{ std::cosf(rad), std::sinf(rad) };
-}
-
-short RadianToDegree(float radian)
-{
-    return static_cast<short>(radian * 57.295779f);
-}
-short DegreeToRadian(int degree)
-{
-    return static_cast<short>(degree * 0.0174532f);
-}
-
-auto MoveLength(Vector2 dir, float speed)
-{
-    return dir * speed;
-}
+short UnitVectorToRadian(const float x, const float y);
+Vec RadianToUnitVector(float rad);
+short RadianToDegree(float radian);
+short DegreeToRadian(int degree);
+Vec DirLength(const Vec& dir, float length);

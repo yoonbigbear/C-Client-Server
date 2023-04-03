@@ -3,7 +3,7 @@
 #include <functional>
 #include <vector>
 
-template<typename T>
+template<typename T = void()>
 struct Action // thread unsafe
 {
 public:

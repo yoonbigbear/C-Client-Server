@@ -1,7 +1,7 @@
 #pragma once
 
 #include "pre.h"
-#include "share/navigation.h"
+#include "navigation.h"
 
 class Navigation_C : public Navigation
 {

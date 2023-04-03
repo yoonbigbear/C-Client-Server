@@ -1,11 +1,11 @@
 #include "camera.h"
-#include "imgui.h"
-#include <algorithm>
-#ifdef __APPLE__
-#	include <OpenGL/glu.h>
-#else
-#	include <GL/glu.h>
-#endif
+//#include "imgui.h"
+//#include <algorithm>
+//#ifdef __APPLE__
+//#	include <OpenGL/glu.h>
+//#else
+//#	include <GL/glu.h>
+//#endif
 
 #include "manager/scene_manager.h"
 #include "player_client.h"
@@ -87,6 +87,7 @@ void Camera::Input(SDL_Event* event)
 	{
 		SceneManager::instance().current_scene()->AddCommandQueue(
 			[this]() {
+
 				Vec start = Vec(Camera::instance().ray_start);
 				Vec end = Vec(Camera::instance().ray_end);
 				SceneManager::instance().current_scene()->ScreenRayMove(start, end,

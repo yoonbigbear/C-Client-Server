@@ -27,36 +27,38 @@ void Scene::Draw()
 {
     nav_mesh_.Render(&dd_);
 
+    DrawDebugToggledObjects(shared());
+
     //draw objects
     {
+        ImGuiIO& io = ImGui::GetIO();
         auto vw = view<const Transform, const CylinderData>();
         for (auto [entity, tf, cylinder] : vw.each())
         {
-            float dtpos[3] = { tf.v.v3.x, tf.v.v3.z, tf.v.v3.y };
-            Draw::Cylinder(dtpos, cylinder.radius, cylinder.height, cylinder.max_climb, startCol);
-        }
-    }
+            Draw::DebugCylinder(tf.v, cylinder.radius, cylinder.height, cylinder.max_climb, startCol);
 
-    //draw path lines
-    {
-        auto entity = PlayerClient::instance().eid;
-        if (all_of<Transform, PathList>(entity))
-        {
-            auto tf = get<Transform>(entity);
-            auto path = get<PathList>(entity);
-            Draw::Line(&tf.v.v3.x, 2.0, startCol);
-            for (auto e : path.paths)
+            if (ImGui::IsKeyDown(ImGuiKey_LeftAlt))
             {
-                Draw::Line(&path.paths.front().v3.x, 2.0, startCol);
+                GLdouble x, y, z;
+                if (gluProject((GLdouble)tf.v[0], (GLdouble)tf.v[2], (GLdouble)tf.v[1],
+                    Camera::instance().modelview_matrix,
+                    Camera::instance().projection_matrix,
+                    Camera::instance().viewport, &x, &y, &z))
+                {
+                    y = io.DisplaySize.y - y;
+                    Draw::DebugText((float)x, (float)y, std::format("x:{}, y:{}, z:{}\n eid:{}",
+                        (int)tf.v.v3.x, (int)tf.v.v3.y, (int)tf.v.v3.z, (uint32_t)entity).c_str());
+                }
             }
         }
     }
-
 }
 
 void Scene::Update(float dt)
 {
     ReleaseCommandQueue();
+
+    UpdateTimer(shared(), dt);
 
     MoveAlongPath(shared(), dt);
 }
@@ -102,9 +104,6 @@ bool Scene::ScreenRayMove(Vec& start, Vec& end, entt::entity eid)
                 pos[1] = start.v3.z + (end.v3.z - start.v3.z) * t;
                 pos[2] = start.v3.y + (end.v3.y - start.v3.y) * t;
                 //ray hit.
-
-                Draw::DrawCircle(pos[0], pos[2], pos[1], 5,
-                    duRGBA(0, 0, 0, 255), 2);
 
                 Deque<Vec> path;
                 if (nav_mesh_.FindPath(tf.v,

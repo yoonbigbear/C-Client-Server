@@ -3,7 +3,7 @@
 #include "components.h"
 
 #include "world/region.h"
-#include "share/navigation.h"
+#include "navigation.h"
 
 
 void Wander(Shared<Region> world, float dt)

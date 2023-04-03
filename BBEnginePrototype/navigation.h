@@ -1,8 +1,7 @@
 #pragma once
-#include "../types.h"
-#include "../bb_util.h"
-#include "detour/DetourNavMesh.h"
-#include "detour/DetourNavMeshQuery.h"
+#include "types.h"
+#include "share/detour/DetourNavMesh.h"
+#include "share/detour/DetourNavMeshQuery.h"
 
 //const unsigned int spathCol = m_hitResult ?
 //BB::RGBA<64, 16, 0, 220>::VAL :

@@ -8,18 +8,42 @@
 #include <deque>
 #include <map>
 #include <set>
+#include <array>
 #include <unordered_map>
 #include <unordered_set>
+
+#pragma warning(push, 3)
+#pragma warning(disable : 4715)
 
 #ifdef _BOX2D
 union Vec
 {
     Vec():v2(b2Vec2(0,0)) {}
-    Vec(b2Vec2 v) : v2(v) {}
-    Vec(b2Vec3 v) : v3(v) {}
-    Vec(float v[3]) { v3.x = v[0]; v3.y = v[1]; v3.z = v[2]; }
-    Vec(float x, float y) { v2.x = x; v2.y = y; }
-    Vec(float x, float y, float z) { v3.x = x; v3.y = y; v3.z = z; }
+    Vec(const b2Vec2& v) : v2(v) {}
+    Vec(const b2Vec3& v) : v3(v) {}
+    Vec(const float v[3]) :v3({v[0],v[1],v[2]}) {}
+    Vec(const float x, const float y) :v2({ x,y }) {}
+    Vec(const float x, const float y, const float z) : v3({ x,y,z }) {}
+    float& operator[](const unsigned int i)
+    { 
+        switch (i)
+        {
+        case 0: return v3.x;
+        case 1: return v3.y;
+        case 2: return v3.z;
+        }
+    }
+    const float& operator[](const unsigned int i) const
+    {
+        switch (i)
+        {
+        case 0: return v3.x;
+        case 1: return v3.y;
+        case 2: return v3.z;
+        }
+    }
+    auto operator*(float len) { return len * v2; }
+
     b2Vec2 v2;
     b2Vec3 v3;
 };
@@ -30,35 +54,38 @@ using AABB2 = b2AABB;
 using Vec = union
 {
     Vec() {}
-    Vec(Vector2 v) : v2(v) {}
-    Vec(Vector3 v) : v3(v) {}
-    Vec(float v[3]) { v3.x = v[0]; v3.y = v[1]; v3.z = v[2]; }
-    Vec(float x, float y) { v2.x = x; v2.y = y; }
-    Vec(float x, float y, float z) { v3.x = x; v3.y = y; v3.z = z; }
+    Vec(const b2Vec2& v) : v2(v) {}
+    Vec(const b2Vec3& v) : v3(v) {}
+    Vec(const float v[3]) :v3{ (v[0],v[1],v[2]) } {}
+    Vec(const float x, const float y) :v2({ x,y }) {}
+    Vec(const float x, const float y, const float z) : v3({ x,y,z }) {}
+    float& operator[](const unsigned int i) { return v3[i]; }
+    const float& operator[](const unsigned int i) const { return v3[i]; }
+    auto operator*(float len) { return std::array<float, 3>{len* v3[0], len* v3[1], len* v3[2]}; }
     Vector2 v2;
     Vector3 v3;
 };
 using Vec2 = Vector2;
 using Vec3 = Vector3;
-
 #else
 union Vec
 {
     Vec() {}
     //vec(float v[2]) { v2[0] = v[0]; v2[1] = v[1]; }
-    Vec(float v[3]) { v3[0] = v[0]; v3[1] = v[1]; v3[2] = v[2]; }
-    Vec(float x, float y) { v2[0] = x; v2[1] = y; }
-    Vec(float x, float y, float z) { v3[0] = x; v3[1] = y; v3[2] = z; }
+    Vec(const float v[3]) :v3{ v[0], v[1],v[2] } {}
+    Vec(const float x, const float y) :v2{ x,y } {}
+    Vec(const float x, const float y, const float z) :v3{ x,y,z } {}
+    float& operator[](const unsigned int i) { return v3[i]; }
+    const float& operator[](const unsigned int i) const { return v3[i]; }
+    auto operator*(float len) { return std::array<float, 3>{len* v3[0], len* v3[1], len* v3[2]}; }
+
     float v2[2];
     float v3[3];
 };
 using Vec2 = float[2];
 using Vec3 = float[3];
-struct AABB2 {
-    Vec2 lower;
-    Vec2 upper;
-} AABB2;
 #endif
+#pragma warning(pop)
 
 #define __unused [[maybe_unused]]
 
@@ -117,6 +144,15 @@ template<typename _In, typename _Out>
 inline std::shared_ptr<_Out> VecToShared(const _In& v)
 {
     return std::make_shared<_Out>(v.x(), v.y(), v.z());
+}
+
+inline auto VecToDt(const Vec& v)
+{
+    return std::array<float,3>{ v[0], v[2], v[1] };
+}
+inline Vec DtToVec(const float* dt)
+{
+    return Vec{ dt[0], dt[2], dt[1] };
 }
 
 #define TOENTITY(eid) entt::entity entity = static_cast<entt::entity>(eid);

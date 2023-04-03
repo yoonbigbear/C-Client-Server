@@ -4,7 +4,7 @@
 #include "systems/systems.h"
 #include "net/user.h"
 #include "packet_handler.h"
-#include "share/navigation.h"
+#include "navigation.h"
 #include "b2_world_tree.h"
 
 #include "fbb/chat_generated.h"
@@ -20,7 +20,7 @@ bool Region::Initialize()
         return false;
     world_tree_->Initialize(AABB2(Vec2(-100, -100), Vec2(100, 100)));
 
-    viewing_range_ = 30;
+    viewing_range_ = 150;
 
     SpawnAI();
 
@@ -46,7 +46,7 @@ entt::entity Region::EnterPlayer(Shared<User> user)
     proxy_data.eid = (std::uint32_t)entity;
 
     //field
-    if (!world_tree_->Spawn(tf.v.v2, 5.f, &proxy_data))
+    if (!world_tree_->Spawn(tf.v.v2, 0.6f, &proxy_data))
     {
         destroy(entity);
         LOG_ERROR("b2tree create proxy failed");
@@ -86,7 +86,8 @@ entt::entity Region::Enter(int npcid)
     //field
     if (!world_tree_->Spawn(tf.v.v2, 5.f, &proxy_data))
     {
-        release(entity);
+        LOG_ERROR("Failed entity spawn on the world tree x:{} y:{} z:{}", tf.v[0], tf.v[1], tf.v[2]);
+        destroy(entity);
         return entt::null;
     }
 

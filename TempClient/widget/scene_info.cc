@@ -9,21 +9,9 @@ void SceneInfo::Draw()
     ImGui::SetNextWindowSize(ImVec2(500, 440), ImGuiCond_FirstUseEver);
     if (ImGui::Begin("Level Infomation", &open))
     {
-        // Left
-        static int selected = 0;
-        {
-            ImGui::BeginChild("object list", ImVec2(150, 0), true);
-
-            ImGui::EndChild();
-        }
-        ImGui::SameLine();
-
-        // Right
-        //if (size > 0)
         {
             ImGui::BeginGroup();
             ImGui::BeginChild("item view", ImVec2(0, -ImGui::GetFrameHeightWithSpacing())); // Leave room for 1 line below us
-            ImGui::Text("MyObject: %d", selected);
             ImGui::Separator();
             if (ImGui::BeginTabBar("##Tabs", ImGuiTabBarFlags_None))
             {

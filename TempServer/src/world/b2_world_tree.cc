@@ -1,7 +1,7 @@
 #include "b2_world_tree.h"
 
 #include <box2d/b2_circle_shape.h>
-void b2WorldTree::Initialize(const AABB2& bound)
+void b2WorldTree::Initialize(const b2AABB& bound)
 {
     boundary_ = bound;
 }
@@ -19,7 +19,12 @@ bool b2WorldTree::Spawn(const Vec& pos, float radius, Proxy* entity_data)
         entity_data->proxy_id = broad_phase_.CreateProxy(aabb, entity_data);
         return true;
     }
-    return false;
+    else
+    {
+        delete entity_data->b2shape;
+        entity_data->b2shape = nullptr;
+        return false;
+    }
 }
 
 void b2WorldTree::Despawn(const Proxy& proxy_data)
@@ -37,8 +42,8 @@ bool b2WorldTree::Move(const Vec& pos, const Proxy& proxy_data)
 
 Set<entt::entity> b2WorldTree::Query(const Vec& pos, float range, entt::entity except)
 {
-    auto sight_half = range * 0.5f;
-    auto sight = AABB2();
+    auto sight_half = range;
+    auto sight = b2AABB();
     sight.lowerBound.x = pos.v2.x - sight_half;
     sight.lowerBound.y = pos.v2.y - sight_half;
     sight.upperBound.x = pos.v2.x + sight_half;

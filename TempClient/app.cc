@@ -102,6 +102,8 @@ void App::Run()
 
         Graphics::instance().BeginScene();
         {
+            Gui::instance().Draw();
+
             Camera::instance().Input(&event);
 
             auto scenes = SceneManager::instance().container();
@@ -110,7 +112,6 @@ void App::Run()
             {
                 val->Draw();
             }
-            Gui::instance().Draw();
         }
         Graphics::instance().EndScene();
     }

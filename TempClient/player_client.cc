@@ -3,7 +3,6 @@
 #include "net_tcp.h"
 #include "manager/scene_manager.h"
 #include "gui.h"
-#include "SDL.h"
 
 #include "packet_handler.h"
 #include "fbb/packets_generated.h"
@@ -37,4 +36,6 @@ void PlayerClient::Input()
         ? 1 : -1), 0.0f, 1.0f);
     move_right_ = std::clamp(move_right_ + io.DeltaTime * 1 * (keystate[SDL_SCANCODE_RIGHT]
         ? 1 : -1), 0.0f, 1.0f);
+
+
 }

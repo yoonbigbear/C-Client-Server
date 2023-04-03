@@ -29,7 +29,7 @@ public:
 class b2WorldTree
 {
 public:
-    void Initialize(const AABB2& boundary);
+    void Initialize(const b2AABB& boundary);
     bool Spawn(const Vec& pos, float radius, Proxy* entity_data);
     void Despawn(const Proxy& proxy_data);
     bool Move(const Vec& pos, const Proxy& proxy_data);
@@ -37,7 +37,7 @@ public:
 
 private:
 
-    bool Contains(const AABB2& box)
+    bool Contains(const b2AABB& box)
     {
         return boundary_.Contains(box);
     }
@@ -50,7 +50,6 @@ private:
 
 
 private:
-   AABB2 boundary_;
-   b2DynamicTree broad_phase_;
-   
+    b2AABB boundary_;
+    b2DynamicTree broad_phase_;
 };

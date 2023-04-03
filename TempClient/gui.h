@@ -1,11 +1,6 @@
 #pragma once
 
 #include "pre.h"
-#include <format>
-#include <source_location>
-
-#include "imgui.h"
-#include "singleton.h"
 
 #include "widget/login_window.h"
 #include "widget/scene_info.h"

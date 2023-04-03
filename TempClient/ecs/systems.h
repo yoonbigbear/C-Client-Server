@@ -3,6 +3,8 @@
 #include "pre.h"
 
 #include "factory_system.h"
+#include "schedule_system.h"
+#include "debug_system.h"
 
 void Recv_ChatSync(void* session, Vector<uint8_t>& data);
 void Recv_UpdateNeighborsSync(void* session, Vector<uint8_t>& data);
