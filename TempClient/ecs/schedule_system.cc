@@ -18,7 +18,7 @@ void UpdateTimer(Shared<class Scene> scene, float dt)
         }
         else
         {
-            LOG_ERR("Invalid Entity {}", static_cast<uint32_t>(entity));
+            ADD_ERROR("Invalid Entity {}", static_cast<uint32_t>(entity));
         }
     }
 

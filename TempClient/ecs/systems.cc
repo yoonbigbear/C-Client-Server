@@ -8,23 +8,25 @@
 #include "fbb/packets_generated.h"
 #include "fbb/world_generated.h"
 #include "fbb/common_generated.h"
+#include "fbb/debug_generated.h"
+#include "debug_system.h"
 
-void Recv_ChatSync(void* session, Vector<uint8_t>& data)
+void Recv_ChatNfy(void* session, Vector<uint8_t>& data)
 {
-    LOG_INFO("Received ChatSync");
+    ADD_LOG("Received ChatNfy");
 
     auto net = reinterpret_cast<NetTcp*>(session);
     DEBUG_RETURN(net, "null session");
 
-    auto sync = flatbuffers::GetRoot<ChatSync>(data.data());
+    auto sync = flatbuffers::GetRoot<ChatNfy>(data.data());
     __unused auto pack = sync->UnPack();
     CHAT_LOG(pack->chat.c_str());
 }
 
-void Recv_UpdateNeighborsSync(void* session, Vector<uint8_t>& data)
+void Recv_UpdateNeighborsNfy(void* session, Vector<uint8_t>& data)
 {
-    LOG_INFO("Received UpdateNeighborSync");
-    auto resp = flatbuffers::GetRoot<UpdateNeighborsSync>(data.data());
+    ADD_LOG("Received UpdateNeighborNfy");
+    auto resp = flatbuffers::GetRoot<UpdateNeighborsNfy>(data.data());
     auto t = resp->UnPack();
 
     auto net = reinterpret_cast<NetTcp*>(session);
@@ -41,10 +43,10 @@ void Recv_UpdateNeighborsSync(void* session, Vector<uint8_t>& data)
     }
 }
 
-void Recv_EnterWorldResp(void* session, Vector<uint8_t>& data)
+void Recv_EnterWorldAck(void* session, Vector<uint8_t>& data)
 {
-    LOG_INFO("Received EnterWorldResp");
-    auto resp = flatbuffers::GetRoot<EnterWorldResp>(data.data());
+    ADD_LOG("Received EnterWorldAck");
+    auto resp = flatbuffers::GetRoot<EnterWorldAck>(data.data());
     auto t = resp->UnPack();
 
     auto net = reinterpret_cast<NetTcp*>(session);
@@ -59,18 +61,18 @@ void Recv_EnterWorldResp(void* session, Vector<uint8_t>& data)
     }
     else
     {
-        LOG_ERR("null session");
+        ADD_ERROR("null session");
     }
 }
 
-void Recv_EnterNeighborsSync(void* session, Vector<uint8_t>& data)
+void Recv_EnterNeighborsNfy(void* session, Vector<uint8_t>& data)
 {
     auto net = reinterpret_cast<NetTcp*>(session);
     DEBUG_RETURN(net, "null session");
 
-    LOG_INFO("Received EnterNeighborsSync");
+    ADD_LOG("Received EnterNeighborsSync");
 
-    auto sync = flatbuffers::GetRoot<EnterNeighborsSync>(data.data());
+    auto sync = flatbuffers::GetRoot<EnterNeighborsNfy>(data.data());
     auto t = sync->UnPack();
 
     auto scene = SceneManager::instance().current_scene();
@@ -80,14 +82,14 @@ void Recv_EnterNeighborsSync(void* session, Vector<uint8_t>& data)
     }
 }
 
-void Recv_LeaveNeighborsSync(void* session, Vector<uint8_t>& data)
+void Recv_LeaveNeighborsNfy(void* session, Vector<uint8_t>& data)
 {
     auto net = reinterpret_cast<NetTcp*>(session);
     DEBUG_RETURN(net, "null session");
 
-    auto sync = flatbuffers::GetRoot<LeaveNeighborsSync>(data.data());
+    auto sync = flatbuffers::GetRoot<LeaveNeighborsNfy>(data.data());
     auto t = sync->UnPack();
-    LOG_INFO("Received LeaveNeighborsSync {}", t->leave_entity);
+    ADD_LOG("Received LeaveNeighborsNfy {}", t->leave_entity);
 
     auto scene = SceneManager::instance().current_scene();
     if (scene)
@@ -96,14 +98,14 @@ void Recv_LeaveNeighborsSync(void* session, Vector<uint8_t>& data)
     }
 }
 
-void Recv_MoveSync(void* session, Vector<uint8_t>& data)
+void Recv_MoveNfy(void* session, Vector<uint8_t>& data)
 {
     auto net = reinterpret_cast<NetTcp*>(session);
     DEBUG_RETURN(net, "null session");
 
-    auto sync = flatbuffers::GetRoot<MoveSync>(data.data());
+    auto sync = flatbuffers::GetRoot<MoveNfy>(data.data());
     auto t = sync->UnPack();
-    LOG_INFO("Received MoveSync eid {}", t->eid);
+    ADD_LOG("Received MoveNfy eid {}", t->eid);
 
     auto scene = SceneManager::instance().current_scene();
     if (scene)
@@ -116,29 +118,39 @@ void Recv_MoveSync(void* session, Vector<uint8_t>& data)
     }
 }
 
-void Recv_MoveResp(void* session, Vector<uint8_t>& data)
+void Recv_MoveAck(void* session, Vector<uint8_t>& data)
 {
     auto net = reinterpret_cast<NetTcp*>(session);
     DEBUG_RETURN(net, "null session");
 
-    LOG_INFO("Received MoveResp");
-    auto resp = flatbuffers::GetRoot<MoveResp>(data.data());
+    ADD_LOG("Received MoveAck");
+    auto resp = flatbuffers::GetRoot<MoveAck>(data.data());
     auto t = resp->UnPack();
 
     if (t->error_code != ErrorCode::None)
     {
-        LOG_ERR("Recevied MoveError : {}", (int)t->error_code);
+        ADD_ERROR("Recevied MoveError : {}", (int)t->error_code);
     }
 }
 
 void Send_MoveReq(NetTcp* net, const Vec3& dst)
 {
-    LOG_INFO("Send MoveReq");
+    ADD_LOG("Send MoveReq");
     flatbuffers::FlatBufferBuilder fbb(256);
     MoveReqT req;
     req.dest = VecToUnique<fbVec>(dst);
     fbb.Finish(MoveReq::Pack(fbb, &req));
     net->Send((uint16_t)PacketId::MoveReq, fbb.GetSize(), fbb.GetBufferPointer());
+}
+
+void Recv_Debug3DPosition(void* session, Vector<uint8_t>& data)
+{
+    ADD_LOG("Received Debug3DPosition");
+    auto resp = flatbuffers::GetRoot<Debug3DPosition>(data.data());
+    auto t = resp->UnPack();
+
+    DrawDebugPosition(SceneManager::instance().current_scene(),
+        Vec(t->pos->x(), t->pos->y(), t->pos->z()));
 }
 
 void MoveAlongPath(Shared<Scene> scene, float dt)
@@ -160,12 +172,6 @@ void MoveAlongPath(Shared<Scene> scene, float dt)
                         //reached destination.
                         scene->remove<PathList>(entity);
                         tf.speed = 0;
-                        //Send MovePacket
-                        if (scene->all_of<PlayerSession>(entity))
-                        {
-                            auto& net = scene->get<PlayerSession>(entity);
-                            Send_MoveReq(net.session, tf.v.v3);
-                        }
                     }
                     else
                     {

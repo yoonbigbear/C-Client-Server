@@ -1,19 +1,19 @@
 #include "server.h"
 
-#include "logger.h"
 #include "world/region.h"
 
 #include "packet_handler.h"
 #include "fbb/packets_generated.h"
 #include "systems/systems.h"
+#include "systems/user_system.h"
 
 bool Server::Initialize()
 {
+    TcpServer::Initialize();
+
     world_ = std::make_shared<Region>();
     if (!world_->Initialize())
         return false;
-
-    TcpServer::Initialize();
 
     BINDPACKET(EnterWorldReq);
     BINDPACKET(MoveReq);
@@ -27,9 +27,16 @@ void Server::HandleAccept(const asio::error_code& error, asio::ip::tcp::socket s
     {
         LOG_INFO("Accept New Session. Total :");
 
-        Shared<User> new_user = std::make_shared<User>();
-        new_user->Initialize(std::make_shared<ClientSession>(io_context_, std::move(socket)));
-        EnterQueue(new_user);
+        try 
+        {
+            Shared<User> new_user = std::make_shared<User>();
+            new_user->Initialize(std::make_shared<ClientSession>(io_context_, std::move(socket)));
+            EnterQueue(new_user);
+        }
+        catch (std::exception& e)
+        {
+            throw e;
+        }
     }
     else
     {
@@ -41,6 +48,7 @@ void Server::HandleAccept(const asio::error_code& error, asio::ip::tcp::socket s
 void Server::Stop()
 {
     TcpServer::Stop();
+    LOG_INFO("[SERVER] Stopped");
 }
 
 void Server::Update(float dt)
@@ -61,7 +69,7 @@ void Server::EnterWorld()
     auto lg = std::lock_guard(lock_);
     for (auto& e : enter_queue)
     {
-        e->eid((uint32_t)world_->EnterPlayer(e));
+        e->eid(static_cast<uint32_t>(UserSystem::Construct(*world_, e)));
     }
     enter_queue.clear();
 }

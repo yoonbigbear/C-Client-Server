@@ -8,11 +8,9 @@
 struct Proxy
 {
 public:
-    ~Proxy();
-    
     std::uint32_t eid;
     int32_t proxy_id;
-    b2Shape* b2shape;
+    std::shared_ptr<b2Shape> b2shape;
 };
 
 class BroadPhaseBox
@@ -33,7 +31,7 @@ public:
     bool Spawn(const Vec& pos, float radius, Proxy* entity_data);
     void Despawn(const Proxy& proxy_data);
     bool Move(const Vec& pos, const Proxy& proxy_data);
-    Set<entt::entity> Query(const Vec& pos, float range, entt::entity except = entt::null);
+    Set<Entity> Query(const Vec& pos, float range, Entity except = entt::null);
 
 private:
 
@@ -42,7 +40,7 @@ private:
         return boundary_.Contains(box);
     }
 
-    bool Contains(const Vec& pos)
+    bool Contains([[maybe_unused]] const Vec& pos)
     {
         //navigation
         return true;

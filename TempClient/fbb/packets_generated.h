@@ -6,59 +6,62 @@
 
 #include "flatbuffers/flatbuffers.h"
 
-enum class PacketId : int16_t {
+enum class PacketId : uint16_t {
   ChatReq = 0,
-  ChatResp = 1,
-  ChatSync = 2,
-  EnterNeighborsSync = 3,
-  LeaveNeighborsSync = 4,
-  UpdateNeighborsSync = 5,
+  ChatAck = 1,
+  ChatNfy = 2,
+  EnterNeighborsNfy = 3,
+  LeaveNeighborsNfy = 4,
+  UpdateNeighborsNfy = 5,
   MoveReq = 6,
-  MoveResp = 7,
-  MoveSync = 8,
+  MoveAck = 7,
+  MoveNfy = 8,
   EnterWorldReq = 9,
-  EnterWorldResp = 10,
+  EnterWorldAck = 10,
+  Debug3DPosition = 11,
   MIN = ChatReq,
-  MAX = EnterWorldResp
+  MAX = Debug3DPosition
 };
 
-inline const PacketId (&EnumValuesPacketId())[11] {
+inline const PacketId (&EnumValuesPacketId())[12] {
   static const PacketId values[] = {
     PacketId::ChatReq,
-    PacketId::ChatResp,
-    PacketId::ChatSync,
-    PacketId::EnterNeighborsSync,
-    PacketId::LeaveNeighborsSync,
-    PacketId::UpdateNeighborsSync,
+    PacketId::ChatAck,
+    PacketId::ChatNfy,
+    PacketId::EnterNeighborsNfy,
+    PacketId::LeaveNeighborsNfy,
+    PacketId::UpdateNeighborsNfy,
     PacketId::MoveReq,
-    PacketId::MoveResp,
-    PacketId::MoveSync,
+    PacketId::MoveAck,
+    PacketId::MoveNfy,
     PacketId::EnterWorldReq,
-    PacketId::EnterWorldResp
+    PacketId::EnterWorldAck,
+    PacketId::Debug3DPosition
   };
   return values;
 }
 
 inline const char * const *EnumNamesPacketId() {
-  static const char * const names[12] = {
+  static const char * const names[13] = {
     "ChatReq",
-    "ChatResp",
-    "ChatSync",
-    "EnterNeighborsSync",
-    "LeaveNeighborsSync",
-    "UpdateNeighborsSync",
+    "ChatAck",
+    "ChatNfy",
+    "EnterNeighborsNfy",
+    "LeaveNeighborsNfy",
+    "UpdateNeighborsNfy",
     "MoveReq",
-    "MoveResp",
-    "MoveSync",
+    "MoveAck",
+    "MoveNfy",
     "EnterWorldReq",
-    "EnterWorldResp",
+    "EnterWorldAck",
+    "Debug3DPosition",
     nullptr
   };
   return names;
 }
 
 inline const char *EnumNamePacketId(PacketId e) {
-  if (flatbuffers::IsOutRange(e, PacketId::ChatReq, PacketId::EnterWorldResp)) return "";
+  if (flatbuffers::IsOutRange(e, PacketId::ChatReq, PacketId::Debug3DPosition)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesPacketId()[index];
 }

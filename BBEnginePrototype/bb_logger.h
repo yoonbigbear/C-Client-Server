@@ -1,8 +1,8 @@
 #pragma once
 
-#include "pre.h"
-
 #include <source_location>
+#include <format>
+#include <iostream>
 
 #ifdef _SPDLOG
 #include <spdlog/spdlog.h>
@@ -36,9 +36,14 @@
 #ifdef _DEBUG
 
 //debug 콘솔로그
-#define LOG_INFO(fmt, ...)            std::printf("%s:%d:" fmt "\n", __FILE__, __LINE__, ##__VA_ARGS__);
-#define LOG_WARNING(fmt, ...) YELLOW  std::printf("%s:%d:" fmt "\n", __FILE__, __LINE__, ##__VA_ARGS__); NONE
-#define LOG_ERROR(fmt, ...)   RED     std::printf("%s:%d:" fmt "\n", __FILE__, __LINE__, ##__VA_ARGS__); NONE
+#define LOG_INFO(fmt, ...)            std::printf(std::format(\
+"[info] {}\n", std::format(fmt, ##__VA_ARGS__)).c_str()); 
+#define LOG_WARNING(fmt, ...) YELLOW  std::printf(std::format(\
+"[warn] {}\n", std::format(fmt, ##__VA_ARGS__)).c_str()); NONE
+#define LOG_ERROR(fmt, ...)   RED     std::printf(std::format(\
+"[error] {}\n",std::format(fmt, ##__VA_ARGS__)).c_str()); NONE \
+std::printf(std::format("{} line:[{}]\n", std::source_location::current().file_name(),\
+std::source_location::current().line()).c_str());
 
 #else
 

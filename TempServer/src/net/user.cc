@@ -3,17 +3,9 @@
 #include "world/region.h"
 #include "systems/systems.h"
 
-#include <fbb/packets_generated.h>
-
-
 User::~User()
 {
-    if (world_)
-    {
-        if (!world_->valid(entt::entity(eid_)))
-            return;
-        world_->Leave(entt::entity(eid_));
-    }
+    LOG_INFO("User Destroyed");
 }
 
 bool User::Initialize(Shared<ClientSession> session)
@@ -24,10 +16,10 @@ bool User::Initialize(Shared<ClientSession> session)
     return true;
 }
 
-bool User::Disconnet()
+void User::Disconnect()
 {
-    world_->Leave((entt::entity)eid_);
-    return true;
+    if (world_)
+        world_->Leave((entt::entity)eid_);
 }
 
 void User::ReadPackets()
@@ -37,5 +29,10 @@ void User::ReadPackets()
     {
         PacketHandler::instance().Invoke(e.first)(this, e.second);
     }
+}
+
+void User::SendPacket(PacketId id, size_t size, uint8_t* buf)
+{
+    tcp_->Send((uint16_t)id, size, buf);
 }
 

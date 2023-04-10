@@ -7,8 +7,7 @@ class NetTcp : public TcpSession
 {
 public:
     NetTcp(asio::io_context& io_context, asio::ip::tcp::socket socket);
-    virtual ~NetTcp() override final;
-    void Initialize();
+    ~NetTcp();
 
     bool Connect(const std::string& host, const uint16_t port);
     void Send(uint16_t id, size_t size, uint8_t* buf);

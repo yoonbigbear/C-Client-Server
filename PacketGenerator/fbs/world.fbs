@@ -1,17 +1,17 @@
 
 include "common.fbs";
 
-table EnterNeighborsSync
+table EnterNeighborsNfy
 {
 	enter_entity : EntityInfo;
 }
 
-table LeaveNeighborsSync
+table LeaveNeighborsNfy
 {
 	leave_entity : uint;
 }
 
-table UpdateNeighborsSync
+table UpdateNeighborsNfy
 {
 	enter_entity : [EntityInfo];
 	leave_entity : [uint];
@@ -22,12 +22,12 @@ table MoveReq
 	dest : fbVec;
 }
 
-table MoveResp
+table MoveAck
 {
 	error_code : ErrorCode = 0;
 }
 
-table MoveSync
+table MoveNfy
 {
 	dest : fbVec;
 	spd	: float;
@@ -39,7 +39,7 @@ table EnterWorldReq
 	eid : uint;
 }
 
-table EnterWorldResp
+table EnterWorldAck
 {
 	entity : EntityInfo;
 }

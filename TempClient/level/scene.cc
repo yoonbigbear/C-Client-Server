@@ -86,7 +86,8 @@ void Scene::Leave(uint32_t server_eid)
 
 void Scene::Leave(entt::entity client_eid)
 {
-    destroy(client_eid);
+    if (valid(client_eid))
+        destroy(client_eid);
 }
 
 bool Scene::ScreenRayMove(Vec& start, Vec& end, entt::entity eid)
@@ -118,7 +119,7 @@ bool Scene::ScreenRayMove(Vec& start, Vec& end, entt::entity eid)
     else
     {
         //failed raycasting
-        LOG_ERR("Failed screen ray");
+        ADD_ERROR("Failed screen ray");
     }
     return true;
 }

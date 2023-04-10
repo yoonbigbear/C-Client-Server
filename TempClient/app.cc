@@ -14,13 +14,6 @@ App::~App()
             std::chrono::time_point<
             std::chrono::system_clock, std::chrono::system_clock::duration>(
                 std::chrono::system_clock::duration(1000)));
-
-    io_context_.stop();
-    if (io_thread_.valid())
-        io_thread_.wait_until(
-            std::chrono::time_point<
-            std::chrono::system_clock, std::chrono::system_clock::duration>(
-                std::chrono::system_clock::duration(1000)));
 }
 
 bool App::Initialize()
@@ -30,28 +23,21 @@ bool App::Initialize()
     {
         return false;
     }
-
     //create my temp player
     PlayerClient::instance().Initialize();
-    PlayerClient::instance().net_ = std::make_shared<NetTcp>(io_context_, asio::ip::tcp::socket(io_context_));
 
     //graphics initialize
     Graphics::instance().Initialize();
     Camera::instance().Initialize();
 
-    io_thread_ = std::async(std::launch::async, [this] {
-        while (true)
-            io_context_.run();
-        });
-
-
-    BINDPACKET(ChatSync);
-    BINDPACKET(UpdateNeighborsSync);
-    BINDPACKET(EnterNeighborsSync);
-    BINDPACKET(LeaveNeighborsSync);
-    BINDPACKET(MoveSync);
-    BINDPACKET(MoveResp);
-    BINDPACKET(EnterWorldResp);
+    BINDPACKET(ChatNfy);
+    BINDPACKET(UpdateNeighborsNfy);
+    BINDPACKET(EnterNeighborsNfy);
+    BINDPACKET(LeaveNeighborsNfy);
+    BINDPACKET(MoveAck);
+    BINDPACKET(MoveNfy);
+    BINDPACKET(EnterWorldAck);
+    BINDPACKET(Debug3DPosition);
 
 
     return true;
@@ -78,7 +64,8 @@ void App::Run()
                     }*/
                     SceneManager::instance().current_scene()->Update(static_cast<float>(timer.FRAMERATE));
                     PlayerClient::instance().Input();
-                    PlayerClient::instance().net_->ReadPackets();
+                    if (PlayerClient::instance().net_)
+                        PlayerClient::instance().net_->ReadPackets();
                 }
             }
     }

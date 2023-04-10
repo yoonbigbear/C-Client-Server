@@ -4,11 +4,9 @@
 #include "world/region.h"
 #include "systems/systems.h"
 
-
 void ClientSession::Disconnect()
 {
-    root_->Disconnet();
-    TcpSession::Disconnect();
+    root_->Disconnect();
 }
 
 void ClientSession::Initialize(class User* root)

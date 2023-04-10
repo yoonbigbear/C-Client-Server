@@ -10,10 +10,6 @@ class Server : public TcpServer
 {
 public:
     Server(uint16_t port) : TcpServer(port) {}
-    ~Server() override final
-    {
-        Stop();
-    }
 
     virtual bool Initialize() override final;
 

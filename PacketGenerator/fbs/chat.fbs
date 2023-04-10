@@ -5,12 +5,12 @@ table ChatReq
 	chat : string;
 }
 
-table ChatResp
+table ChatAck
 {
 	result : int;
 }
 
-table ChatSync
+table ChatNfy
 {
 	chat : string;
 }

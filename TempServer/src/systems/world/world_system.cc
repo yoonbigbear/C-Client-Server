@@ -1,5 +1,6 @@
 #pragma once
 #include "world_system.h"
+#include "../user_system.h"
 
 #include "components.h"
 
@@ -11,41 +12,208 @@
 #include "fbb/common_generated.h"
 #include "fbb/world_generated.h"
 #include "fbb/packets_generated.h"
+#include "fbb/debug_generated.h"
 
-void Send_EnterNeighborsResp(Region& world, entt::entity caller)
+void UpdateDestroyed(entt::registry& world, entt::entity caller)
 {
-    _ASSERT(world.all_of<Transform>(caller));
-    _ASSERT(world.all_of<NetComponent>(caller));
+    _ASSERT(world.valid(caller));
+    _ASSERT(world.all_of<Neighbor>(caller));
+    auto& neighbor = world.get<Neighbor>(caller).neighbors;
 
-    auto& tf = world.get<Transform>(caller);
-    auto& net = world.get<NetComponent>(caller);
+    flatbuffers::FlatBufferBuilder fbb(64);
+    LeaveNeighborsNfyT sync;
 
-    flatbuffers::FlatBufferBuilder fbb(128);
-    EnterWorldRespT resp;
+    // add caller's data into sync packet
+    sync.leave_entity = (uint32_t)caller;
+    fbb.Finish(LeaveNeighborsNfy::Pack(fbb, &sync));
 
-    //Add the information of the player you just created.
-    fbVec pos = VecTo<fbVec>(tf.v.v3);
-    fbVec endpos = pos;
-    auto caller_info = EntityInfo{
-           pos, endpos, tf.speed,
-           0,(uint32_t)caller,
-           tf.degree };
+    for (auto e : neighbor)
+    {
+        // remove caller id from the leaved entity's neighbor
+        if (world.all_of<Neighbor>(e))
+        {
+            world.get<Neighbor>(e).neighbors.erase(caller);
+        }
 
-    resp.entity = std::make_unique<EntityInfo>(caller_info);
-
-    fbb.Finish(EnterWorldResp::Pack(fbb, &resp));
-    net.user->tcp()->Send((uint16_t)PacketId::EnterWorldResp, fbb.GetSize(), fbb.GetBufferPointer());
-
-    LOG_INFO("[SERVER] send EnterWorldResp: {}", uint32_t(caller));
+        // Send a LeaveSync if a player.
+        if (world.all_of<NetComponent>(e))
+        {
+            world.get<NetComponent>(e).user->tcp()->
+                Send((uint16_t)PacketId::LeaveNeighborsNfy,
+                    fbb.GetSize(), fbb.GetBufferPointer());
+        }
+    }
 }
 
-void UpdateNeighbors(Region& world, Set<entt::entity>& new_list, entt::entity caller)
+void Recv_EnterWorldReq(void* session, [[maybe_unused]] Vector<uint8_t>& data)
 {
-    _ASSERT(world.all_of<SightComponent>(caller));
+    User* user = reinterpret_cast<User*>(session);
+    DEBUG_RETURN(user);
+
+    LOG_INFO("Recv EnterWorldReq");
+
+}
+
+void Recv_MoveReq(void* session, Vector<uint8_t>& data)
+{
+    auto req = flatbuffers::GetRoot<MoveReq>(data.data());
+    auto pack = req->UnPack();
+
+    flatbuffers::FlatBufferBuilder fbb(64);
+    MoveAckT resp;
+
+    User* user = reinterpret_cast<User*>(session);
+    DEBUG_RETURN(user);
+
+    //move
+    LOG_INFO("recv Move Request {}", user->eid());
+
+    if (auto world = user->world(); world)
+    {
+        if (!world->HandleMove(user->eid(), VecTo<fbVec, Vec>(*pack->dest)))
+            resp.error_code = ErrorCode::InValidPos;
+    }
+    else
+    {
+        resp.error_code = ErrorCode::InValidSession;
+    }
+
+    //respond
+    fbb.Finish(MoveAck::Pack(fbb, &resp));
+    user->tcp()->Send((uint16_t)PacketId::MoveAck, fbb.GetSize(), fbb.GetBufferPointer());
+}
+
+void UpdateMove(Region& world, float dt)
+{
+    auto view = world.view<const Mover, Transform,const Proxy>();
+    for (auto [entity, mover, tf, proxy] : view.each())
+    {
+        auto distance = mover.dest.v2 - tf.v.v2;
+        auto len_sqr = distance.LengthSquared();
+        auto move_sqr = dt * tf.speed;
+
+        if (len_sqr < (move_sqr * move_sqr))
+        {
+            tf.v = mover.dest;
+            //arrive
+            auto path = world.try_get<PathList>(entity);
+            if (path)
+            {
+                path->flag = MoveFlag::Arrive;
+            }
+            world.remove<Mover>(entity);
+        }
+        else
+        {
+            //moving
+            tf.v.v2 += move_sqr * mover.dir.v2;
+        }
+
+        //move collider
+        auto b2_tree = world.dyanmic_tree();
+        _ASSERT(b2_tree);
+        b2_tree->Move(tf.v, proxy);
+
+        //update sight
+        auto proxies_on_sight = b2_tree->Query(tf.v.v2,
+            world.viewing_range(), entity);
+        if (proxies_on_sight.size() > 0)
+            WorldSystem::UpdateNeighbors(world, proxies_on_sight, entity);
+    }
+}
+
+void MoveAlongPath(Region& world)
+{
+    auto view = world.view<PathList, Transform>();
+    for (auto [entity, path, tf] : view.each())
+    {
+        switch (path.flag)
+        {
+        case MoveFlag::Arrive:
+        case MoveFlag::Start:
+        {
+            if (path.paths.empty())
+            {
+                //reached destination.
+                world.remove<PathList>(entity);
+
+                _ASSERT(world.all_of<Neighbor>(entity));
+            }
+            else
+            {
+                _ASSERT(world.all_of<Neighbor>(entity));
+
+                //keep moving toward next path.
+                auto& mover = world.emplace_or_replace<Mover>(entity);
+                mover.dest = path.paths.front();
+                path.paths.pop_front();
+
+                //direction
+                mover.dir.v2 = mover.dest.v2 - tf.v.v2;
+                mover.dir.v2.Normalize();
+
+                //move angle
+                tf.degree = static_cast<short>
+                    (std::atan2f(mover.dir.v2.y, mover.dir.v2.x));
+                tf.speed = 1.f;
+
+                path.flag = Moving;
+
+                auto sight = world.get<Neighbor>(entity);
+                auto dyanmic_tree = world.dyanmic_tree();
+                if (!dyanmic_tree)
+                {
+                    LOG_ERROR("Failed to find field pointer");
+                    return;
+                }
+
+                auto proxies = dyanmic_tree->Query(tf.v.v2, world.viewing_range(), entity);
+                if (proxies.size() == 0)
+                    return;
+
+                //broadcast sender's info
+                LOG_INFO("Send MoveSync(start) from {}", static_cast<uint32_t>(entity));
+                flatbuffers::FlatBufferBuilder fbb(64);
+                MoveNfyT sync;
+                sync.dest = VecToUnique<fbVec>(mover.dest);
+                sync.spd = tf.speed;
+                sync.eid = static_cast<uint32_t>(entity);
+                fbb.Finish(MoveNfy::Pack(fbb, &sync));
+
+                for (auto& proxy : proxies)
+                {
+                    if (world.all_of<NetComponent>(proxy))
+                    {
+                        auto net = world.get<NetComponent>(proxy);
+                        _ASSERT(net.user->tcp());
+                        net.user->tcp()->Send((uint16_t)PacketId::MoveNfy,
+                            fbb.GetSize(), fbb.GetBufferPointer());
+                    }
+                }
+            }
+        }
+        break;
+        case MoveFlag::Moving:
+        {
+            //moving.
+            break;
+        }
+        break;
+
+        default:
+            break;
+        }
+    }
+}
+
+void WorldSystem::UpdateNeighbors(Region& world, Set<entt::entity>& new_list, entt::entity caller)
+
+{
+    _ASSERT(world.all_of<Neighbor>(caller));
     _ASSERT(world.all_of<Transform>(caller));
 
     //caller's components
-    auto& sight = world.get<SightComponent>(caller);
+    auto& sight = world.get<Neighbor>(caller);
     auto& tf = world.get<const Transform>(caller);
 
 
@@ -70,7 +238,7 @@ void UpdateNeighbors(Region& world, Set<entt::entity>& new_list, entt::entity ca
             std::inserter(leaved, leaved.begin()));
     }
 
-    
+
     //Update the enter neighbors
     if (entered.size() > 0)
     {
@@ -90,13 +258,13 @@ void UpdateNeighbors(Region& world, Set<entt::entity>& new_list, entt::entity ca
         }
 
         flatbuffers::FlatBufferBuilder fbb(256);
-        EnterNeighborsSyncT sync;
+        EnterNeighborsNfyT sync;
 
         //add caller's data into sync packet
         sync.enter_entity = std::make_unique<EntityInfo>(EntityInfo{
            caller_pos, caller_endpos, caller_speed, 0,(uint32_t)caller,
            tf.degree });
-        fbb.Finish(EnterNeighborsSync::Pack(fbb, &sync));
+        fbb.Finish(EnterNeighborsNfy::Pack(fbb, &sync));
 
         for (auto proxy : entered)
         {
@@ -107,17 +275,17 @@ void UpdateNeighbors(Region& world, Set<entt::entity>& new_list, entt::entity ca
             }
 
             // add caller id into the new entity's neighbor
-            if (world.all_of<SightComponent>(proxy))
+            if (world.all_of<Neighbor>(proxy))
             {
-                world.get<SightComponent>(proxy).neighbors.emplace(caller);
+                world.get<Neighbor>(proxy).neighbors.emplace(caller);
             }
 
             // Send a EnterSync if a player.
             if (world.all_of<NetComponent>(proxy))
             {
                 world.get<NetComponent>(proxy).user->tcp()->
-                    Send((uint16_t)PacketId::EnterNeighborsSync,
-                    fbb.GetSize(), fbb.GetBufferPointer());
+                    Send((uint16_t)PacketId::EnterNeighborsNfy,
+                        fbb.GetSize(), fbb.GetBufferPointer());
             }
 
         }
@@ -129,11 +297,11 @@ void UpdateNeighbors(Region& world, Set<entt::entity>& new_list, entt::entity ca
         changed = true;
 
         flatbuffers::FlatBufferBuilder fbb(64);
-        LeaveNeighborsSyncT sync;
+        LeaveNeighborsNfyT sync;
 
         // add caller's data into sync packet
         sync.leave_entity = (uint32_t)caller;
-        fbb.Finish(LeaveNeighborsSync::Pack(fbb, &sync));
+        fbb.Finish(LeaveNeighborsNfy::Pack(fbb, &sync));
 
 
         for (auto proxy : leaved)
@@ -143,18 +311,18 @@ void UpdateNeighbors(Region& world, Set<entt::entity>& new_list, entt::entity ca
                 LOG_WARNING("Invalid Id {}", static_cast<uint32_t>(proxy));
                 continue;
             }
-            
+
             // remove caller id from the leaved entity's neighbor
-            if (world.all_of<SightComponent>(proxy))
+            if (world.all_of<Neighbor>(proxy))
             {
-                world.get<SightComponent>(proxy).neighbors.erase(caller);
+                world.get<Neighbor>(proxy).neighbors.erase(caller);
             }
 
             // Send a LeaveSync if a player.
             if (world.all_of<NetComponent>(proxy))
             {
-                world.get<NetComponent>(proxy).user->tcp()->
-                    Send((uint16_t)PacketId::LeaveNeighborsSync,
+                world.get<NetComponent>(proxy).user->SendPacket(
+                    PacketId::LeaveNeighborsNfy,
                     fbb.GetSize(), fbb.GetBufferPointer());
             }
         }
@@ -170,7 +338,7 @@ void UpdateNeighbors(Region& world, Set<entt::entity>& new_list, entt::entity ca
         if (world.all_of<NetComponent>(caller))
         {
             flatbuffers::FlatBufferBuilder fbb(64);
-            UpdateNeighborsSyncT sync;
+            UpdateNeighborsNfyT sync;
 
             //entered list
             for (auto proxy : entered)
@@ -202,204 +370,10 @@ void UpdateNeighbors(Region& world, Set<entt::entity>& new_list, entt::entity ca
             }
 
             //Send update sync packet
-            fbb.Finish(UpdateNeighborsSync::Pack(fbb, &sync));
+            fbb.Finish(UpdateNeighborsNfy::Pack(fbb, &sync));
             world.get<NetComponent>(caller).user->tcp()->Send(
-                (uint16_t)PacketId::UpdateNeighborsSync, fbb.GetSize(), fbb.GetBufferPointer());
+                (uint16_t)PacketId::UpdateNeighborsNfy, fbb.GetSize(), fbb.GetBufferPointer());
         }
     }
 
-}
-
-void Recv_EnterWorldReq(void* session, [[maybe_unused]] Vector<uint8_t>& data)
-{
-    User* user = reinterpret_cast<User*>(session);
-    DEBUG_RETURN(user);
-
-    LOG_INFO("Recv EnterWorldReq");
-
-}
-
-void Recv_MoveReq(void* session, Vector<uint8_t>& data)
-{
-    auto req = flatbuffers::GetRoot<MoveReq>(data.data());
-    auto pack = req->UnPack();
-
-    flatbuffers::FlatBufferBuilder fbb(64);
-    MoveRespT resp;
-
-    User* user = reinterpret_cast<User*>(session);
-    DEBUG_RETURN(user);
-
-    //move
-    LOG_INFO("recv Move Request {}", user->eid());
-
-    if (auto world = user->world(); world)
-    {
-        if (!world->HandleMove(user->eid(), VecTo<fbVec, Vec>(*pack->dest)))
-            resp.error_code = ErrorCode::InValidPos;
-    }
-    else
-    {
-        resp.error_code = ErrorCode::InValidSession;
-    }
-
-    //respond
-    fbb.Finish(MoveResp::Pack(fbb, &resp));
-    user->tcp()->Send((uint16_t)PacketId::MoveResp, fbb.GetSize(), fbb.GetBufferPointer());
-}
-
-void UpdateMove(Region& world, float dt)
-{
-    auto view = world.view<const Mover, Transform,const Proxy>();
-    for (auto [entity, mover, tf, proxy] : view.each())
-    {
-        auto distance = mover.dest.v2 - tf.v.v2;
-        auto len_sqr = distance.LengthSquared();
-        auto move_sqr = dt * tf.speed;
-
-        if (len_sqr < (move_sqr * move_sqr))
-        {
-            tf.v = mover.dest;
-            //arrive
-            auto path = world.try_get<PathList>(entity);
-            if (path)
-            {
-                path->flag = MoveFlag::Arrive;
-            }
-            world.remove<Mover>(entity);
-        }
-        else
-        {
-            //moving
-            tf.v.v2 += move_sqr * mover.dir.v2;
-        }
-
-        //move collider
-        auto b2_tree = world.world_tree();
-        _ASSERT(b2_tree);
-        b2_tree->Move(tf.v, proxy);
-
-        //update sight
-        auto proxies_on_sight = b2_tree->Query(tf.v.v2,
-            world.viewing_range(), entity);
-        if (proxies_on_sight.size() > 0)
-            UpdateNeighbors(world, proxies_on_sight, entity);
-    }
-}
-
-void MoveAlongPath(Region& world)
-{
-    auto view = world.view<PathList, Transform>();
-    for (auto [entity, path, tf] : view.each())
-    {
-        switch (path.flag)
-        {
-        case MoveFlag::Arrive:
-        case MoveFlag::Start:
-        {
-            if (path.paths.empty())
-            {
-                //reached destination.
-                world.remove<PathList>(entity);
-
-                _ASSERT(world.all_of<SightComponent>(entity));
-
-                auto sight = world.get<SightComponent>(entity);
-                auto world_tree = world.world_tree();
-                if (!world_tree)
-                {
-                    LOG_ERROR("Failed to find field pointer");
-                    return;;
-                }
-
-                auto proxies = world_tree->Query(tf.v.v2,
-                    world.viewing_range(), entity);
-                if (proxies.size() == 0)
-                    return;
-
-                //broadcast sender's info
-                LOG_INFO("Send MoveSync(stop) from {}", static_cast<uint32_t>(entity));
-                flatbuffers::FlatBufferBuilder fbb(64);
-                MoveSyncT sync;
-                sync.dest = VecToUnique<fbVec>(tf.v);
-                sync.spd = tf.speed;
-                sync.eid = static_cast<uint32_t>(entity);
-                fbb.Finish(MoveSync::Pack(fbb, &sync));
-
-                for (auto& proxy : proxies)
-                {
-                    if (world.all_of<NetComponent>(proxy))
-                    {
-                        auto net = world.get<NetComponent>(proxy);
-                        _ASSERT(net.user->tcp());
-                        net.user->tcp()->Send((uint16_t)PacketId::MoveSync,
-                            fbb.GetSize(), fbb.GetBufferPointer());
-                    }
-                }
-            }
-            else
-            {
-                _ASSERT(world.all_of<SightComponent>(entity));
-
-                //keep moving toward next path.
-                auto& mover = world.emplace_or_replace<Mover>(entity);
-                mover.dest = path.paths.front();
-                path.paths.pop_front();
-
-                //direction
-                mover.dir.v2 = mover.dest.v2 - tf.v.v2;
-                mover.dir.v2.Normalize();
-
-                //move angle
-                tf.degree = static_cast<short>
-                    (std::atan2f(mover.dir.v2.y, mover.dir.v2.x));
-                tf.speed = 1.f;
-
-                path.flag = Moving;
-
-                auto sight = world.get<SightComponent>(entity);
-                auto world_tree = world.world_tree();
-                if (!world_tree)
-                {
-                    LOG_ERROR("Failed to find field pointer");
-                    return;
-                }
-
-                auto proxies = world_tree->Query(tf.v.v2, world.viewing_range(), entity);
-                if (proxies.size() == 0)
-                    return;
-
-                //broadcast sender's info
-                LOG_INFO("Send MoveSync(start) from {}", static_cast<uint32_t>(entity));
-                flatbuffers::FlatBufferBuilder fbb(64);
-                MoveSyncT sync;
-                sync.dest = VecToUnique<fbVec>(mover.dest);
-                sync.spd = tf.speed;
-                sync.eid = static_cast<uint32_t>(entity);
-                fbb.Finish(MoveSync::Pack(fbb, &sync));
-
-                for (auto& proxy : proxies)
-                {
-                    if (world.all_of<NetComponent>(proxy))
-                    {
-                        auto net = world.get<NetComponent>(proxy);
-                        _ASSERT(net.user->tcp());
-                        net.user->tcp()->Send((uint16_t)PacketId::MoveSync,
-                            fbb.GetSize(), fbb.GetBufferPointer());
-                    }
-                }
-            }
-        }
-        break;
-        case MoveFlag::Moving:
-        {
-            //moving.
-            break;
-        }
-        break;
-
-        default:
-            break;
-        }
-    }
 }

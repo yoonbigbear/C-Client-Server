@@ -7,6 +7,7 @@
 #include "fbb/packets_generated.h"
 #include "fbb/world_generated.h"
 #include "packet_handler.h"
+#include "player_client.h"
 
 NetTcp::NetTcp(asio::io_context& io_context, asio::ip::tcp::socket socket)
     :TcpSession(io_context, std::move(socket))
@@ -15,12 +16,7 @@ NetTcp::NetTcp(asio::io_context& io_context, asio::ip::tcp::socket socket)
 
 NetTcp::~NetTcp()
 {
-    Disconnect();
-}
-
-void NetTcp::Initialize()
-{
-    TcpSession::Initialize();
+    TcpSession::Disconnect();
 }
 
 void NetTcp::Send(uint16_t id, size_t size, uint8_t* buf)
@@ -36,7 +32,7 @@ bool NetTcp::Connect(const std::string& host, const uint16_t port)
 {
     try
     {
-        LOG_INFO("connect to {}:{}", host.c_str(), port);
+        ADD_LOG("connect to {}:{}", host.c_str(), port);
         asio::ip::tcp::resolver resolver(io_context_);
         asio::ip::tcp::resolver::results_type endpoints =
             resolver.resolve(host, std::to_string(port));
@@ -44,7 +40,7 @@ bool NetTcp::Connect(const std::string& host, const uint16_t port)
     }
     catch (std::exception& e)
     {
-        LOG_ERR("client exception: {}", e.what());
+        ADD_ERROR("client exception: {}", e.what());
         return false;
     }
     return true;
@@ -62,8 +58,8 @@ void NetTcp::ConnectToServer(const asio::ip::tcp::resolver::results_type& endpoi
             }
             else
             {
-                LOG_ERR("connect failed");
-                Disconnect();
+                ADD_ERROR("connect failed");
+                //Disconnect();
             }
         });
 }
@@ -74,6 +70,13 @@ void NetTcp::ReadPackets()
     for (auto& e : list)
     {
         printf("recv id %d\n", e.first);
-        PacketHandler::instance().Invoke(e.first)(this, e.second);
+        try
+        {
+            PacketHandler::instance().Invoke(e.first)(this, e.second);
+        }
+        catch (std::exception& ex)
+        {
+            ADD_ERROR("No packet handler has binded id:{} \nexception:{}", e.first, ex.what());
+        }
     }
 }

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "tcp_session.h"
-#include "logger.h"
 
 class TcpServer
 {
@@ -9,7 +8,6 @@ public:
     TcpServer(uint16_t port)
         :acceptor_(io_context_, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), port))
     {
-        LOG_INFO("Start Accept..");
         Accept();
     }
 
@@ -26,8 +24,7 @@ public:
         }
         catch (std::exception& e)
         {
-            LOG_ERROR("[error] %s", e.what());
-            return false;
+            throw e;
         }
         return true;
     }
@@ -37,7 +34,6 @@ public:
         io_context_.stop();
         if (io_thread_.valid())
             io_thread_.wait();
-        LOG_INFO("[SERVER] Stopped");
     }
 
     void Accept()
@@ -54,11 +50,9 @@ public:
     {
         if (!error)
         {
-            LOG_INFO("[SERVER] Accept New Connection : ");
         }
         else
         {
-            LOG_ERROR("[error] %s", error.message());
         }
         Accept();
     }

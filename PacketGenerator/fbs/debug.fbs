@@ -1,0 +1,8 @@
+
+include "common.fbs";
+
+
+table Debug3DPosition
+{
+	pos : fbVec;
+}

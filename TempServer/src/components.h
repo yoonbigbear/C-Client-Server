@@ -22,7 +22,7 @@ struct Mover
     Vec dir;
 };
 
-struct SightComponent
+struct Neighbor
 {
     Set<entt::entity> neighbors;
 };
@@ -31,6 +31,7 @@ struct NpcComponent
 {
     int id;
 };
+
 struct WanderComponent
 {
     float acc_time;
@@ -43,9 +44,3 @@ struct PathList
     Deque<Vec> paths;
     MoveFlag flag;
 };
-
-struct NetComponent
-{
-    Shared<class User> user;
-};
-

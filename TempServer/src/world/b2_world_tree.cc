@@ -8,7 +8,7 @@ void b2WorldTree::Initialize(const b2AABB& bound)
 
 bool b2WorldTree::Spawn(const Vec& pos, float radius, Proxy* entity_data)
 {
-    entity_data->b2shape = new b2CircleShape();
+    entity_data->b2shape = std::make_shared<b2CircleShape>();
     b2AABB aabb;
     entity_data->b2shape->m_radius = radius;
     entity_data->b2shape->m_type = b2Shape::e_circle;
@@ -21,8 +21,6 @@ bool b2WorldTree::Spawn(const Vec& pos, float radius, Proxy* entity_data)
     }
     else
     {
-        delete entity_data->b2shape;
-        entity_data->b2shape = nullptr;
         return false;
     }
 }
@@ -40,7 +38,7 @@ bool b2WorldTree::Move(const Vec& pos, const Proxy& proxy_data)
     return broad_phase_.MoveProxy(proxy_data.proxy_id, aabb, b2Vec2(0,0));
 }
 
-Set<entt::entity> b2WorldTree::Query(const Vec& pos, float range, entt::entity except)
+Set<Entity> b2WorldTree::Query(const Vec& pos, float range, Entity except)
 {
     auto sight_half = range;
     auto sight = b2AABB();
@@ -63,10 +61,4 @@ Set<entt::entity> b2WorldTree::Query(const Vec& pos, float range, entt::entity e
     }
 
     return targets;
-}
-
-Proxy::~Proxy()
-{
-    if (b2shape)
-        delete b2shape;
 }

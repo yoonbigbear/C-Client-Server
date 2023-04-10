@@ -10,13 +10,13 @@ struct ChatReq;
 struct ChatReqBuilder;
 struct ChatReqT;
 
-struct ChatResp;
-struct ChatRespBuilder;
-struct ChatRespT;
+struct ChatAck;
+struct ChatAckBuilder;
+struct ChatAckT;
 
-struct ChatSync;
-struct ChatSyncBuilder;
-struct ChatSyncT;
+struct ChatNfy;
+struct ChatNfyBuilder;
+struct ChatNfyT;
 
 struct ChatReqT : public flatbuffers::NativeTable {
   typedef ChatReq TableType;
@@ -83,17 +83,17 @@ inline flatbuffers::Offset<ChatReq> CreateChatReqDirect(
 
 flatbuffers::Offset<ChatReq> CreateChatReq(flatbuffers::FlatBufferBuilder &_fbb, const ChatReqT *_o, const flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
-struct ChatRespT : public flatbuffers::NativeTable {
-  typedef ChatResp TableType;
+struct ChatAckT : public flatbuffers::NativeTable {
+  typedef ChatAck TableType;
   int32_t result;
-  ChatRespT()
+  ChatAckT()
       : result(0) {
   }
 };
 
-struct ChatResp FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
-  typedef ChatRespT NativeTableType;
-  typedef ChatRespBuilder Builder;
+struct ChatAck FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef ChatAckT NativeTableType;
+  typedef ChatAckBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_RESULT = 4
   };
@@ -105,50 +105,50 @@ struct ChatResp FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
            VerifyField<int32_t>(verifier, VT_RESULT) &&
            verifier.EndTable();
   }
-  ChatRespT *UnPack(const flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  void UnPackTo(ChatRespT *_o, const flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  static flatbuffers::Offset<ChatResp> Pack(flatbuffers::FlatBufferBuilder &_fbb, const ChatRespT* _o, const flatbuffers::rehasher_function_t *_rehasher = nullptr);
+  ChatAckT *UnPack(const flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(ChatAckT *_o, const flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static flatbuffers::Offset<ChatAck> Pack(flatbuffers::FlatBufferBuilder &_fbb, const ChatAckT* _o, const flatbuffers::rehasher_function_t *_rehasher = nullptr);
 };
 
-struct ChatRespBuilder {
-  typedef ChatResp Table;
+struct ChatAckBuilder {
+  typedef ChatAck Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_result(int32_t result) {
-    fbb_.AddElement<int32_t>(ChatResp::VT_RESULT, result, 0);
+    fbb_.AddElement<int32_t>(ChatAck::VT_RESULT, result, 0);
   }
-  explicit ChatRespBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+  explicit ChatAckBuilder(flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  ChatRespBuilder &operator=(const ChatRespBuilder &);
-  flatbuffers::Offset<ChatResp> Finish() {
+  ChatAckBuilder &operator=(const ChatAckBuilder &);
+  flatbuffers::Offset<ChatAck> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = flatbuffers::Offset<ChatResp>(end);
+    auto o = flatbuffers::Offset<ChatAck>(end);
     return o;
   }
 };
 
-inline flatbuffers::Offset<ChatResp> CreateChatResp(
+inline flatbuffers::Offset<ChatAck> CreateChatAck(
     flatbuffers::FlatBufferBuilder &_fbb,
     int32_t result = 0) {
-  ChatRespBuilder builder_(_fbb);
+  ChatAckBuilder builder_(_fbb);
   builder_.add_result(result);
   return builder_.Finish();
 }
 
-flatbuffers::Offset<ChatResp> CreateChatResp(flatbuffers::FlatBufferBuilder &_fbb, const ChatRespT *_o, const flatbuffers::rehasher_function_t *_rehasher = nullptr);
+flatbuffers::Offset<ChatAck> CreateChatAck(flatbuffers::FlatBufferBuilder &_fbb, const ChatAckT *_o, const flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
-struct ChatSyncT : public flatbuffers::NativeTable {
-  typedef ChatSync TableType;
+struct ChatNfyT : public flatbuffers::NativeTable {
+  typedef ChatNfy TableType;
   std::string chat;
-  ChatSyncT() {
+  ChatNfyT() {
   }
 };
 
-struct ChatSync FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
-  typedef ChatSyncT NativeTableType;
-  typedef ChatSyncBuilder Builder;
+struct ChatNfy FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef ChatNfyT NativeTableType;
+  typedef ChatNfyBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_CHAT = 4
   };
@@ -161,48 +161,48 @@ struct ChatSync FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
            verifier.VerifyString(chat()) &&
            verifier.EndTable();
   }
-  ChatSyncT *UnPack(const flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  void UnPackTo(ChatSyncT *_o, const flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  static flatbuffers::Offset<ChatSync> Pack(flatbuffers::FlatBufferBuilder &_fbb, const ChatSyncT* _o, const flatbuffers::rehasher_function_t *_rehasher = nullptr);
+  ChatNfyT *UnPack(const flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(ChatNfyT *_o, const flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static flatbuffers::Offset<ChatNfy> Pack(flatbuffers::FlatBufferBuilder &_fbb, const ChatNfyT* _o, const flatbuffers::rehasher_function_t *_rehasher = nullptr);
 };
 
-struct ChatSyncBuilder {
-  typedef ChatSync Table;
+struct ChatNfyBuilder {
+  typedef ChatNfy Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_chat(flatbuffers::Offset<flatbuffers::String> chat) {
-    fbb_.AddOffset(ChatSync::VT_CHAT, chat);
+    fbb_.AddOffset(ChatNfy::VT_CHAT, chat);
   }
-  explicit ChatSyncBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+  explicit ChatNfyBuilder(flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  ChatSyncBuilder &operator=(const ChatSyncBuilder &);
-  flatbuffers::Offset<ChatSync> Finish() {
+  ChatNfyBuilder &operator=(const ChatNfyBuilder &);
+  flatbuffers::Offset<ChatNfy> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = flatbuffers::Offset<ChatSync>(end);
+    auto o = flatbuffers::Offset<ChatNfy>(end);
     return o;
   }
 };
 
-inline flatbuffers::Offset<ChatSync> CreateChatSync(
+inline flatbuffers::Offset<ChatNfy> CreateChatNfy(
     flatbuffers::FlatBufferBuilder &_fbb,
     flatbuffers::Offset<flatbuffers::String> chat = 0) {
-  ChatSyncBuilder builder_(_fbb);
+  ChatNfyBuilder builder_(_fbb);
   builder_.add_chat(chat);
   return builder_.Finish();
 }
 
-inline flatbuffers::Offset<ChatSync> CreateChatSyncDirect(
+inline flatbuffers::Offset<ChatNfy> CreateChatNfyDirect(
     flatbuffers::FlatBufferBuilder &_fbb,
     const char *chat = nullptr) {
   auto chat__ = chat ? _fbb.CreateString(chat) : 0;
-  return CreateChatSync(
+  return CreateChatNfy(
       _fbb,
       chat__);
 }
 
-flatbuffers::Offset<ChatSync> CreateChatSync(flatbuffers::FlatBufferBuilder &_fbb, const ChatSyncT *_o, const flatbuffers::rehasher_function_t *_rehasher = nullptr);
+flatbuffers::Offset<ChatNfy> CreateChatNfy(flatbuffers::FlatBufferBuilder &_fbb, const ChatNfyT *_o, const flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
 inline ChatReqT *ChatReq::UnPack(const flatbuffers::resolver_function_t *_resolver) const {
   std::unique_ptr<ChatReqT> _o = std::unique_ptr<ChatReqT>(new ChatReqT());
@@ -230,54 +230,54 @@ inline flatbuffers::Offset<ChatReq> CreateChatReq(flatbuffers::FlatBufferBuilder
       _chat);
 }
 
-inline ChatRespT *ChatResp::UnPack(const flatbuffers::resolver_function_t *_resolver) const {
-  std::unique_ptr<ChatRespT> _o = std::unique_ptr<ChatRespT>(new ChatRespT());
+inline ChatAckT *ChatAck::UnPack(const flatbuffers::resolver_function_t *_resolver) const {
+  std::unique_ptr<ChatAckT> _o = std::unique_ptr<ChatAckT>(new ChatAckT());
   UnPackTo(_o.get(), _resolver);
   return _o.release();
 }
 
-inline void ChatResp::UnPackTo(ChatRespT *_o, const flatbuffers::resolver_function_t *_resolver) const {
+inline void ChatAck::UnPackTo(ChatAckT *_o, const flatbuffers::resolver_function_t *_resolver) const {
   (void)_o;
   (void)_resolver;
   { auto _e = result(); _o->result = _e; }
 }
 
-inline flatbuffers::Offset<ChatResp> ChatResp::Pack(flatbuffers::FlatBufferBuilder &_fbb, const ChatRespT* _o, const flatbuffers::rehasher_function_t *_rehasher) {
-  return CreateChatResp(_fbb, _o, _rehasher);
+inline flatbuffers::Offset<ChatAck> ChatAck::Pack(flatbuffers::FlatBufferBuilder &_fbb, const ChatAckT* _o, const flatbuffers::rehasher_function_t *_rehasher) {
+  return CreateChatAck(_fbb, _o, _rehasher);
 }
 
-inline flatbuffers::Offset<ChatResp> CreateChatResp(flatbuffers::FlatBufferBuilder &_fbb, const ChatRespT *_o, const flatbuffers::rehasher_function_t *_rehasher) {
+inline flatbuffers::Offset<ChatAck> CreateChatAck(flatbuffers::FlatBufferBuilder &_fbb, const ChatAckT *_o, const flatbuffers::rehasher_function_t *_rehasher) {
   (void)_rehasher;
   (void)_o;
-  struct _VectorArgs { flatbuffers::FlatBufferBuilder *__fbb; const ChatRespT* __o; const flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  struct _VectorArgs { flatbuffers::FlatBufferBuilder *__fbb; const ChatAckT* __o; const flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
   auto _result = _o->result;
-  return CreateChatResp(
+  return CreateChatAck(
       _fbb,
       _result);
 }
 
-inline ChatSyncT *ChatSync::UnPack(const flatbuffers::resolver_function_t *_resolver) const {
-  std::unique_ptr<ChatSyncT> _o = std::unique_ptr<ChatSyncT>(new ChatSyncT());
+inline ChatNfyT *ChatNfy::UnPack(const flatbuffers::resolver_function_t *_resolver) const {
+  std::unique_ptr<ChatNfyT> _o = std::unique_ptr<ChatNfyT>(new ChatNfyT());
   UnPackTo(_o.get(), _resolver);
   return _o.release();
 }
 
-inline void ChatSync::UnPackTo(ChatSyncT *_o, const flatbuffers::resolver_function_t *_resolver) const {
+inline void ChatNfy::UnPackTo(ChatNfyT *_o, const flatbuffers::resolver_function_t *_resolver) const {
   (void)_o;
   (void)_resolver;
   { auto _e = chat(); if (_e) _o->chat = _e->str(); }
 }
 
-inline flatbuffers::Offset<ChatSync> ChatSync::Pack(flatbuffers::FlatBufferBuilder &_fbb, const ChatSyncT* _o, const flatbuffers::rehasher_function_t *_rehasher) {
-  return CreateChatSync(_fbb, _o, _rehasher);
+inline flatbuffers::Offset<ChatNfy> ChatNfy::Pack(flatbuffers::FlatBufferBuilder &_fbb, const ChatNfyT* _o, const flatbuffers::rehasher_function_t *_rehasher) {
+  return CreateChatNfy(_fbb, _o, _rehasher);
 }
 
-inline flatbuffers::Offset<ChatSync> CreateChatSync(flatbuffers::FlatBufferBuilder &_fbb, const ChatSyncT *_o, const flatbuffers::rehasher_function_t *_rehasher) {
+inline flatbuffers::Offset<ChatNfy> CreateChatNfy(flatbuffers::FlatBufferBuilder &_fbb, const ChatNfyT *_o, const flatbuffers::rehasher_function_t *_rehasher) {
   (void)_rehasher;
   (void)_o;
-  struct _VectorArgs { flatbuffers::FlatBufferBuilder *__fbb; const ChatSyncT* __o; const flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  struct _VectorArgs { flatbuffers::FlatBufferBuilder *__fbb; const ChatNfyT* __o; const flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
   auto _chat = _o->chat.empty() ? 0 : _fbb.CreateString(_o->chat);
-  return CreateChatSync(
+  return CreateChatNfy(
       _fbb,
       _chat);
 }

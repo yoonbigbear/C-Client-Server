@@ -35,7 +35,7 @@ struct Mover
     Vec dir;
 };
 
-struct SightComponent
+struct Neighbor
 {
     Vector<EntityData*> neighbors;
 };
@@ -82,3 +82,4 @@ struct ColliderComponent
 {
     Collider info;
 };
+

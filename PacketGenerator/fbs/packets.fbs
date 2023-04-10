@@ -1,18 +1,20 @@
 
-enum PacketId : short
+enum PacketId : ushort
 {
 	ChatReq,
-	ChatResp,
-	ChatSync,
+	ChatAck,
+	ChatNfy,
 	
-	EnterNeighborsSync,
-	LeaveNeighborsSync,
-	UpdateNeighborsSync,
+	EnterNeighborsNfy,
+	LeaveNeighborsNfy,
+	UpdateNeighborsNfy,
 	
 	MoveReq,
-	MoveResp,
-	MoveSync,
+	MoveAck,
+	MoveNfy,
 	
 	EnterWorldReq,
-	EnterWorldResp,
+	EnterWorldAck,
+
+	Debug3DPosition,
 }

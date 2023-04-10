@@ -4,15 +4,18 @@
 
 #include "client_session.h"
 
+#include <fbb/packets_generated.h>
+
+
 class User : public std::enable_shared_from_this<User>
 {
 public:
     ~User();
     bool Initialize(Shared<ClientSession> session);
-    bool Disconnet();
+    void Disconnect();
 public:
     void ReadPackets();
-
+    void SendPacket(PacketId id, size_t size, uint8_t* buf);
 public:
     Shared<ClientSession> tcp() { return tcp_; }
 

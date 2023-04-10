@@ -1,7 +1,7 @@
 #pragma once
 
 #define WIN32_LEAN_AND_MEAN 
-
+#define _ENTT
 #define _BOX2D
 #define _SPDLOG
 
@@ -22,9 +22,15 @@
 #include <bb_math.h>
 #endif //  _BOX2D
 
+#ifdef _ENTT
 #include <entt/entt.hpp>
+using Entity = entt::entity;
+#else
+using Entity = uint32_t;
+#endif
 
-#include "logger.h"
+
+#include "bb_logger.h"
 #include "random_generator.h"
 #include "types.h"
 
@@ -33,33 +39,7 @@
 #define  DEBUG_RETURN(expr) if(!expr){ LOG_ERROR(#expr); return;};
 #define  DEBUG_ERROR(expr) if(expr) { LOG_ERROR(#expr);};
 
-//// "Protocol_"À» »« ÆÐÅ¶id
-//#define BUILD_PACKET(protocol, ...)   \
-//net::Message<Protocol, flatbuffers::FlatBufferBuilder> pkt; \
-//pkt.header.id = Protocol_##protocol##;  \
-//flatbuffers::FlatBufferBuilder fbb(256);   \
-//auto builder = account::Create##protocol##Direct(fbb, ##__VA_ARGS__);    \
-//fbb.Finish(builder);    \
-//pkt << fbb;
-//
-//#define BUILD_SIMPLE_PACKET(protocol, ...)   \
-//net::Message<Protocol, flatbuffers::FlatBufferBuilder> pkt; \
-//pkt.header.id = Protocol_##protocol##;  \
-//flatbuffers::FlatBufferBuilder fbb(256);   \
-//auto builder = account::Create##protocol##(fbb, ##__VA_ARGS__);    \
-//fbb.Finish(builder);    \
-//pkt << fbb;
-//
-//#define WAIT_UNTIL_BEGIN(protocol) \
-//while (true) \
-// { \
-//  if (!c.Incoming().empty()) \
-//   { \
-//    auto msg = c.Incoming().pop_front(); \
-//    if (msg.msg.header.id == protocol) \
-//    {;
-//
-//#define WAIT_UNTIL_END \
-//    }\
-//   }\
-// };
+#ifdef DEBUG
+
+#endif // DEBUG
+

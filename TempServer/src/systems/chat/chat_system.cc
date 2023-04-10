@@ -20,12 +20,12 @@ void Recv_ChatReq(void* session, std::vector<uint8_t>& data)
 std::vector<uint8_t> BroadcastChat(const std::string& str)
 {
     flatbuffers::FlatBufferBuilder fbb(256);
-    ChatSyncT sync;
+    ChatNfyT sync;
     sync.chat = str;
-    fbb.Finish(ChatSync::Pack(fbb, &sync));
+    fbb.Finish(ChatNfy::Pack(fbb, &sync));
 
     PacketHeader header;
-    header.id = (short)PacketId::ChatSync;
+    header.id = (short)PacketId::ChatNfy;
     header.size = static_cast<uint16_t>(fbb.GetSize());
     std::vector<uint8_t> data(sizeof(PacketHeader) + fbb.GetSize());
     memcpy(data.data(), &header, sizeof(PacketHeader));

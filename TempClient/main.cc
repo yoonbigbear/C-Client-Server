@@ -33,7 +33,7 @@ int main(int, char**)
     SetUnhandledExceptionFilter(ExceptionCallBack);
 
 
-    //ShowWindow(GetConsoleWindow(), SW_HIDE);
+    ShowWindow(GetConsoleWindow(), SW_HIDE);
 
     auto app = std::make_unique<App>();
     if (!app->Initialize())
@@ -43,7 +43,6 @@ int main(int, char**)
     //app->RunSingleThread();
 
     app.release();
-
     _CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_DEBUG);
     _CrtDumpMemoryLeaks();
 

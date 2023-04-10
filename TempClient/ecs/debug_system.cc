@@ -86,8 +86,14 @@ void DrawDebugObjects(Shared<Scene> scene)
         case ColliderType::Sector:
             break;
         default:
-        {LOG_ERR("Wrong type of Collider {}", (int)collider.info.type); }
+        {ADD_ERROR("Wrong type of Collider {}", (int)collider.info.type); }
         break;
         }
     }
+}
+
+void DrawDebugPosition(Shared<class Scene> scene, Vec pos)
+{
+    auto entity = scene->create();
+    Draw::DebugCircle(pos.v3, 3, startCol, 2.0f);
 }

@@ -1,7 +1,11 @@
 #pragma once
 
+#define _BBLOG
+
 #include "packet_buffer.h"
 #include "recv_buffer.h"
+#include "bb_logger.h"
+
 #include <asio.hpp>
 #include <deque>
 #include <memory>
@@ -13,10 +17,12 @@ class TcpSession
 public:
     TcpSession(asio::io_context& io_context, tcp::socket socket)
         :io_context_(io_context)
-        , socket_(std::move(socket)) {}
-    virtual ~TcpSession() {}
+        , socket_(std::move(socket))
+    {
+    }
     void Initialize()
     {
+        socket_.set_option(asio::socket_base::keep_alive(true));
         socket_.set_option(tcp::no_delay(true));
         Read();
     }
@@ -24,7 +30,9 @@ public:
     {
         if (IsConnected())
         {
-            asio::post(io_context_, [this]() {socket_.close(); });
+            LOG_INFO("socket close");
+            socket_.shutdown(socket_.shutdown_both);
+            socket_.close();
         }
     }
     bool IsConnected() const
@@ -33,18 +41,17 @@ public:
     }
 
 protected:
-    void Send(char* buf, size_t size)
+    void Send(const char* buf, size_t size) 
     {
-        Write(buf, size);
-        //asio::post(io_context_, [&]() {Write(buf, size); });
-        
+        asio::post(io_context_, [&, buf, size]() { Write(buf, size); });
+
     }
-    void Send(std::vector<uint8_t>& buf)
+    void Send(const std::vector<uint8_t>& buf) 
     {
-        Write(buf, buf.size());
-        //asio::post(io_context_, [&]() {Write(buf, buf.size()); });
+        asio::post(io_context_, [this, buf]() { Write(buf, buf.size()); });
     }
-    void Write(std::vector<uint8_t>& buf, size_t size)
+
+    void Write(const std::vector<uint8_t>& buf, size_t size) 
     {
         asio::async_write(socket_, asio::buffer(buf.data(), size),
             [this](asio::error_code ec, std::size_t /*length*/)
@@ -76,8 +83,9 @@ protected:
     }
     void Read()
     {
+        // asio::post(io_context_, [&]() {
         recv_buffer_.fill(0);
-        socket_.async_read_some(asio::buffer(recv_buffer_, 0xFFFF),
+        socket_.async_receive(asio::buffer(recv_buffer_, 0xFFFF),
             [this](asio::error_code ec, std::size_t length)
             {
                 if (!ec)
@@ -104,9 +112,9 @@ protected:
                 {
                     Disconnect();
                     return;
-                    /*room_.leave(shared_from_this());*/
                 }
             });
+        //  });
     }
 
 public:
