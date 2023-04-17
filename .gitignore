@@ -63,3 +63,8 @@ BBEnginePrototype/obj/x64/Debug/BBEnginePrototype.vcxproj.FileListAbsolute.txt
 BBEnginePrototype/StructLayoutSettings.json
 *.vcxproj
 /.svn/pristine
+/TableConverter
+/TempClient/genCpp
+/TempClient/genCsv
+/TempServer/genCpp
+/TempServer/genCsv
