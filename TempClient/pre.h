@@ -2,6 +2,7 @@
 
 #define _CLIENT
 #define _ASIO
+#define _ECS
 #define _BOX2D
 
 #pragma comment(lib, "BBEnginePrototype.lib")
@@ -21,7 +22,11 @@
 #include <format>
 #include <source_location>
 
-#include <entt/entt.hpp>
+#ifdef _ECS
+#include <ecs.h>
+#else
+using Entity = uint32_t;
+#endif
 
 #ifdef _ASIO
 #include <asio.hpp>
@@ -31,6 +36,7 @@
 #include <box2d/box2d.h>
 #include <box2d/b2_math.h>
 #include <box2d/b2_collision.h>
+#pragma comment(lib, "box2d.lib")
 #endif
 
 #include "imgui.h"

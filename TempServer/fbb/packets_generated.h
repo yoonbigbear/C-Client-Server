@@ -19,11 +19,13 @@ enum class PacketId : uint16_t {
   EnterWorldReq = 9,
   EnterWorldAck = 10,
   Debug3DPosition = 11,
+  DebugColliderReq = 12,
+  DebugColliderNfy = 13,
   MIN = ChatReq,
-  MAX = Debug3DPosition
+  MAX = DebugColliderNfy
 };
 
-inline const PacketId (&EnumValuesPacketId())[12] {
+inline const PacketId (&EnumValuesPacketId())[14] {
   static const PacketId values[] = {
     PacketId::ChatReq,
     PacketId::ChatAck,
@@ -36,13 +38,15 @@ inline const PacketId (&EnumValuesPacketId())[12] {
     PacketId::MoveNfy,
     PacketId::EnterWorldReq,
     PacketId::EnterWorldAck,
-    PacketId::Debug3DPosition
+    PacketId::Debug3DPosition,
+    PacketId::DebugColliderReq,
+    PacketId::DebugColliderNfy
   };
   return values;
 }
 
 inline const char * const *EnumNamesPacketId() {
-  static const char * const names[13] = {
+  static const char * const names[15] = {
     "ChatReq",
     "ChatAck",
     "ChatNfy",
@@ -55,13 +59,15 @@ inline const char * const *EnumNamesPacketId() {
     "EnterWorldReq",
     "EnterWorldAck",
     "Debug3DPosition",
+    "DebugColliderReq",
+    "DebugColliderNfy",
     nullptr
   };
   return names;
 }
 
 inline const char *EnumNamePacketId(PacketId e) {
-  if (flatbuffers::IsOutRange(e, PacketId::ChatReq, PacketId::Debug3DPosition)) return "";
+  if (flatbuffers::IsOutRange(e, PacketId::ChatReq, PacketId::DebugColliderNfy)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesPacketId()[index];
 }

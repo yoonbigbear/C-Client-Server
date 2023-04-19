@@ -6,8 +6,15 @@
 class World
 {
 public:
-    void AddRegion();
+    void Start()
+    {
+        for (int i = 0; i < 16; ++i)
+        {
+            Region region;
+            regions.emplace_back();
+        }
+    }
 
 private:
-    UnorderedMap<uint32_t, Region> regions;
+    std::vector<Region> regions;
 };

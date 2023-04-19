@@ -15,6 +15,42 @@
 #pragma warning(push, 3)
 #pragma warning(disable : 4715)
 
+#define __unused [[maybe_unused]]
+
+using Byte = int8_t;
+using SByte = uint8_t;
+using Int16 = int16_t;
+using UInt16 = uint16_t;
+using Int32 = int32_t;
+using UInt32 = uint32_t;
+using Int64 = int64_t;
+using UInt64 = uint64_t;
+using Single = float;
+using Double = double;
+using Boolean = bool;
+
+using String = std::string;
+template<typename T>
+using Unique = std::unique_ptr<T>;
+template<typename T>
+using Shared = std::shared_ptr<T>;
+template<typename T>
+using Vector = std::vector<T>;
+template<typename _Key, typename _Val>
+using UnorderedMap = std::unordered_map<_Key, _Val>;
+template<typename _Key>
+using UnorderedSet = std::unordered_set<_Key>;
+template<typename T>
+using Set = std::set<T>;
+template<typename _Key, typename _Val>
+using Map = std::map<_Key, _Val>;
+template<typename T>
+using Queue = std::queue<T>;
+template<typename T>
+using List = std::list<T>;
+template<typename T>
+using Deque = std::deque<T>;
+
 #ifdef _BOX2D
 union Vec
 {
@@ -86,33 +122,6 @@ using Vec2 = float[2];
 using Vec3 = float[3];
 #endif
 #pragma warning(pop)
-
-#define __unused [[maybe_unused]]
-
-template<typename T>
-using Unique = std::unique_ptr<T>;
-template<typename T>
-using Shared = std::shared_ptr<T>;
-
-
-using String = std::string;
-
-template<typename T>
-using Vector = std::vector<T>;
-template<typename _Key, typename _Val>
-using UnorderedMap = std::unordered_map<_Key, _Val>;
-template<typename _Key>
-using UnorderedSet = std::unordered_set<_Key>;
-template<typename T>
-using Set = std::set<T>;
-template<typename _Key, typename _Val>
-using Map = std::map<_Key, _Val>;
-template<typename T>
-using Queue = std::queue<T>;
-template<typename T>
-using List = std::list<T>;
-template<typename T>
-using Deque = std::deque<T>;
 
 template<typename T>
 inline T VecTo(const Vec& v)

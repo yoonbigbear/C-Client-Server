@@ -9,9 +9,7 @@
 #include "ecs/components.h"
 #include "ecs/systems.h"
 
-#include <entt/entt.hpp>
-
-class Scene : public entt::registry, public std::enable_shared_from_this<Scene>
+class Region : public Entt::ECS, public std::enable_shared_from_this<Region>
 {
     auto shared() { return shared_from_this(); }
 public:
@@ -21,20 +19,22 @@ public:
     void Draw(); //Is not a thread safe. should fix//
 
 public:
-    entt::entity EnterPlayer(const EntityInfo* info);
-    entt::entity Enter(const EntityInfo* info);
+    Entity EnterPlayer(const EntityInfo* info);
+    Entity Enter(const EntityInfo* info);
     void Leave(uint32_t server_eid);
     void Leave(entt::entity client_eid);
-    bool ScreenRayMove(Vec& start, Vec& end, entt::entity eid);
+    bool ScreenRayMove(Vec& start, Vec& end, Entity eid);
     void MoveRequest(entt::entity eid, Vec& end, float spd);
 
+public:
+    void Send(Entity eid, uint16_t id, uint8_t* buf, size_t size);
 
 public:
-    entt::entity ServerEidToClientEid(uint32_t server_eid)
+    Entity ServerEidToClientEid(uint32_t server_eid)
     {
         return mapped_eid_.contains(server_eid) ? mapped_eid_[server_eid] : entt::null;
     }
-    entt::entity Create(uint32_t server_eid)
+    Entity Create(uint32_t server_eid)
     {
         auto entity = create();
         mapped_eid_[server_eid] = entity;

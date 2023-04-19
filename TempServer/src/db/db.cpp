@@ -1,8 +1,5 @@
 #include "DB.h"
 
-auto const conn_account = NANODBC_TEXT("Driver={SQL Server};Server=TAEWOONGYOON\\SQLEXPRESS;database=account;trusted_connection=Yes;");
-auto const conn_game = NANODBC_TEXT("Driver={SQL Server};Server=TAEWOONGYOON\\SQLEXPRESS;database=Game;trusted_connection=Yes;");
-auto const conn_log = NANODBC_TEXT("Driver={SQL Server};Server=TAEWOONGYOON\\SQLEXPRESS;database=log;trusted_connection=Yes;");
 
 //void DB::add_data(int64_t id)
 //{

@@ -2,7 +2,10 @@
 
 #include <source_location>
 #include <format>
-#include <iostream>
+#include "singleton.h"
+#include "filesystem.h"
+
+#include "timer.h"
 
 #ifdef _SPDLOG
 #include <spdlog/spdlog.h>
@@ -52,6 +55,51 @@ std::source_location::current().line()).c_str());
 #define LOG_ERROR(log)
 
 #endif // DEBUG
+
 #endif
 
+//simple file log system
+class FileLog : public Singleton<FileLog>
+{
+public:
+    FileLog()
+    {
+        if (!FileSystem::exist("log"))
+        {
+            FileSystem::create_directories("log");
+        }
+
+        yyyymmdd << "log\\" << DateTime::yyyymmdd().str() << ".log";
+        if (!FileSystem::exist(yyyymmdd.str().c_str()))
+        {
+            FileSystem::create(yyyymmdd.str().c_str());
+        }
+    }
+
+    void info(const char* log)
+    {
+        m.lock();
+        std::ofstream o(yyyymmdd.str().c_str());
+        o << DateTime::Timestamp().str() << " [info] " << log << '\n';
+        m.unlock();
+    }
+    void warn(const char* log)
+    {
+        m.lock();
+        std::ofstream o(yyyymmdd.str().c_str());
+        o << DateTime::Timestamp().str() << " [warn] " << log << '\n';
+        m.unlock();
+    }
+    void error(const char* log)
+    {
+        m.lock();
+        std::ofstream o(yyyymmdd.str().c_str());
+        o << DateTime::Timestamp().str() << " [error] " << log << '\n';
+        m.unlock();
+    }
+
+public:
+    std::mutex m;
+    std::ostringstream yyyymmdd;
+};
 

@@ -4,13 +4,13 @@
 #include "net/user.h"
 #include "packet_handler.h"
 #include "navigation.h"
-#include "b2_world_tree.h"
 
+#include "b2_world_tree.h"
 #include "fbb/chat_generated.h"
 #include "fbb/packets_generated.h"
 #include "fbb/world_generated.h"
 
-bool Region::Initialize()
+bool Region::Initialize(Vec pos)
 {
     navigation_ = std::make_shared<Navigation>();
     dynamic_tree_ = std::make_shared<b2WorldTree>();
@@ -28,7 +28,7 @@ bool Region::Initialize()
     return true;
 }
 
-entt::entity Region::Enter(int npcid)
+Entity Region::Enter(int npcid)
 {
     auto entity = create();
 
@@ -68,7 +68,7 @@ entt::entity Region::Enter(int npcid)
     return entity;
 }
 
-void Region::Leave(entt::entity eid)
+void Region::Leave(Entity eid)
 {
     if (valid(eid))
     {
@@ -118,9 +118,26 @@ void Region::Broadcast(Vector<uint8_t>&& data)
     }
 }
 
-bool Region::HandleMove(uint32_t eid, const Vec& dest)
+void Region::BroadcastInRange(const Vec& pos, float r, 
+    const flatbuffers::FlatBufferBuilder& fbb, uint16_t id)
 {
-    TOENTITY(eid);
+    auto list = dynamic_tree_->Query(pos, r);
+    for (auto e : list)
+    {
+        Send(e, fbb, id);
+    }
+}
+
+void Region::Send(const Entity eid, const flatbuffers::FlatBufferBuilder& fbb, uint16_t id) const
+{
+    if (Valid<NetComponent>(eid))
+    {
+        get<NetComponent>(eid).user->tcp()->Send(id, fbb.GetSize(), fbb.GetBufferPointer());
+    }
+}
+
+bool Region::HandleMove(Entity entity, const Vec& dest)
+{
     if (valid(entity))
     {
         auto tf = try_get<Transform>(entity);

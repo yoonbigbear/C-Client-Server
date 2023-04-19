@@ -1,9 +1,14 @@
-#include "scene.h"
+#include "region.h"
 #include "ecs/systems.h"
+#include "ecs/components.h"
+
 #include "net_tcp.h"
 #include "player_client.h"
+#include "manager/render_manager.h"
 
-bool Scene::Initialize(const char* filepath)
+#include "fbb/packets_generated.h"
+
+bool Region::Initialize(const char* filepath)
 {
   return nav_mesh_.Initialize(filepath);
   //  auto view = registry_.group<>();
@@ -23,9 +28,11 @@ bool Scene::Initialize(const char* filepath)
 
 }
 
-void Scene::Draw()
+void Region::Draw()
 {
     nav_mesh_.Render(&dd_);
+    
+    InputSystem::KeyboardInput(*this, PlayerClient::instance().eid);
 
     DrawDebugToggledObjects(shared());
 
@@ -52,30 +59,32 @@ void Scene::Draw()
             }
         }
     }
+
+    DebugSystem::Update(*this, ImGui::GetIO().DeltaTime);
 }
 
-void Scene::Update(float dt)
+void Region::Update(float dt)
 {
     ReleaseCommandQueue();
 
     UpdateTimer(shared(), dt);
 
-    MoveAlongPath(shared(), dt);
+    MoveSystem::MoveAlongPath(*this, dt);
 }
 
-entt::entity Scene::EnterPlayer(const EntityInfo* info)
+entt::entity Region::EnterPlayer(const EntityInfo* info)
 {
     DEBUG_RETURN_VALUE(info, entt::null, "null entity info");
     return CreatePc(shared(), info);
 }
 
-entt::entity Scene::Enter(const EntityInfo* info)
+entt::entity Region::Enter(const EntityInfo* info)
 {
     DEBUG_RETURN_VALUE(info, entt::null, "null entity info");
     return CreateNpc(shared(), info);
 }
 
-void Scene::Leave(uint32_t server_eid)
+void Region::Leave(uint32_t server_eid)
 {
     if (mapped_eid_.contains(server_eid))
     {
@@ -84,13 +93,13 @@ void Scene::Leave(uint32_t server_eid)
     }
 }
 
-void Scene::Leave(entt::entity client_eid)
+void Region::Leave(entt::entity client_eid)
 {
     if (valid(client_eid))
         destroy(client_eid);
 }
 
-bool Scene::ScreenRayMove(Vec& start, Vec& end, entt::entity eid)
+bool Region::ScreenRayMove(Vec& start, Vec& end, Entity eid)
 {
     float t;
     if (nav_mesh_.ScreenRay(&start.v3.x, &end.v3.x, t))
@@ -124,7 +133,7 @@ bool Scene::ScreenRayMove(Vec& start, Vec& end, entt::entity eid)
     return true;
 }
 
-void Scene::MoveRequest(entt::entity entity, Vec& end, float spd)
+void Region::MoveRequest(entt::entity entity, Vec& end, float spd)
 {
     if (all_of<Transform>(entity))
     {
@@ -137,7 +146,13 @@ void Scene::MoveRequest(entt::entity entity, Vec& end, float spd)
     }
 }
 
-void Scene::AddCommandQueue(std::function<void(void)> command)
+void Region::Send(Entity eid, uint16_t id, uint8_t* buf, size_t size)
+{
+    auto& net = get<PlayerSession>(eid);
+    net.session->Send(static_cast<uint16_t>(id), size, buf);
+}
+
+void Region::AddCommandQueue(std::function<void(void)> command)
 {
     {
         LockGuard<SpinLock> guard(command_lock_);
@@ -145,7 +160,7 @@ void Scene::AddCommandQueue(std::function<void(void)> command)
     }
 }
 
-void Scene::ReleaseCommandQueue()
+void Region::ReleaseCommandQueue()
 {
     try
     {

@@ -14,9 +14,7 @@
 #pragma comment(lib, "dbghelp.lib")
 
 #include "server.h"
-#include "timer.h"
-
-
+#include "db/db.h"
 //dump
 LONG __stdcall ExceptionCallBack(EXCEPTION_POINTERS* e)
 {
@@ -52,6 +50,9 @@ BOOL CtrlHandler(DWORD fdwCtrlType)
 
 int main()
 {
+    //DB::instance().run_test(NANODBC_TEXT("Driver={MySQL ODBC 8.0 Unicode Driver};Server=localhost;Port=3306;Database=account;Uid=root;Pwd=admin"));
+    //DB::instance().run_test(NANODBC_TEXT("Driver={MySQL ODBC 8.0 ANSI Driver};Server=localhost;Port=3306;Database=game;Uid=root;Pwd=admin"));
+
     BOOL fSuccess = SetConsoleCtrlHandler((PHANDLER_ROUTINE)CtrlHandler, TRUE);
 
     SetUnhandledExceptionFilter(ExceptionCallBack);

@@ -34,7 +34,7 @@ public:
     Set<Entity> Query(const Vec& pos, float range, Entity except = entt::null);
 
 private:
-
+    
     bool Contains(const b2AABB& box)
     {
         return boundary_.Contains(box);

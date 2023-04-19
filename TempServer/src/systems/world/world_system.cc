@@ -66,7 +66,7 @@ void Recv_MoveReq(void* session, Vector<uint8_t>& data)
     DEBUG_RETURN(user);
 
     //move
-    LOG_INFO("recv Move Request {}", user->eid());
+    LOG_INFO("recv Move Request {}", (uint32_t)user->eid());
 
     if (auto world = user->world(); world)
     {
@@ -214,7 +214,6 @@ void WorldSystem::UpdateNeighbors(Region& world, Set<entt::entity>& new_list, en
 
     //caller's components
     auto& sight = world.get<Neighbor>(caller);
-    auto& tf = world.get<const Transform>(caller);
 
 
     bool changed = false;
@@ -238,95 +237,7 @@ void WorldSystem::UpdateNeighbors(Region& world, Set<entt::entity>& new_list, en
             std::inserter(leaved, leaved.begin()));
     }
 
-
-    //Update the enter neighbors
-    if (entered.size() > 0)
-    {
-        changed = true;
-
-        //make caller entity info
-        fbVec caller_pos = VecTo<fbVec>(tf.v.v3);
-        fbVec caller_endpos = caller_pos;
-        float caller_speed = 0.f;
-
-        //if a caller is moving, should add move datas
-        if (world.all_of<Mover>(caller))
-        {
-            auto& mover = world.get<Mover>(caller);
-            caller_endpos = VecTo<fbVec>(mover.dest);
-            caller_speed = tf.speed;
-        }
-
-        flatbuffers::FlatBufferBuilder fbb(256);
-        EnterNeighborsNfyT sync;
-
-        //add caller's data into sync packet
-        sync.enter_entity = std::make_unique<EntityInfo>(EntityInfo{
-           caller_pos, caller_endpos, caller_speed, 0,(uint32_t)caller,
-           tf.degree });
-        fbb.Finish(EnterNeighborsNfy::Pack(fbb, &sync));
-
-        for (auto proxy : entered)
-        {
-            if (!world.valid(proxy))
-            {
-                LOG_WARNING("Invalid entity {}", (uint32_t)proxy);
-                continue;
-            }
-
-            // add caller id into the new entity's neighbor
-            if (world.all_of<Neighbor>(proxy))
-            {
-                world.get<Neighbor>(proxy).neighbors.emplace(caller);
-            }
-
-            // Send a EnterSync if a player.
-            if (world.all_of<NetComponent>(proxy))
-            {
-                world.get<NetComponent>(proxy).user->tcp()->
-                    Send((uint16_t)PacketId::EnterNeighborsNfy,
-                        fbb.GetSize(), fbb.GetBufferPointer());
-            }
-
-        }
-    }
-
-    // Update the leave neighbors
-    if (leaved.size() > 0)
-    {
-        changed = true;
-
-        flatbuffers::FlatBufferBuilder fbb(64);
-        LeaveNeighborsNfyT sync;
-
-        // add caller's data into sync packet
-        sync.leave_entity = (uint32_t)caller;
-        fbb.Finish(LeaveNeighborsNfy::Pack(fbb, &sync));
-
-
-        for (auto proxy : leaved)
-        {
-            if (!world.valid(proxy))
-            {
-                LOG_WARNING("Invalid Id {}", static_cast<uint32_t>(proxy));
-                continue;
-            }
-
-            // remove caller id from the leaved entity's neighbor
-            if (world.all_of<Neighbor>(proxy))
-            {
-                world.get<Neighbor>(proxy).neighbors.erase(caller);
-            }
-
-            // Send a LeaveSync if a player.
-            if (world.all_of<NetComponent>(proxy))
-            {
-                world.get<NetComponent>(proxy).user->SendPacket(
-                    PacketId::LeaveNeighborsNfy,
-                    fbb.GetSize(), fbb.GetBufferPointer());
-            }
-        }
-    }
+    Entered(world, caller, entered);
 
     //Update the caller's neighbor
     if (changed)
@@ -357,9 +268,7 @@ void WorldSystem::UpdateNeighbors(Region& world, Set<entt::entity>& new_list, en
                 }
 
                 //add the data into the updatesync packet
-                sync.enter_entity.emplace_back(EntityInfo{
-                     proxy_pos, proxy_endpos, proxy_speed , 0, (uint32_t)proxy,
-                     target_tf.degree });
+                sync.enter_entity.emplace_back(SerializeEntityInfo(world, proxy));
             }
 
             //leaved list
@@ -376,4 +285,85 @@ void WorldSystem::UpdateNeighbors(Region& world, Set<entt::entity>& new_list, en
         }
     }
 
+}
+
+void WorldSystem::Entered(class Region& region, const entt::entity caller, 
+    const Deque<entt::entity>& list)
+{
+    //Update the enter neighbors
+    if (list.size() > 0)
+    {
+        flatbuffers::FlatBufferBuilder fbb(256);
+        EnterNeighborsNfyT sync;
+
+        //add caller's data into sync packet
+        sync.enter_entity = std::make_unique<EntityInfo>(SerializeEntityInfo(region, caller));
+        fbb.Finish(EnterNeighborsNfy::Pack(fbb, &sync));
+
+        for (auto proxy : list)
+        {
+            if (!region.valid(proxy))
+            {
+                LOG_WARNING("Invalid entity {}", (uint32_t)proxy);
+                continue;
+            }
+
+            // add caller id into the new entity's neighbor
+            if (region.all_of<Neighbor>(proxy))
+            {
+                region.get<Neighbor>(proxy).neighbors.emplace(caller);
+            }
+
+            // Send a EnterSync if a player.
+            region.Send(proxy, fbb, static_cast<uint16_t>(PacketId::EnterNeighborsNfy));
+        }
+    }
+}
+
+void WorldSystem::Leaved(Region& world, const entt::entity caller, const Deque<entt::entity>& list)
+{
+    // Update the leave neighbors
+    if (list.size() > 0)
+    {
+        flatbuffers::FlatBufferBuilder fbb(64);
+        LeaveNeighborsNfyT sync;
+
+        // add caller's data into sync packet
+        sync.leave_entity = static_cast<uint32_t>(caller);
+        fbb.Finish(LeaveNeighborsNfy::Pack(fbb, &sync));
+
+
+        for (auto proxy : list)
+        {
+            if (!world.valid(proxy))
+            {
+                LOG_WARNING("Invalid Id {}", static_cast<uint32_t>(proxy));
+                continue;
+            }
+
+            // remove caller id from the leaved entity's neighbor
+            if (world.all_of<Neighbor>(proxy))
+            {
+                world.get<Neighbor>(proxy).neighbors.erase(caller);
+            }
+
+            // Send a LeaveSync if a player.
+            world.Send(proxy, fbb, static_cast<uint16_t>(PacketId::LeaveNeighborsNfy));
+        }
+    }
+}
+
+EntityInfo WorldSystem::SerializeEntityInfo(Region& region, entt::entity eid)
+{
+    _ASSERT(region.Valid<Transform>(eid));
+    auto& tf = region.get<Transform>(eid);
+    fbVec pos = VecTo<fbVec>(tf.v);
+
+    return EntityInfo(
+        pos,
+        region.all_of<Mover>(eid) ? VecTo<fbVec>(region.get<Mover>(eid).dest) : pos,
+        tf.speed,
+        0,
+        static_cast<uint32_t>(eid),
+        tf.degree);
 }

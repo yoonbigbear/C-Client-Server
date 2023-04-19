@@ -2,6 +2,11 @@
 
 #include "pre.h"
 
-class Region;
+struct WanderComponent
+{
+    float acc_time;
+    float range;
+    Vec spawn_pos;
+};
 
-void Wander(Shared<Region> world, float dt);
+void Wander(Shared<class Region> world, float dt);

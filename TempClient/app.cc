@@ -1,11 +1,17 @@
 #include "app.h"
+#include "ecs/chat_system.h"
+#include "ecs/region_system.h"
+#include "ecs/debug_system.h"
 
 #include "manager/scene_manager.h"
+#include "manager/render_manager.h"
 #include "timer.h"
 #include "player_client.h"
 #include "net_tcp.h"
 #include "packet_handler.h"
 #include "fbb/packets_generated.h"
+
+#include "json_parser.h"
 
 App::~App()
 { //End
@@ -25,7 +31,6 @@ bool App::Initialize()
     }
     //create my temp player
     PlayerClient::instance().Initialize();
-
     //graphics initialize
     Graphics::instance().Initialize();
     Camera::instance().Initialize();
@@ -34,6 +39,7 @@ bool App::Initialize()
     BINDPACKET(UpdateNeighborsNfy);
     BINDPACKET(EnterNeighborsNfy);
     BINDPACKET(LeaveNeighborsNfy);
+    BINDPACKET(DebugColliderNfy);
     BINDPACKET(MoveAck);
     BINDPACKET(MoveNfy);
     BINDPACKET(EnterWorldAck);
@@ -93,6 +99,7 @@ void App::Run()
 
             Camera::instance().Input(&event);
 
+            RenderManager::instance().Draw();
             auto scenes = SceneManager::instance().container();
 
             for (auto& [key, val] : scenes)

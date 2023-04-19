@@ -12,6 +12,14 @@ struct Debug3DPosition;
 struct Debug3DPositionBuilder;
 struct Debug3DPositionT;
 
+struct DebugColliderReq;
+struct DebugColliderReqBuilder;
+struct DebugColliderReqT;
+
+struct DebugColliderNfy;
+struct DebugColliderNfyBuilder;
+struct DebugColliderNfyT;
+
 struct Debug3DPositionT : public flatbuffers::NativeTable {
   typedef Debug3DPosition TableType;
   std::unique_ptr<fbVec> pos;
@@ -67,6 +75,130 @@ inline flatbuffers::Offset<Debug3DPosition> CreateDebug3DPosition(
 
 flatbuffers::Offset<Debug3DPosition> CreateDebug3DPosition(flatbuffers::FlatBufferBuilder &_fbb, const Debug3DPositionT *_o, const flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
+struct DebugColliderReqT : public flatbuffers::NativeTable {
+  typedef DebugColliderReq TableType;
+  uint8_t type;
+  int16_t dir;
+  DebugColliderReqT()
+      : type(0),
+        dir(0) {
+  }
+};
+
+struct DebugColliderReq FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef DebugColliderReqT NativeTableType;
+  typedef DebugColliderReqBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_TYPE = 4,
+    VT_DIR = 6
+  };
+  uint8_t type() const {
+    return GetField<uint8_t>(VT_TYPE, 0);
+  }
+  int16_t dir() const {
+    return GetField<int16_t>(VT_DIR, 0);
+  }
+  bool Verify(flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint8_t>(verifier, VT_TYPE) &&
+           VerifyField<int16_t>(verifier, VT_DIR) &&
+           verifier.EndTable();
+  }
+  DebugColliderReqT *UnPack(const flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(DebugColliderReqT *_o, const flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static flatbuffers::Offset<DebugColliderReq> Pack(flatbuffers::FlatBufferBuilder &_fbb, const DebugColliderReqT* _o, const flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct DebugColliderReqBuilder {
+  typedef DebugColliderReq Table;
+  flatbuffers::FlatBufferBuilder &fbb_;
+  flatbuffers::uoffset_t start_;
+  void add_type(uint8_t type) {
+    fbb_.AddElement<uint8_t>(DebugColliderReq::VT_TYPE, type, 0);
+  }
+  void add_dir(int16_t dir) {
+    fbb_.AddElement<int16_t>(DebugColliderReq::VT_DIR, dir, 0);
+  }
+  explicit DebugColliderReqBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  DebugColliderReqBuilder &operator=(const DebugColliderReqBuilder &);
+  flatbuffers::Offset<DebugColliderReq> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = flatbuffers::Offset<DebugColliderReq>(end);
+    return o;
+  }
+};
+
+inline flatbuffers::Offset<DebugColliderReq> CreateDebugColliderReq(
+    flatbuffers::FlatBufferBuilder &_fbb,
+    uint8_t type = 0,
+    int16_t dir = 0) {
+  DebugColliderReqBuilder builder_(_fbb);
+  builder_.add_dir(dir);
+  builder_.add_type(type);
+  return builder_.Finish();
+}
+
+flatbuffers::Offset<DebugColliderReq> CreateDebugColliderReq(flatbuffers::FlatBufferBuilder &_fbb, const DebugColliderReqT *_o, const flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct DebugColliderNfyT : public flatbuffers::NativeTable {
+  typedef DebugColliderNfy TableType;
+  std::unique_ptr<DebugColliderInfoT> collider;
+  DebugColliderNfyT() {
+  }
+};
+
+struct DebugColliderNfy FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef DebugColliderNfyT NativeTableType;
+  typedef DebugColliderNfyBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_COLLIDER = 4
+  };
+  const DebugColliderInfo *collider() const {
+    return GetPointer<const DebugColliderInfo *>(VT_COLLIDER);
+  }
+  bool Verify(flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_COLLIDER) &&
+           verifier.VerifyTable(collider()) &&
+           verifier.EndTable();
+  }
+  DebugColliderNfyT *UnPack(const flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(DebugColliderNfyT *_o, const flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static flatbuffers::Offset<DebugColliderNfy> Pack(flatbuffers::FlatBufferBuilder &_fbb, const DebugColliderNfyT* _o, const flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct DebugColliderNfyBuilder {
+  typedef DebugColliderNfy Table;
+  flatbuffers::FlatBufferBuilder &fbb_;
+  flatbuffers::uoffset_t start_;
+  void add_collider(flatbuffers::Offset<DebugColliderInfo> collider) {
+    fbb_.AddOffset(DebugColliderNfy::VT_COLLIDER, collider);
+  }
+  explicit DebugColliderNfyBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  DebugColliderNfyBuilder &operator=(const DebugColliderNfyBuilder &);
+  flatbuffers::Offset<DebugColliderNfy> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = flatbuffers::Offset<DebugColliderNfy>(end);
+    return o;
+  }
+};
+
+inline flatbuffers::Offset<DebugColliderNfy> CreateDebugColliderNfy(
+    flatbuffers::FlatBufferBuilder &_fbb,
+    flatbuffers::Offset<DebugColliderInfo> collider = 0) {
+  DebugColliderNfyBuilder builder_(_fbb);
+  builder_.add_collider(collider);
+  return builder_.Finish();
+}
+
+flatbuffers::Offset<DebugColliderNfy> CreateDebugColliderNfy(flatbuffers::FlatBufferBuilder &_fbb, const DebugColliderNfyT *_o, const flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
 inline Debug3DPositionT *Debug3DPosition::UnPack(const flatbuffers::resolver_function_t *_resolver) const {
   std::unique_ptr<Debug3DPositionT> _o = std::unique_ptr<Debug3DPositionT>(new Debug3DPositionT());
   UnPackTo(_o.get(), _resolver);
@@ -91,6 +223,61 @@ inline flatbuffers::Offset<Debug3DPosition> CreateDebug3DPosition(flatbuffers::F
   return CreateDebug3DPosition(
       _fbb,
       _pos);
+}
+
+inline DebugColliderReqT *DebugColliderReq::UnPack(const flatbuffers::resolver_function_t *_resolver) const {
+  std::unique_ptr<DebugColliderReqT> _o = std::unique_ptr<DebugColliderReqT>(new DebugColliderReqT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void DebugColliderReq::UnPackTo(DebugColliderReqT *_o, const flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = type(); _o->type = _e; }
+  { auto _e = dir(); _o->dir = _e; }
+}
+
+inline flatbuffers::Offset<DebugColliderReq> DebugColliderReq::Pack(flatbuffers::FlatBufferBuilder &_fbb, const DebugColliderReqT* _o, const flatbuffers::rehasher_function_t *_rehasher) {
+  return CreateDebugColliderReq(_fbb, _o, _rehasher);
+}
+
+inline flatbuffers::Offset<DebugColliderReq> CreateDebugColliderReq(flatbuffers::FlatBufferBuilder &_fbb, const DebugColliderReqT *_o, const flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { flatbuffers::FlatBufferBuilder *__fbb; const DebugColliderReqT* __o; const flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _type = _o->type;
+  auto _dir = _o->dir;
+  return CreateDebugColliderReq(
+      _fbb,
+      _type,
+      _dir);
+}
+
+inline DebugColliderNfyT *DebugColliderNfy::UnPack(const flatbuffers::resolver_function_t *_resolver) const {
+  std::unique_ptr<DebugColliderNfyT> _o = std::unique_ptr<DebugColliderNfyT>(new DebugColliderNfyT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void DebugColliderNfy::UnPackTo(DebugColliderNfyT *_o, const flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = collider(); if (_e) _o->collider = std::unique_ptr<DebugColliderInfoT>(_e->UnPack(_resolver)); }
+}
+
+inline flatbuffers::Offset<DebugColliderNfy> DebugColliderNfy::Pack(flatbuffers::FlatBufferBuilder &_fbb, const DebugColliderNfyT* _o, const flatbuffers::rehasher_function_t *_rehasher) {
+  return CreateDebugColliderNfy(_fbb, _o, _rehasher);
+}
+
+inline flatbuffers::Offset<DebugColliderNfy> CreateDebugColliderNfy(flatbuffers::FlatBufferBuilder &_fbb, const DebugColliderNfyT *_o, const flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { flatbuffers::FlatBufferBuilder *__fbb; const DebugColliderNfyT* __o; const flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _collider = _o->collider ? CreateDebugColliderInfo(_fbb, _o->collider.get(), _rehasher) : 0;
+  return CreateDebugColliderNfy(
+      _fbb,
+      _collider);
 }
 
 #endif  // FLATBUFFERS_GENERATED_DEBUG_H_

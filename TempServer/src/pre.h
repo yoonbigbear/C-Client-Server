@@ -1,7 +1,7 @@
 #pragma once
 
 #define WIN32_LEAN_AND_MEAN 
-#define _ENTT
+#define _ECS
 #define _BOX2D
 #define _SPDLOG
 
@@ -17,14 +17,14 @@
 #ifdef  _BOX2D
 #include <box2d/b2_math.h>
 #include <box2d/b2_collision.h>
+#include <box2d/b2_dynamic_tree.h>
 #pragma comment(lib, "box2d.lib")
 #else
 #include <bb_math.h>
 #endif //  _BOX2D
 
-#ifdef _ENTT
-#include <entt/entt.hpp>
-using Entity = entt::entity;
+#ifdef _ECS
+#include <ecs.h>
 #else
 using Entity = uint32_t;
 #endif

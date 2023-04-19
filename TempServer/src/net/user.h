@@ -22,11 +22,11 @@ public:
     Shared<class Region> world() { return world_; }
     void world(Shared<class Region> ptr) { world_ = ptr; }
 
-    uint32_t eid() { return eid_; }
-    void eid(uint32_t id) { eid_ = id; }
+    Entity eid() { return eid_; }
+    void eid(Entity id) { eid_ = id; }
 
 private:
-    uint32_t eid_;
+    Entity eid_;
     Shared<Region> world_;
     Shared<ClientSession> tcp_;
 };

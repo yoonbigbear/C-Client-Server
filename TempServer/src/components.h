@@ -9,6 +9,7 @@ enum MoveFlag : uint8_t
     Arrive,
     Moving,
 };
+
 struct Transform
 {
     Vec v;
@@ -22,22 +23,6 @@ struct Mover
     Vec dir;
 };
 
-struct Neighbor
-{
-    Set<entt::entity> neighbors;
-};
-
-struct NpcComponent
-{
-    int id;
-};
-
-struct WanderComponent
-{
-    float acc_time;
-    float range;
-    Vec spawn_pos;
-};
 
 struct PathList
 {

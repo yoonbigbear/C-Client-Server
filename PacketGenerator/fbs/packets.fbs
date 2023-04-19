@@ -17,4 +17,6 @@ enum PacketId : ushort
 	EnterWorldAck,
 
 	Debug3DPosition,
+	DebugColliderReq,
+	DebugColliderNfy,
 }

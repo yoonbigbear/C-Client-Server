@@ -349,8 +349,46 @@ inline float Area(const AABB2& A)
 }
 #endif
 
-short UnitVectorToRadian(const float x, const float y);
-Vec RadianToUnitVector(float rad);
-short RadianToDegree(float radian);
-short DegreeToRadian(int degree);
-Vec DirLength(const Vec& dir, float length);
+namespace BBMath
+{
+    inline short RadianToDegree(float radian)
+    {
+        return static_cast<short>(std::round(57.29579143f * radian) + 360) % 360;
+    }
+    inline float ToRad(int degree)
+    {
+        return static_cast<float>(degree * 0.0174533f);
+    }
+
+    inline float UnitVectorToRadian(const float x, const float y)
+    {
+        return  std::atan2f(y, x);
+    }
+    inline short UnitVectorToDegree(const float x, const float y)
+    {
+        return RadianToDegree(UnitVectorToRadian(x, y));
+    }
+    inline Vec ToUnitVector(float rad)
+    {
+        return Vec{ std::cosf(rad), std::sinf(rad) };
+    }
+
+    inline Vec ToUnitVector(short degree)
+    {
+        return ToUnitVector(ToRad(degree));
+    }
+
+
+    inline Vec DirLength(const Vec& dir, float length)
+    {
+        return Vec(dir[0] * length, dir[1] * length, dir[2] * length);
+    }
+    inline Vec DirLength(float radian, float length)
+    {
+        return DirLength(ToUnitVector(radian), length);
+    }
+    inline Vec DirLength(short degree, float length)
+    {
+        return DirLength(ToUnitVector(degree), length);
+    }
+}

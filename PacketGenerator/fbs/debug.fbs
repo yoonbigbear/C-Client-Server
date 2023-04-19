@@ -1,8 +1,18 @@
 
 include "common.fbs";
 
-
 table Debug3DPosition
 {
 	pos : fbVec;
+}
+
+table DebugColliderReq
+{
+	type : ubyte;
+	dir : short;
+}
+
+table DebugColliderNfy
+{
+	collider : DebugColliderInfo;
 }

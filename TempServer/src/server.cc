@@ -6,17 +6,19 @@
 #include "fbb/packets_generated.h"
 #include "systems/systems.h"
 #include "systems/user_system.h"
+#include "systems/debug_system.h"
 
 bool Server::Initialize()
 {
     TcpServer::Initialize();
 
     world_ = std::make_shared<Region>();
-    if (!world_->Initialize())
+    if (!world_->Initialize(Vec2(0,0)))
         return false;
 
     BINDPACKET(EnterWorldReq);
     BINDPACKET(MoveReq);
+    BINDPACKET(DebugColliderReq);
 
     return true;
 }
@@ -69,7 +71,7 @@ void Server::EnterWorld()
     auto lg = std::lock_guard(lock_);
     for (auto& e : enter_queue)
     {
-        e->eid(static_cast<uint32_t>(UserSystem::Construct(*world_, e)));
+        e->eid(UserSystem::Construct(*world_, e));
     }
     enter_queue.clear();
 }

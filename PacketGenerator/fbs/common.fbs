@@ -23,3 +23,10 @@ struct EntityInfo
 	entity_id : uint;
 	angle : short;
 }
+
+table DebugColliderInfo
+{
+	type : ubyte;
+	center : fbVec;
+	data : [ubyte];
+}

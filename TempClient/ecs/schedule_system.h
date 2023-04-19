@@ -2,4 +2,11 @@
 
 #include "pre.h"
 
-void UpdateTimer(Shared<class Scene> scene, float dt);
+
+struct TimerComponent
+{
+    float sec;
+    Action<> action;
+};
+
+void UpdateTimer(Shared<class Region> scene, float dt);

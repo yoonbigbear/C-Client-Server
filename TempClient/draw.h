@@ -1,4 +1,5 @@
 #pragma once
+
 #include "share/detour/DebugDraw.h"
 
 #include "bb_util.h"
@@ -200,6 +201,59 @@ public:
 		dd.depthMask(false);
 		dd.begin(DU_DRAW_LINES, lineWidth);
 		duAppendBoxWire(&dd, dtmin[0], dtmin[1], dtmin[2], dtmax[0], dtmax[1], dtmax[2], col);
+		dd.end();
+		dd.depthMask(true);
+	}
+	static void DebugObbWire(const std::array<Vec, 4> vertices, const unsigned int col, float lineWidth)
+	{
+		DebugDrawGLBB dd;
+		dd.depthMask(false);
+		dd.begin(DU_DRAW_LINES, lineWidth);
+
+		dd.vertex(vertices[0].v3.x, 1, vertices[0].v3.y, col);
+		dd.vertex(vertices[1].v3.x, 1, vertices[1].v3.y, col);
+
+		dd.vertex(vertices[1].v3.x, 1, vertices[1].v3.y, col);
+		dd.vertex(vertices[2].v3.x, 1, vertices[2].v3.y, col);
+
+		dd.vertex(vertices[2].v3.x, 1, vertices[2].v3.y, col);
+		dd.vertex(vertices[3].v3.x, 1, vertices[3].v3.y, col);
+
+		dd.vertex(vertices[3].v3.x, 1, vertices[3].v3.y, col);
+		dd.vertex(vertices[0].v3.x, 1, vertices[0].v3.y, col);
+
+		dd.end();
+		dd.depthMask(true);
+	}
+	static void DebugSector(const Vec& center, short half_angle, short dir, float length,
+		const unsigned int col, float lineWidth)
+	{
+		short min = dir - half_angle;
+		short max = dir + half_angle;
+		auto a = center.v2 + BBMath::DirLength(min, length).v2;
+		auto b = center.v2 + BBMath::DirLength(max, length).v2;
+		DebugDrawGLBB dd;
+		dd.depthMask(false);
+		dd.begin(DU_DRAW_LINES, lineWidth);
+
+		dd.vertex(center.v2.x, 1, center.v2.y, col);
+		dd.vertex(a.x, 1, a.y, col);
+
+		dd.vertex(center.v2.x, 1, center.v2.y, col);
+		dd.vertex(b.x, 1, b.y, col);
+
+		auto angle = half_angle * 2;
+		angle = angle / 10;
+		for (int i = 0; i < 10; ++i)
+		{
+			short l = static_cast<short>(min + angle * i);
+			short r = static_cast<short>(l + angle);
+			auto minv = center.v2 + BBMath::DirLength(l, length).v2;
+			auto maxv = center.v2 + BBMath::DirLength(r, length).v2;
+			dd.vertex(minv.x, 1, minv.y, col);
+			dd.vertex(maxv.x, 1, maxv.y, col);
+		}
+
 		dd.end();
 		dd.depthMask(true);
 	}

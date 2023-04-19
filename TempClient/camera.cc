@@ -1,11 +1,4 @@
 #include "camera.h"
-//#include "imgui.h"
-//#include <algorithm>
-//#ifdef __APPLE__
-//#	include <OpenGL/glu.h>
-//#else
-//#	include <GL/glu.h>
-//#endif
 
 #include "manager/scene_manager.h"
 #include "player_client.h"

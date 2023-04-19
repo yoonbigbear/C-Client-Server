@@ -6,7 +6,7 @@
 #include "recv_buffer.h"
 #include "bb_logger.h"
 
-#include <asio.hpp>
+#include "asio.hpp"
 #include <deque>
 #include <memory>
 
@@ -43,12 +43,11 @@ public:
 protected:
     void Send(const char* buf, size_t size) 
     {
-        asio::post(io_context_, [&, buf, size]() { Write(buf, size); });
-
+        asio::post(io_context_, [&, buf, size]{ Write(buf, size); });
     }
     void Send(const std::vector<uint8_t>& buf) 
     {
-        asio::post(io_context_, [this, buf]() { Write(buf, buf.size()); });
+        asio::post(io_context_, [this, buf] { Write(buf, buf.size()); });
     }
 
     void Write(const std::vector<uint8_t>& buf, size_t size) 

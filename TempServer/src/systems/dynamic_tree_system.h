@@ -1,12 +1,10 @@
 #pragma once
 
-#include "world/b2_world_tree.h"
+#include "pre.h"
 
 class DynamicTreeSystem
 {
 public:
-    static bool Spawn(b2WorldTree& tree, const Vec& pos, float radius, Proxy* entity_data)
-    {
-        return tree.Spawn(pos, radius, entity_data);
-    }
+    static bool Spawn(class b2WorldTree& tree, const Vec& pos, float radius, struct Proxy* entity_data);
+    static void Contact(class Region& region, const Vec& next, float range, Entity eid);
 };

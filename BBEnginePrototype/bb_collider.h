@@ -2,7 +2,7 @@
 
 #include "types.h"
 
-enum ColliderType
+enum ColliderType : uint8_t
 {
     None,
     Circle,
@@ -31,8 +31,8 @@ struct AABBInfo
 struct OBBInfo
 {
     short dir;
-    float hx;
-    float hy;
+    float hw;
+    float hl;
 };
 struct RayInfo
 {

@@ -1,8 +1,8 @@
 #include "schedule_system.h"
 
-#include "level/scene.h"
+#include "level/region.h"
 
-void UpdateTimer(Shared<class Scene> scene, float dt)
+void UpdateTimer(Shared<class Region> scene, float dt)
 {
     auto view = scene->view<TimerComponent>();
     for (auto [entity, timer] : view.each())

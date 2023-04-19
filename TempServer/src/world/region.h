@@ -3,35 +3,24 @@
 #include "pre.h"
 #include "components.h"
 
-class Region : public entt::registry, public std::enable_shared_from_this<Region>
+class Region : public Entt::ECS, public std::enable_shared_from_this<Region>
 {
     auto shared() { return shared_from_this(); }
 public:
-    bool Initialize();
-    entt::entity Enter(int npcid);
-    void Leave(entt::entity eid);
+    bool Initialize(Vec pos);
+    Entity Enter(int npcid);
+    void Leave(Entity eid);
     void Update(float dt);
 
     void SpawnAI(int n);
 
     void Broadcast(Vector<uint8_t>&& data);
+    void BroadcastInRange(const Vec& pos, float r, const flatbuffers::FlatBufferBuilder& fbb, uint16_t id);
+public:
+    void Send(const Entity eid, const flatbuffers::FlatBufferBuilder& fbb, uint16_t id) const;
 
 public:
-    template<typename ...Comps>
-    _NODISCARD bool Valid(entt::entity entity)
-    {
-        if constexpr (std::_Is_any_of_v<Comps..., void>)
-        {
-            return valid(entity);
-        }
-        else
-        {
-            return (valid(entity) && all_of<Comps...>(entity));
-        }
-    }
-  
-public:
-    bool HandleMove(uint32_t eid, const Vec& dest);
+    bool HandleMove(Entity eid, const Vec& dest);
 
 public:
     Shared<class b2WorldTree> dyanmic_tree() { return dynamic_tree_; }
