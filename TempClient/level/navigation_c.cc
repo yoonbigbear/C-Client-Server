@@ -125,4 +125,3 @@ bool Navigation_C::ScreenRay(float* src, float* dst, float& tmin)
 	}
 	return hit;
 }
-

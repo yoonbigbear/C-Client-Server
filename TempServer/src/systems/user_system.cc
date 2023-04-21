@@ -5,6 +5,7 @@
 #include "world/region.h"
 #include "world/world_system.h"
 #include "world/b2_world_tree.h"
+#include "mgr/datatable_mgr.h"
 
 #include "net/user.h"
 
@@ -35,6 +36,9 @@ Entity UserSystem::Construct(class Region& region, Shared<User> user)
         LOG_ERROR("b2tree create proxy failed");
         return entt::null;
     }
+
+    auto& class_table = DataTable::instance().classbase()[10000];
+    
 
     //query sight entities
     region.emplace<Neighbor>(entity);

@@ -16,16 +16,19 @@ enum class PacketId : uint16_t {
   MoveReq = 6,
   MoveAck = 7,
   MoveNfy = 8,
-  EnterWorldReq = 9,
-  EnterWorldAck = 10,
-  Debug3DPosition = 11,
-  DebugColliderReq = 12,
-  DebugColliderNfy = 13,
+  DashReq = 9,
+  DashAck = 10,
+  DashNfy = 11,
+  EnterWorldReq = 12,
+  EnterWorldAck = 13,
+  Debug3DPosition = 14,
+  DebugColliderReq = 15,
+  DebugColliderNfy = 16,
   MIN = ChatReq,
   MAX = DebugColliderNfy
 };
 
-inline const PacketId (&EnumValuesPacketId())[14] {
+inline const PacketId (&EnumValuesPacketId())[17] {
   static const PacketId values[] = {
     PacketId::ChatReq,
     PacketId::ChatAck,
@@ -36,6 +39,9 @@ inline const PacketId (&EnumValuesPacketId())[14] {
     PacketId::MoveReq,
     PacketId::MoveAck,
     PacketId::MoveNfy,
+    PacketId::DashReq,
+    PacketId::DashAck,
+    PacketId::DashNfy,
     PacketId::EnterWorldReq,
     PacketId::EnterWorldAck,
     PacketId::Debug3DPosition,
@@ -46,7 +52,7 @@ inline const PacketId (&EnumValuesPacketId())[14] {
 }
 
 inline const char * const *EnumNamesPacketId() {
-  static const char * const names[15] = {
+  static const char * const names[18] = {
     "ChatReq",
     "ChatAck",
     "ChatNfy",
@@ -56,6 +62,9 @@ inline const char * const *EnumNamesPacketId() {
     "MoveReq",
     "MoveAck",
     "MoveNfy",
+    "DashReq",
+    "DashAck",
+    "DashNfy",
     "EnterWorldReq",
     "EnterWorldAck",
     "Debug3DPosition",

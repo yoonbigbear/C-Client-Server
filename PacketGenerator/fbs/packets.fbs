@@ -13,6 +13,10 @@ enum PacketId : ushort
 	MoveAck,
 	MoveNfy,
 	
+	DashReq,
+	DashAck,
+	DashNfy,
+	
 	EnterWorldReq,
 	EnterWorldAck,
 

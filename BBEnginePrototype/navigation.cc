@@ -213,6 +213,20 @@ bool Navigation::FindPath(float* dtstart, float* dtend, Deque<Vec>& out_path, co
 	return false;
 }
 
+bool Navigation::Raycast(const Vec& start, Vec& end, dtRaycastHit& hit, const dtQueryFilter& ft)
+{
+	float dtstart[3] = { start.v3[0], start.v3[2], start.v3[1] };
+	float dtend[3] = { end.v3[0], end.v3[2], end.v3[1] };
+	const float extents[3]{ 0,10,0 };
+	dtPolyRef startref;
+	if (!dtStatusSucceed(nav_query_->findNearestPoly(dtstart, extents, &ft, &startref, dtstart)))
+	{
+		return false;
+	}
+	;
+	return Raycast(dtstart, startref, dtend, hit, ft);
+}
+
 bool Navigation::Raycast(const Vec& start, dtPolyRef startref,
 	const Vec& end, dtRaycastHit& hit, const dtQueryFilter& ft)
 {

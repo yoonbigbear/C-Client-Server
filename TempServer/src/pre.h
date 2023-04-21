@@ -31,6 +31,7 @@ using Entity = uint32_t;
 
 
 #include "bb_logger.h"
+#include "filesystem.h"
 #include "random_generator.h"
 #include "types.h"
 

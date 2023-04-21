@@ -21,7 +21,7 @@ bool Region::Initialize(Vec pos)
 
     viewing_range_ = 150;
 
-    SpawnAI(0);
+    SpawnAI(2);
 
     on_destroy<Neighbor>().connect<UpdateDestroyed>();
 
@@ -151,7 +151,7 @@ bool Region::HandleMove(Entity entity, const Vec& dest)
             mover.dir.v2.Normalize();*/
 
             auto& pathlist = emplace_or_replace<PathList>(entity);
-            pathlist.paths.emplace_back(dest);
+            navigation_->FindPath(tf->v, dest, pathlist.paths);
 
             tf->speed = 1.f;
             

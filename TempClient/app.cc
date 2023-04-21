@@ -42,6 +42,8 @@ bool App::Initialize()
     BINDPACKET(DebugColliderNfy);
     BINDPACKET(MoveAck);
     BINDPACKET(MoveNfy);
+    BINDPACKET(DashAck);
+    BINDPACKET(DashNfy);
     BINDPACKET(EnterWorldAck);
     BINDPACKET(Debug3DPosition);
 

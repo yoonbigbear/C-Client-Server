@@ -129,11 +129,12 @@ bool Region::ScreenRayMove(Vec& start, Vec& end, Entity eid)
     {
         //failed raycasting
         ADD_ERROR("Failed screen ray");
+        return false;
     }
     return true;
 }
 
-void Region::MoveRequest(entt::entity entity, Vec& end, float spd)
+void Region::FindPath(Entity entity, Vec& end, float spd)
 {
     if (all_of<Transform>(entity))
     {
@@ -143,6 +144,37 @@ void Region::MoveRequest(entt::entity entity, Vec& end, float spd)
         Deque<Vec> path;
         auto& pathlist = emplace_or_replace<PathList>(entity);
         pathlist.paths.emplace_back(end);
+    }
+}
+
+void Region::MoveTo(Entity eid, Vec& end, float spd)
+{
+    if (Valid<Transform>(eid))
+    {
+        auto& tf = get<Transform>(eid);
+        dtRaycastHit hit;
+        if (nav_mesh_.Raycast(tf.v, end, hit))
+        {
+            if (hit.t < 1.0f)
+            {
+                float pos[3];
+                pos[0] = tf.v.v3.x + (end.v3.x - tf.v.v3.x) * hit.t;
+                pos[1] = tf.v.v3.z + (end.v3.z - tf.v.v3.z) * hit.t;
+                pos[2] = tf.v.v3.y + (end.v3.y - tf.v.v3.y) * hit.t;
+                //ray hit.
+
+                end = Vec(pos[0], pos[1], pos[2]);
+                
+                auto& mover = emplace_or_replace<Mover>(eid);
+                mover.dest = end;
+
+                mover.dir.v2 = mover.dest.v2 - tf.v.v2;
+                mover.dir.v2.Normalize();
+
+                tf.degree = BBMath::UnitVectorToDegree(mover.dir.v2.x, mover.dir.v2.y);
+                tf.speed = spd;
+            }
+        }
     }
 }
 

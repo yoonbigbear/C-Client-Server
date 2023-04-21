@@ -25,6 +25,8 @@ public:
 		Deque<Vec>& out_path, const dtQueryFilter& ft = dtQueryFilter());
 	_NODISCARD bool FindPath(float* dtstart, float* dtend,
 		Deque<Vec>& out_path, const dtQueryFilter& ft = dtQueryFilter());
+	_NODISCARD bool Raycast(const Vec& start, Vec& end, dtRaycastHit& hit, 
+		const dtQueryFilter& ft = dtQueryFilter());
 	_NODISCARD bool Raycast(const Vec& start, dtPolyRef startref,
 		const Vec& end, dtRaycastHit& hit,
 		const dtQueryFilter& ft = dtQueryFilter());

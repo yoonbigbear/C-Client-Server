@@ -1,6 +1,5 @@
 #pragma once
 
-#include "bb_logger.h"
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -53,5 +52,10 @@ namespace FileSystem
     {
         std::ofstream f(path);
         return f;
+    }
+
+    inline auto open_all(const char* dir)
+    {
+        return std::filesystem::directory_iterator(dir);
     }
 };

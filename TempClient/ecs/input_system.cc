@@ -1,5 +1,6 @@
 #include "input_system.h"
 #include "debug_system.h"
+#include "player_client.h"
 
 #include "bb_math.h"
 #include "gui.h"
@@ -59,14 +60,26 @@ void InputSystem::KeyboardInput(Region& region, Entity entity)
             DebugSystem::CreateDebugColliderObject(region, std::move(collider), BB::RGBA<0, 0, 255, 100>::VAL);
         }
 
-        if (ImGui::IsKeyPressed(ImGuiKey_6))
-        {
-
-        }
-
         if (ImGui::IsKeyPressed(ImGuiKey_Space))
         {
+            auto net = region.get<PlayerSession>(entity).session;
+            Vec start = Vec(Camera::instance().ray_start);
+            Vec end = Vec(Camera::instance().ray_end);
 
+            float t;
+            region.navmesh().ScreenRay(&start.v3.x, &end.v3.x, t);
+            if (t < 1.0f)
+            {
+                float pos[3];
+                pos[0] = start.v3.x + (end.v3.x - start.v3.x) * t;
+                pos[1] = start.v3.z + (end.v3.z - start.v3.z) * t;
+                pos[2] = start.v3.y + (end.v3.y - start.v3.y) * t;
+                //ray hit.
+                auto dest = Vec(pos[0], pos[1], pos[2]);
+                auto dir = BBMath::UnitVectorToDegree(pos[0] - tf.v.v2.x, pos[1] - tf.v.v2.y);
+                MoveSystem::Send_DashReq(net, dir);
+
+            }
         }
 
         if (ImGui::IsKeyPressed(ImGuiKey_LeftShift))

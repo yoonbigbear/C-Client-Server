@@ -24,7 +24,8 @@ public:
     void Leave(uint32_t server_eid);
     void Leave(entt::entity client_eid);
     bool ScreenRayMove(Vec& start, Vec& end, Entity eid);
-    void MoveRequest(entt::entity eid, Vec& end, float spd);
+    void FindPath(Entity eid, Vec& end, float spd);
+    void MoveTo(Entity eid, Vec& end, float spd);
 
 public:
     void Send(Entity eid, uint16_t id, uint8_t* buf, size_t size);

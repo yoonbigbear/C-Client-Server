@@ -1,24 +1,29 @@
 #include "server.h"
 
 #include "world/region.h"
+#include "mgr/datatable_mgr.h"
+#include "mgr/file_mgr.h"
 
 #include "packet_handler.h"
+
 #include "fbb/packets_generated.h"
 #include "systems/systems.h"
-#include "systems/user_system.h"
-#include "systems/debug_system.h"
+
 
 bool Server::Initialize()
 {
-    TcpServer::Initialize();
-
+    FileMgr::instance().LoadConfig("config.conf");
+    DataTable::instance().Load("genCsv\\");
     world_ = std::make_shared<Region>();
     if (!world_->Initialize(Vec2(0,0)))
         return false;
 
     BINDPACKET(EnterWorldReq);
     BINDPACKET(MoveReq);
+    BINDPACKET(DashReq);
     BINDPACKET(DebugColliderReq);
+
+    TcpServer::Initialize();
 
     return true;
 }

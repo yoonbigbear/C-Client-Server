@@ -30,6 +30,7 @@ using Double = double;
 using Boolean = bool;
 
 using String = std::string;
+using StringView = std::string_view;
 template<typename T>
 using Unique = std::unique_ptr<T>;
 template<typename T>

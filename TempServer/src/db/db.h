@@ -2,12 +2,15 @@
 
 #include "singleton.h"
 #include <iostream>
+//#include <libpqxx-7.7.5/include/pqxx/pqxx>
 #include <nanodbc-2.14.0/nanodbc/nanodbc.h>
 #ifdef _DEBUG
 #pragma comment(lib, "lib/nanodbc_d.lib")
 #else
 #pragma comment(lib, "lib/nanodbc.lib")
 #endif
+
+
 class DB : public Singleton<DB>
 {
 public:

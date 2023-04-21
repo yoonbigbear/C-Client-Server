@@ -1,8 +1,6 @@
 #pragma once
 #include "pre.h"
 
-void Recv_EnterWorldReq(void* session, Vector<uint8_t>& data);
-void Recv_MoveReq(void* session, Vector<uint8_t>& data);
 
 
 void UpdateMove(class Region& world, float dt);

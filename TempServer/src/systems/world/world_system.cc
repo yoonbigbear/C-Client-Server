@@ -45,44 +45,6 @@ void UpdateDestroyed(entt::registry& world, entt::entity caller)
     }
 }
 
-void Recv_EnterWorldReq(void* session, [[maybe_unused]] Vector<uint8_t>& data)
-{
-    User* user = reinterpret_cast<User*>(session);
-    DEBUG_RETURN(user);
-
-    LOG_INFO("Recv EnterWorldReq");
-
-}
-
-void Recv_MoveReq(void* session, Vector<uint8_t>& data)
-{
-    auto req = flatbuffers::GetRoot<MoveReq>(data.data());
-    auto pack = req->UnPack();
-
-    flatbuffers::FlatBufferBuilder fbb(64);
-    MoveAckT resp;
-
-    User* user = reinterpret_cast<User*>(session);
-    DEBUG_RETURN(user);
-
-    //move
-    LOG_INFO("recv Move Request {}", (uint32_t)user->eid());
-
-    if (auto world = user->world(); world)
-    {
-        if (!world->HandleMove(user->eid(), VecTo<fbVec, Vec>(*pack->dest)))
-            resp.error_code = ErrorCode::InValidPos;
-    }
-    else
-    {
-        resp.error_code = ErrorCode::InValidSession;
-    }
-
-    //respond
-    fbb.Finish(MoveAck::Pack(fbb, &resp));
-    user->tcp()->Send((uint16_t)PacketId::MoveAck, fbb.GetSize(), fbb.GetBufferPointer());
-}
-
 void UpdateMove(Region& world, float dt)
 {
     auto view = world.view<const Mover, Transform,const Proxy>();
@@ -215,8 +177,6 @@ void WorldSystem::UpdateNeighbors(Region& world, Set<entt::entity>& new_list, en
     //caller's components
     auto& sight = world.get<Neighbor>(caller);
 
-
-    bool changed = false;
     Deque<entt::entity> entered;
     Deque<entt::entity> leaved;
 
@@ -240,7 +200,7 @@ void WorldSystem::UpdateNeighbors(Region& world, Set<entt::entity>& new_list, en
     Entered(world, caller, entered);
 
     //Update the caller's neighbor
-    if (changed)
+    if (entered.size() > 0 || leaved.size() > 0)
     {
         // update 
         std::swap(sight.neighbors, new_list);

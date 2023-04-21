@@ -5,3 +5,6 @@
 #include "chat/chat_system.h"
 #include "user_system.h"
 #include "npc_system.h"
+#include "move_sytem.h"
+#include "user_system.h"
+#include "debug_system.h"

@@ -24,7 +24,7 @@ void Recv_MoveNfy(void* session, Vector<uint8_t>& data)
         memcpy(&dest, t->dest.get(), sizeof(Vec));
         auto entity = scene->ServerEidToClientEid(t->eid);
         DEBUG_RETURN(scene->valid(entity), "Invalid entity id svr {} / client {}", t->eid, (uint32_t)entity);
-        scene->MoveRequest(entity, dest, t->spd);
+        scene->FindPath(entity, dest, t->spd);
     }
 }
 
@@ -43,14 +43,54 @@ void Recv_MoveAck(void* session, Vector<uint8_t>& data)
     }
 }
 
+void Recv_DashAck(void* session, Vector<uint8_t>& data)
+{
+    auto net = reinterpret_cast<NetTcp*>(session);
+    DEBUG_RETURN(net, "null session");
+
+    ADD_LOG("Received DashAck");
+
+    auto ack = flatbuffers::GetRoot<DashAck>(data.data());
+    auto t = ack->UnPack();
+
+    if (t->error_code != ErrorCode::None)
+    {
+        ADD_ERROR("Recevied DashError : {}", (int)t->error_code);
+    }
+}
+
+void Recv_DashNfy(void* session, Vector<uint8_t>& data)
+{
+    auto net = reinterpret_cast<NetTcp*>(session);
+    DEBUG_RETURN(net, "null session");
+
+    ADD_LOG("Received DashNfy");
+    auto nfy = flatbuffers::GetRoot<DashNfy>(data.data());
+    auto t = nfy->UnPack();
+
+    auto vec = VecTo<fbVec, Vec>(*t->dest.get());
+    SceneManager::instance().current_scene()->FindPath((Entity)t->eid, 
+        vec, t->spd);
+}
+
 void MoveSystem::Send_MoveReq(NetTcp* net, const Vec3& dst)
 {
     ADD_LOG("Send MoveReq");
-    flatbuffers::FlatBufferBuilder fbb(256);
+    flatbuffers::FlatBufferBuilder fbb(32);
     MoveReqT req;
     req.dest = VecToUnique<fbVec>(dst);
     fbb.Finish(MoveReq::Pack(fbb, &req));
     net->Send((uint16_t)PacketId::MoveReq, fbb.GetSize(), fbb.GetBufferPointer());
+}
+
+void MoveSystem::Send_DashReq(NetTcp* net, const short dir)
+{
+    ADD_LOG("Send DashReq");
+    flatbuffers::FlatBufferBuilder fbb(32);
+    DashReqT req;
+    req.dir = dir;
+    fbb.Finish(DashReq::Pack(fbb, &req));
+    net->Send((uint16_t)PacketId::DashReq, fbb.GetSize(), fbb.GetBufferPointer());
 }
 
 void MoveSystem::MoveAlongPath(Region& region, float dt)

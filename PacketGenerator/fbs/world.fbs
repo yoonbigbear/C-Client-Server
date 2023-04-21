@@ -34,6 +34,23 @@ table MoveNfy
 	eid : uint;
 }
 
+table DashReq
+{
+	dir : short;
+}
+
+table DashAck
+{
+	error_code : ErrorCode = 0;
+}
+
+table DashNfy
+{
+	dest : fbVec;
+	spd	: float;
+	eid : uint;
+}
+
 table EnterWorldReq
 {
 	eid : uint;

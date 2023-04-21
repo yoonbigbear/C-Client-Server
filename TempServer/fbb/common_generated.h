@@ -117,8 +117,8 @@ FLATBUFFERS_STRUCT_END(EntityInfo, 40);
 
 struct DebugColliderInfoT : public flatbuffers::NativeTable {
   typedef DebugColliderInfo TableType;
-  std::unique_ptr<fbVec> center;
   uint8_t type;
+  std::unique_ptr<fbVec> center;
   std::vector<uint8_t> data;
   DebugColliderInfoT()
       : type(0) {
@@ -129,23 +129,23 @@ struct DebugColliderInfo FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   typedef DebugColliderInfoT NativeTableType;
   typedef DebugColliderInfoBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_CENTER = 4,
-    VT_TYPE = 6,
+    VT_TYPE = 4,
+    VT_CENTER = 6,
     VT_DATA = 8
   };
-  const fbVec *center() const {
-    return GetStruct<const fbVec *>(VT_CENTER);
-  }
   uint8_t type() const {
     return GetField<uint8_t>(VT_TYPE, 0);
+  }
+  const fbVec *center() const {
+    return GetStruct<const fbVec *>(VT_CENTER);
   }
   const flatbuffers::Vector<uint8_t> *data() const {
     return GetPointer<const flatbuffers::Vector<uint8_t> *>(VT_DATA);
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyField<fbVec>(verifier, VT_CENTER) &&
            VerifyField<uint8_t>(verifier, VT_TYPE) &&
+           VerifyField<fbVec>(verifier, VT_CENTER) &&
            VerifyOffset(verifier, VT_DATA) &&
            verifier.VerifyVector(data()) &&
            verifier.EndTable();
@@ -159,11 +159,11 @@ struct DebugColliderInfoBuilder {
   typedef DebugColliderInfo Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
-  void add_center(const fbVec *center) {
-    fbb_.AddStruct(DebugColliderInfo::VT_CENTER, center);
-  }
   void add_type(uint8_t type) {
     fbb_.AddElement<uint8_t>(DebugColliderInfo::VT_TYPE, type, 0);
+  }
+  void add_center(const fbVec *center) {
+    fbb_.AddStruct(DebugColliderInfo::VT_CENTER, center);
   }
   void add_data(flatbuffers::Offset<flatbuffers::Vector<uint8_t>> data) {
     fbb_.AddOffset(DebugColliderInfo::VT_DATA, data);
@@ -182,8 +182,8 @@ struct DebugColliderInfoBuilder {
 
 inline flatbuffers::Offset<DebugColliderInfo> CreateDebugColliderInfo(
     flatbuffers::FlatBufferBuilder &_fbb,
-    const fbVec *center = 0,
     uint8_t type = 0,
+    const fbVec *center = 0,
     flatbuffers::Offset<flatbuffers::Vector<uint8_t>> data = 0) {
   DebugColliderInfoBuilder builder_(_fbb);
   builder_.add_data(data);
@@ -194,14 +194,14 @@ inline flatbuffers::Offset<DebugColliderInfo> CreateDebugColliderInfo(
 
 inline flatbuffers::Offset<DebugColliderInfo> CreateDebugColliderInfoDirect(
     flatbuffers::FlatBufferBuilder &_fbb,
-    const fbVec *center = 0,
     uint8_t type = 0,
+    const fbVec *center = 0,
     const std::vector<uint8_t> *data = nullptr) {
   auto data__ = data ? _fbb.CreateVector<uint8_t>(*data) : 0;
   return CreateDebugColliderInfo(
       _fbb,
-      center,
       type,
+      center,
       data__);
 }
 
@@ -216,8 +216,8 @@ inline DebugColliderInfoT *DebugColliderInfo::UnPack(const flatbuffers::resolver
 inline void DebugColliderInfo::UnPackTo(DebugColliderInfoT *_o, const flatbuffers::resolver_function_t *_resolver) const {
   (void)_o;
   (void)_resolver;
-  { auto _e = center(); if (_e) _o->center = std::unique_ptr<fbVec>(new fbVec(*_e)); }
   { auto _e = type(); _o->type = _e; }
+  { auto _e = center(); if (_e) _o->center = std::unique_ptr<fbVec>(new fbVec(*_e)); }
   { auto _e = data(); if (_e) { _o->data.resize(_e->size()); for (flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->data[_i] = _e->Get(_i); } } }
 }
 
@@ -229,13 +229,13 @@ inline flatbuffers::Offset<DebugColliderInfo> CreateDebugColliderInfo(flatbuffer
   (void)_rehasher;
   (void)_o;
   struct _VectorArgs { flatbuffers::FlatBufferBuilder *__fbb; const DebugColliderInfoT* __o; const flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
-  auto _center = _o->center ? _o->center.get() : 0;
   auto _type = _o->type;
+  auto _center = _o->center ? _o->center.get() : 0;
   auto _data = _o->data.size() ? _fbb.CreateVector(_o->data) : 0;
   return CreateDebugColliderInfo(
       _fbb,
-      _center,
       _type,
+      _center,
       _data);
 }
 

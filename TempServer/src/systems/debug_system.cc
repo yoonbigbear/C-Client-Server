@@ -1,12 +1,14 @@
 #include "debug_system.h"
 #include "dynamic_tree_system.h"
 
+#include "mgr/datatable_mgr.h"
 #include "world/region.h"
 #include "net/user.h"
 #include "bb_collider.h"
 #include "bb_math.h"
 
 #include "fbb/debug_generated.h"
+
 
 void Recv_DebugColliderReq(void* session, Vector<uint8_t>& data)
 {
@@ -27,35 +29,38 @@ Collider DebugSystem::CreateCollider(short dir, const Vec& center, uint8_t type)
 {
     Collider collider;
     collider.center = center;
+
+    auto& debug = DataTable::instance().debug();
+
     switch ((ColliderType)type)
     {
     case ColliderType::Circle:
     {
         collider.type = Circle;
-        collider.circle.r = 10.f;
+        collider.circle.r = debug[type].half_length;
     }
     break;
     case ColliderType::Sector:
     {
         collider.type = Sector;
         collider.sector.dir = dir;
-        collider.sector.half_angle = 30;
-        collider.sector.r = 10.f;
+        collider.sector.half_angle = debug[type].half_angle;
+        collider.sector.r = debug[type].half_length;
     }
     break;
     case ColliderType::AABB:
     {
         collider.type = AABB;
-        collider.aabb.hx = 10.f;
-        collider.aabb.hy = 10.f;
+        collider.aabb.hx = debug[type].half_width;
+        collider.aabb.hy = debug[type].half_length;
     }
         break;
     case ColliderType::OBB:
     {
         collider.type = OBB;
         collider.obb.dir = dir;
-        collider.obb.hw = 2.f;
-        collider.obb.hl = 10.f;
+        collider.obb.hw = debug[type].half_width;
+        collider.obb.hl = debug[type].half_length;
         collider.center.v2 += BBMath::DirLength(dir, collider.obb.hl).v2;
     }
         break;
@@ -63,7 +68,7 @@ Collider DebugSystem::CreateCollider(short dir, const Vec& center, uint8_t type)
     {
         collider.type = Ray;
         collider.ray.dir = dir;
-        collider.ray.length = 20.f;
+        collider.ray.length = debug[type].half_length;
     }
         break;
     }

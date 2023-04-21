@@ -15,6 +15,7 @@
 
 #include "server.h"
 #include "db/db.h"
+
 //dump
 LONG __stdcall ExceptionCallBack(EXCEPTION_POINTERS* e)
 {

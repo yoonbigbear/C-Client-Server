@@ -32,6 +32,18 @@ struct MoveNfy;
 struct MoveNfyBuilder;
 struct MoveNfyT;
 
+struct DashReq;
+struct DashReqBuilder;
+struct DashReqT;
+
+struct DashAck;
+struct DashAckBuilder;
+struct DashAckT;
+
+struct DashNfy;
+struct DashNfyBuilder;
+struct DashNfyT;
+
 struct EnterWorldReq;
 struct EnterWorldReqBuilder;
 struct EnterWorldReqT;
@@ -421,6 +433,197 @@ inline flatbuffers::Offset<MoveNfy> CreateMoveNfy(
 
 flatbuffers::Offset<MoveNfy> CreateMoveNfy(flatbuffers::FlatBufferBuilder &_fbb, const MoveNfyT *_o, const flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
+struct DashReqT : public flatbuffers::NativeTable {
+  typedef DashReq TableType;
+  int16_t dir;
+  DashReqT()
+      : dir(0) {
+  }
+};
+
+struct DashReq FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef DashReqT NativeTableType;
+  typedef DashReqBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_DIR = 4
+  };
+  int16_t dir() const {
+    return GetField<int16_t>(VT_DIR, 0);
+  }
+  bool Verify(flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<int16_t>(verifier, VT_DIR) &&
+           verifier.EndTable();
+  }
+  DashReqT *UnPack(const flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(DashReqT *_o, const flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static flatbuffers::Offset<DashReq> Pack(flatbuffers::FlatBufferBuilder &_fbb, const DashReqT* _o, const flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct DashReqBuilder {
+  typedef DashReq Table;
+  flatbuffers::FlatBufferBuilder &fbb_;
+  flatbuffers::uoffset_t start_;
+  void add_dir(int16_t dir) {
+    fbb_.AddElement<int16_t>(DashReq::VT_DIR, dir, 0);
+  }
+  explicit DashReqBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  DashReqBuilder &operator=(const DashReqBuilder &);
+  flatbuffers::Offset<DashReq> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = flatbuffers::Offset<DashReq>(end);
+    return o;
+  }
+};
+
+inline flatbuffers::Offset<DashReq> CreateDashReq(
+    flatbuffers::FlatBufferBuilder &_fbb,
+    int16_t dir = 0) {
+  DashReqBuilder builder_(_fbb);
+  builder_.add_dir(dir);
+  return builder_.Finish();
+}
+
+flatbuffers::Offset<DashReq> CreateDashReq(flatbuffers::FlatBufferBuilder &_fbb, const DashReqT *_o, const flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct DashAckT : public flatbuffers::NativeTable {
+  typedef DashAck TableType;
+  ErrorCode error_code;
+  DashAckT()
+      : error_code(ErrorCode::None) {
+  }
+};
+
+struct DashAck FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef DashAckT NativeTableType;
+  typedef DashAckBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_ERROR_CODE = 4
+  };
+  ErrorCode error_code() const {
+    return static_cast<ErrorCode>(GetField<uint16_t>(VT_ERROR_CODE, 0));
+  }
+  bool Verify(flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint16_t>(verifier, VT_ERROR_CODE) &&
+           verifier.EndTable();
+  }
+  DashAckT *UnPack(const flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(DashAckT *_o, const flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static flatbuffers::Offset<DashAck> Pack(flatbuffers::FlatBufferBuilder &_fbb, const DashAckT* _o, const flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct DashAckBuilder {
+  typedef DashAck Table;
+  flatbuffers::FlatBufferBuilder &fbb_;
+  flatbuffers::uoffset_t start_;
+  void add_error_code(ErrorCode error_code) {
+    fbb_.AddElement<uint16_t>(DashAck::VT_ERROR_CODE, static_cast<uint16_t>(error_code), 0);
+  }
+  explicit DashAckBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  DashAckBuilder &operator=(const DashAckBuilder &);
+  flatbuffers::Offset<DashAck> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = flatbuffers::Offset<DashAck>(end);
+    return o;
+  }
+};
+
+inline flatbuffers::Offset<DashAck> CreateDashAck(
+    flatbuffers::FlatBufferBuilder &_fbb,
+    ErrorCode error_code = ErrorCode::None) {
+  DashAckBuilder builder_(_fbb);
+  builder_.add_error_code(error_code);
+  return builder_.Finish();
+}
+
+flatbuffers::Offset<DashAck> CreateDashAck(flatbuffers::FlatBufferBuilder &_fbb, const DashAckT *_o, const flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct DashNfyT : public flatbuffers::NativeTable {
+  typedef DashNfy TableType;
+  std::unique_ptr<fbVec> dest;
+  float spd;
+  uint32_t eid;
+  DashNfyT()
+      : spd(0.0f),
+        eid(0) {
+  }
+};
+
+struct DashNfy FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef DashNfyT NativeTableType;
+  typedef DashNfyBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_DEST = 4,
+    VT_SPD = 6,
+    VT_EID = 8
+  };
+  const fbVec *dest() const {
+    return GetStruct<const fbVec *>(VT_DEST);
+  }
+  float spd() const {
+    return GetField<float>(VT_SPD, 0.0f);
+  }
+  uint32_t eid() const {
+    return GetField<uint32_t>(VT_EID, 0);
+  }
+  bool Verify(flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<fbVec>(verifier, VT_DEST) &&
+           VerifyField<float>(verifier, VT_SPD) &&
+           VerifyField<uint32_t>(verifier, VT_EID) &&
+           verifier.EndTable();
+  }
+  DashNfyT *UnPack(const flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(DashNfyT *_o, const flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static flatbuffers::Offset<DashNfy> Pack(flatbuffers::FlatBufferBuilder &_fbb, const DashNfyT* _o, const flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct DashNfyBuilder {
+  typedef DashNfy Table;
+  flatbuffers::FlatBufferBuilder &fbb_;
+  flatbuffers::uoffset_t start_;
+  void add_dest(const fbVec *dest) {
+    fbb_.AddStruct(DashNfy::VT_DEST, dest);
+  }
+  void add_spd(float spd) {
+    fbb_.AddElement<float>(DashNfy::VT_SPD, spd, 0.0f);
+  }
+  void add_eid(uint32_t eid) {
+    fbb_.AddElement<uint32_t>(DashNfy::VT_EID, eid, 0);
+  }
+  explicit DashNfyBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  DashNfyBuilder &operator=(const DashNfyBuilder &);
+  flatbuffers::Offset<DashNfy> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = flatbuffers::Offset<DashNfy>(end);
+    return o;
+  }
+};
+
+inline flatbuffers::Offset<DashNfy> CreateDashNfy(
+    flatbuffers::FlatBufferBuilder &_fbb,
+    const fbVec *dest = 0,
+    float spd = 0.0f,
+    uint32_t eid = 0) {
+  DashNfyBuilder builder_(_fbb);
+  builder_.add_eid(eid);
+  builder_.add_spd(spd);
+  builder_.add_dest(dest);
+  return builder_.Finish();
+}
+
+flatbuffers::Offset<DashNfy> CreateDashNfy(flatbuffers::FlatBufferBuilder &_fbb, const DashNfyT *_o, const flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
 struct EnterWorldReqT : public flatbuffers::NativeTable {
   typedef EnterWorldReq TableType;
   uint32_t eid;
@@ -691,6 +894,90 @@ inline flatbuffers::Offset<MoveNfy> CreateMoveNfy(flatbuffers::FlatBufferBuilder
   auto _spd = _o->spd;
   auto _eid = _o->eid;
   return CreateMoveNfy(
+      _fbb,
+      _dest,
+      _spd,
+      _eid);
+}
+
+inline DashReqT *DashReq::UnPack(const flatbuffers::resolver_function_t *_resolver) const {
+  std::unique_ptr<DashReqT> _o = std::unique_ptr<DashReqT>(new DashReqT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void DashReq::UnPackTo(DashReqT *_o, const flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = dir(); _o->dir = _e; }
+}
+
+inline flatbuffers::Offset<DashReq> DashReq::Pack(flatbuffers::FlatBufferBuilder &_fbb, const DashReqT* _o, const flatbuffers::rehasher_function_t *_rehasher) {
+  return CreateDashReq(_fbb, _o, _rehasher);
+}
+
+inline flatbuffers::Offset<DashReq> CreateDashReq(flatbuffers::FlatBufferBuilder &_fbb, const DashReqT *_o, const flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { flatbuffers::FlatBufferBuilder *__fbb; const DashReqT* __o; const flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _dir = _o->dir;
+  return CreateDashReq(
+      _fbb,
+      _dir);
+}
+
+inline DashAckT *DashAck::UnPack(const flatbuffers::resolver_function_t *_resolver) const {
+  std::unique_ptr<DashAckT> _o = std::unique_ptr<DashAckT>(new DashAckT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void DashAck::UnPackTo(DashAckT *_o, const flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = error_code(); _o->error_code = _e; }
+}
+
+inline flatbuffers::Offset<DashAck> DashAck::Pack(flatbuffers::FlatBufferBuilder &_fbb, const DashAckT* _o, const flatbuffers::rehasher_function_t *_rehasher) {
+  return CreateDashAck(_fbb, _o, _rehasher);
+}
+
+inline flatbuffers::Offset<DashAck> CreateDashAck(flatbuffers::FlatBufferBuilder &_fbb, const DashAckT *_o, const flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { flatbuffers::FlatBufferBuilder *__fbb; const DashAckT* __o; const flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _error_code = _o->error_code;
+  return CreateDashAck(
+      _fbb,
+      _error_code);
+}
+
+inline DashNfyT *DashNfy::UnPack(const flatbuffers::resolver_function_t *_resolver) const {
+  std::unique_ptr<DashNfyT> _o = std::unique_ptr<DashNfyT>(new DashNfyT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void DashNfy::UnPackTo(DashNfyT *_o, const flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = dest(); if (_e) _o->dest = std::unique_ptr<fbVec>(new fbVec(*_e)); }
+  { auto _e = spd(); _o->spd = _e; }
+  { auto _e = eid(); _o->eid = _e; }
+}
+
+inline flatbuffers::Offset<DashNfy> DashNfy::Pack(flatbuffers::FlatBufferBuilder &_fbb, const DashNfyT* _o, const flatbuffers::rehasher_function_t *_rehasher) {
+  return CreateDashNfy(_fbb, _o, _rehasher);
+}
+
+inline flatbuffers::Offset<DashNfy> CreateDashNfy(flatbuffers::FlatBufferBuilder &_fbb, const DashNfyT *_o, const flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { flatbuffers::FlatBufferBuilder *__fbb; const DashNfyT* __o; const flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _dest = _o->dest ? _o->dest.get() : 0;
+  auto _spd = _o->spd;
+  auto _eid = _o->eid;
+  return CreateDashNfy(
       _fbb,
       _dest,
       _spd,
