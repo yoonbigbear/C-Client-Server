@@ -8,7 +8,6 @@ class Region : public Entt::ECS, public std::enable_shared_from_this<Region>
     auto shared() { return shared_from_this(); }
 public:
     bool Initialize(Vec pos);
-    Entity Enter(int npcid);
     void Leave(Entity eid);
     void Update(float dt);
 

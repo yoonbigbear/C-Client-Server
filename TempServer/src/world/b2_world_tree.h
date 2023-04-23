@@ -3,12 +3,12 @@
 #include "pre.h"
 #include "box2d/b2_dynamic_tree.h"
 
-#define TOPROXYPTR(proxy) Proxy* proxy_ptr = reinterpret_cast<Proxy*>(proxy);
+#define TOPROXYPTR(proxy) b2Proxy* proxy_ptr = reinterpret_cast<b2Proxy*>(proxy);
 
-struct Proxy
+struct b2Proxy
 {
 public:
-    std::uint32_t eid;
+    Entity eid;
     int32_t proxy_id;
     std::shared_ptr<b2Shape> b2shape;
 };
@@ -28,9 +28,9 @@ class b2WorldTree
 {
 public:
     void Initialize(const b2AABB& boundary);
-    bool Spawn(const Vec& pos, float radius, Proxy* entity_data);
-    void Despawn(const Proxy& proxy_data);
-    bool Move(const Vec& pos, const Proxy& proxy_data);
+    bool Spawn(const Vec& pos, float radius, b2Proxy* entity_data);
+    void Despawn(const b2Proxy& proxy_data);
+    bool Move(const Vec& pos, const b2Proxy& proxy_data);
     Set<Entity> Query(const Vec& pos, float range, Entity except = entt::null);
 
 private:

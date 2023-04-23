@@ -15,6 +15,7 @@ struct Transform
     Vec v;
     short degree;
     float speed;
+    float base_spd;
 };
 
 struct Mover

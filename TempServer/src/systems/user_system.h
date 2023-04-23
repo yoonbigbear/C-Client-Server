@@ -10,6 +10,6 @@ struct NetComponent
 class UserSystem
 {
 public:
-    static Entity Construct(class Region& region, Shared<User> user);
+    static Entity CreatePc(class Region& region, Shared<User> user);
     static void Send_EnterNeighborsAck(class Region& world, entt::entity caller);
 };

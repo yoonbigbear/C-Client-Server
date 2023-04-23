@@ -69,7 +69,8 @@ void Region::Update(float dt)
 
     UpdateTimer(shared(), dt);
 
-    MoveSystem::MoveAlongPath(*this, dt);
+    RegionSystem::Update(*this);
+    MoveSystem::Update(*this, dt);
 }
 
 entt::entity Region::EnterPlayer(const EntityInfo* info)
@@ -97,85 +98,6 @@ void Region::Leave(entt::entity client_eid)
 {
     if (valid(client_eid))
         destroy(client_eid);
-}
-
-bool Region::ScreenRayMove(Vec& start, Vec& end, Entity eid)
-{
-    float t;
-    if (nav_mesh_.ScreenRay(&start.v3.x, &end.v3.x, t))
-    {
-        if (all_of<Transform>(eid))
-        {
-            auto& tf = get<Transform>(eid);
-            if (t < 1.0f)
-            {
-                float pos[3];
-                pos[0] = start.v3.x + (end.v3.x - start.v3.x) * t;
-                pos[1] = start.v3.z + (end.v3.z - start.v3.z) * t;
-                pos[2] = start.v3.y + (end.v3.y - start.v3.y) * t;
-                //ray hit.
-
-                Deque<Vec> path;
-                if (nav_mesh_.FindPath(tf.v,
-                    Vec(pos[0], pos[1], pos[2]), path, dtQueryFilter()))
-                {
-                    auto& pathlist = emplace_or_replace<PathList>(eid);
-                    std::swap(pathlist.paths, path);
-                }
-            }
-        }
-    }
-    else
-    {
-        //failed raycasting
-        ADD_ERROR("Failed screen ray");
-        return false;
-    }
-    return true;
-}
-
-void Region::FindPath(Entity entity, Vec& end, float spd)
-{
-    if (all_of<Transform>(entity))
-    {
-        auto& tf = get<Transform>(entity);
-        tf.speed = spd;
-
-        Deque<Vec> path;
-        auto& pathlist = emplace_or_replace<PathList>(entity);
-        pathlist.paths.emplace_back(end);
-    }
-}
-
-void Region::MoveTo(Entity eid, Vec& end, float spd)
-{
-    if (Valid<Transform>(eid))
-    {
-        auto& tf = get<Transform>(eid);
-        dtRaycastHit hit;
-        if (nav_mesh_.Raycast(tf.v, end, hit))
-        {
-            if (hit.t < 1.0f)
-            {
-                float pos[3];
-                pos[0] = tf.v.v3.x + (end.v3.x - tf.v.v3.x) * hit.t;
-                pos[1] = tf.v.v3.z + (end.v3.z - tf.v.v3.z) * hit.t;
-                pos[2] = tf.v.v3.y + (end.v3.y - tf.v.v3.y) * hit.t;
-                //ray hit.
-
-                end = Vec(pos[0], pos[1], pos[2]);
-                
-                auto& mover = emplace_or_replace<Mover>(eid);
-                mover.dest = end;
-
-                mover.dir.v2 = mover.dest.v2 - tf.v.v2;
-                mover.dir.v2.Normalize();
-
-                tf.degree = BBMath::UnitVectorToDegree(mover.dir.v2.x, mover.dir.v2.y);
-                tf.speed = spd;
-            }
-        }
-    }
 }
 
 void Region::Send(Entity eid, uint16_t id, uint8_t* buf, size_t size)

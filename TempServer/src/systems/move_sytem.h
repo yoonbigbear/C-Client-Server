@@ -9,4 +9,5 @@ class MoveSystem
 {
 public:
     static bool DashTo(class Region& region, Vec& end, Entity eid);
+    static bool MoveTo(class Region& region, Vec& end, Entity eid);
 };

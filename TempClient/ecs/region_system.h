@@ -35,4 +35,6 @@ struct Neighbor
 class RegionSystem
 {
 public:
+    static bool PathTo(class Region& region, Entity eid, Vec& start, Vec& end);
+    static void Update(class Region& region);
 };

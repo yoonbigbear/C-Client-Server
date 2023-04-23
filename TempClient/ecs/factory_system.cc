@@ -1,6 +1,7 @@
 #include "factory_system.h"
 
 #include "../level/region.h"
+#include "manager/datatable.h"
 
 #include "components.h"
 
@@ -9,10 +10,12 @@ entt::entity CreatePc(Shared<Region> scene, const EntityInfo* info)
 {
     auto entity = scene->Create(info->entity_id());
     
+    
     // Add Transform
     auto& tf = scene->emplace<Transform>(entity);
     memcpy(&tf.v.v3, &info->pos(), sizeof(Vec));
     tf.degree = info->angle();
+    tf.base_spd = 1;
 
     // rendering info.
     auto& cylinder = scene->emplace<CylinderData>(entity);

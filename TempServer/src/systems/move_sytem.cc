@@ -89,7 +89,7 @@ bool MoveSystem::DashTo(Region& region, Vec& end, Entity eid)
                 end = tf.v.v2 + len;
             }
 
-            tf.speed = 3.f;
+            tf.speed = tf.base_spd * 3.f;
             return true;
         }
         else
@@ -98,5 +98,10 @@ bool MoveSystem::DashTo(Region& region, Vec& end, Entity eid)
         }
 
     }
+    return false;
+}
+
+bool MoveSystem::MoveTo(Region& region, Vec& end, Entity eid)
+{
     return false;
 }

@@ -5,6 +5,6 @@
 class DynamicTreeSystem
 {
 public:
-    static bool Spawn(class b2WorldTree& tree, const Vec& pos, float radius, struct Proxy* entity_data);
-    static void Contact(class Region& region, const Vec& next, float range, Entity eid);
+    static bool Spawn(class Region& region, const Vec& pos, float radius, struct b2Proxy* entity_data);
+    static Set<Entity> Contact(class Region& region, const Vec& next, float range, Entity eid);
 };

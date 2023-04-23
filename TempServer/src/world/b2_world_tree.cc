@@ -6,7 +6,7 @@ void b2WorldTree::Initialize(const b2AABB& bound)
     boundary_ = bound;
 }
 
-bool b2WorldTree::Spawn(const Vec& pos, float radius, Proxy* entity_data)
+bool b2WorldTree::Spawn(const Vec& pos, float radius, b2Proxy* entity_data)
 {
     entity_data->b2shape = std::make_shared<b2CircleShape>();
     b2AABB aabb;
@@ -25,12 +25,12 @@ bool b2WorldTree::Spawn(const Vec& pos, float radius, Proxy* entity_data)
     }
 }
 
-void b2WorldTree::Despawn(const Proxy& proxy_data)
+void b2WorldTree::Despawn(const b2Proxy& proxy_data)
 {
     broad_phase_.DestroyProxy(proxy_data.proxy_id);
 }
 
-bool b2WorldTree::Move(const Vec& pos, const Proxy& proxy_data)
+bool b2WorldTree::Move(const Vec& pos, const b2Proxy& proxy_data)
 {
     b2AABB aabb;
     auto tf = b2Transform(pos.v2, b2Rot(0));

@@ -28,51 +28,11 @@ bool Region::Initialize(Vec pos)
     return true;
 }
 
-Entity Region::Enter(int npcid)
-{
-    auto entity = create();
-
-    // pos
-    auto& tf = emplace<Transform>(entity);
-    tf.v.v3.Set(RandomGenerator::Real(-50, 50), RandomGenerator::Real(-50, 50), 0);
-
-    // collider
-    auto& proxy_data = emplace<Proxy>(entity);
-    proxy_data.eid = (std::uint32_t)entity;
-    
-    //field
-    if (!dynamic_tree_->Spawn(tf.v.v2, 5.f, &proxy_data))
-    {
-        LOG_ERROR("Failed entity spawn on the world tree x:{} y:{} z:{}", tf.v[0], tf.v[1], tf.v[2]);
-        destroy(entity);
-        return entt::null;
-    }
-
-    emplace<NpcComponent>(entity, npcid);
-    {
-        auto& wander = emplace<WanderComponent>(entity);
-        wander.range = 20;
-        wander.spawn_pos = tf.v;
-        wander.acc_time = 5;
-    }
-
-    //query sight entities
-    emplace<Neighbor>(entity);
-    auto proxies_on_sight = dynamic_tree_->Query(tf.v.v2, viewing_range(), entity);
-
-    //update sight
-    WorldSystem::UpdateNeighbors(*this, proxies_on_sight, entity);
-
-    LOG_INFO("npc enter world {}", static_cast<std::uint32_t>(entity));
-
-    return entity;
-}
-
 void Region::Leave(Entity eid)
 {
     if (valid(eid))
     {
-        auto& proxydata = get<Proxy>(eid);
+        auto& proxydata = get<b2Proxy>(eid);
         dynamic_tree_->Despawn(proxydata);
         destroy(eid);
     }
@@ -105,7 +65,7 @@ void Region::SpawnAI(int n)
     int aicount = n;
     for (int i = 0; i < aicount; ++i)
     {
-        Enter(1);
+        NpcSystem::CreateNpc(*this, 10000001);
     }
 }
 

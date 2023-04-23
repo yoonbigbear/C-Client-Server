@@ -24,7 +24,7 @@ void Recv_MoveNfy(void* session, Vector<uint8_t>& data)
         memcpy(&dest, t->dest.get(), sizeof(Vec));
         auto entity = scene->ServerEidToClientEid(t->eid);
         DEBUG_RETURN(scene->valid(entity), "Invalid entity id svr {} / client {}", t->eid, (uint32_t)entity);
-        scene->FindPath(entity, dest, t->spd);
+        MoveSystem::MoveTo(*scene, entity, dest, t->spd);
     }
 }
 
@@ -34,8 +34,8 @@ void Recv_MoveAck(void* session, Vector<uint8_t>& data)
     DEBUG_RETURN(net, "null session");
 
     ADD_LOG("Received MoveAck");
-    auto resp = flatbuffers::GetRoot<MoveAck>(data.data());
-    auto t = resp->UnPack();
+    auto ack = flatbuffers::GetRoot<MoveAck>(data.data());
+    auto t = ack->UnPack();
 
     if (t->error_code != ErrorCode::None)
     {
@@ -69,8 +69,8 @@ void Recv_DashNfy(void* session, Vector<uint8_t>& data)
     auto t = nfy->UnPack();
 
     auto vec = VecTo<fbVec, Vec>(*t->dest.get());
-    SceneManager::instance().current_scene()->FindPath((Entity)t->eid, 
-        vec, t->spd);
+    MoveSystem::MoveTo(*SceneManager::instance().current_scene(),
+        Entity(t->eid), vec, t->spd);
 }
 
 void MoveSystem::Send_MoveReq(NetTcp* net, const Vec3& dst)
@@ -93,88 +93,62 @@ void MoveSystem::Send_DashReq(NetTcp* net, const short dir)
     net->Send((uint16_t)PacketId::DashReq, fbb.GetSize(), fbb.GetBufferPointer());
 }
 
-void MoveSystem::MoveAlongPath(Region& region, float dt)
+void MoveSystem::Update(Region& region, float dt)
 {
-    //decide move behaviour path
+    //move
+    auto view = region.view<Transform, const Mover>();
+    for (auto [entity, tf, mover] : view.each())
     {
-        auto view = region.view<PathList, Transform>();
-        for (const auto [entity, path, tf] : view.each())
+        auto distance = mover.dest.v2 - tf.v.v2;
+        auto len_sqr = distance.LengthSquared();
+        auto movelen = dt * tf.speed;
+
+        if (len_sqr < (movelen * movelen))
         {
-            switch (path.flag)
+            tf.v = mover.dest;
+            //arrive
+            auto path = region.try_get<PathList>(entity);
+            if (path)
             {
-            case MoveFlag::Arrive:
-            case MoveFlag::Start:
-            {
-                if (path.paths.empty())
-                {
-                    //reached destination.
-                    region.remove<PathList>(entity);
-                    tf.speed = 0;
-                }
-                else
-                {
-                    //keep moving toward next path.
-                    auto& mover = region.emplace_or_replace<Mover>(entity);
-                    mover.dest = path.paths.front();
-                    path.paths.pop_front();
-
-                    //direction
-                    mover.dir.v2 = mover.dest.v2 - tf.v.v2;
-                    mover.dir.v2.Normalize();
-
-                    //move angle
-                    tf.degree = BBMath::UnitVectorToDegree(mover.dir.v2.x, mover.dir.v2.y);
-
-                    tf.speed = 1;
-                    path.flag = Moving;
-
-                    //Send MovePacket
-                    if (region.all_of<PlayerSession>(entity))
-                    {
-                        auto& net = region.get<PlayerSession>(entity);
-                        Send_MoveReq(net.session, mover.dest.v3);
-                    }
-                }
+                path->flag = MoveFlag::Arrive;
             }
-            break;
-            case MoveFlag::Moving:
-            {
-                //moving.
-                break;;
-            }
-            break;
-
-            default:
-                break;
-            }
+            region.remove<Mover>(entity);
+        }
+        else
+        {
+            //moving
+            tf.v.v2 += movelen * mover.dir.v2;
         }
     }
+}
 
-    //move
+void MoveSystem::MoveTo(Region& region, Entity eid, Vec& end, float spd)
+{
+    if (region.Valid<Transform>(eid))
     {
-        auto view = region.view<Transform, const Mover>();
-        for (auto [entity, tf, mover] : view.each())
+        auto& tf = region.get<Transform>(eid);
+        dtRaycastHit hit;
+        if (region.navmesh().Raycast(tf.v, end, hit))
         {
-            auto distance = mover.dest.v2 - tf.v.v2;
-            auto len_sqr = distance.LengthSquared();
-            auto movelen = dt * tf.speed;
+            auto& mover = region.Emplace_or_Replace<Mover>(eid);
 
-            if (len_sqr < (movelen * movelen))
+            if (hit.t < 1.0f)
             {
-                tf.v = mover.dest;
-                //arrive
-                auto path = region.try_get<PathList>(entity);
-                if (path)
-                {
-                    path->flag = MoveFlag::Arrive;
-                }
-                region.remove<Mover>(entity);
+                //ray hit.
+
+                float pos[3];
+                pos[0] = tf.v.v3.x + (end.v3.x - tf.v.v3.x) * hit.t;
+                pos[1] = tf.v.v3.z + (end.v3.z - tf.v.v3.z) * hit.t;
+                pos[2] = tf.v.v3.y + (end.v3.y - tf.v.v3.y) * hit.t;
+
+                end = Vec(pos[0], pos[1], pos[2]);
             }
-            else
-            {
-                //moving
-                tf.v.v2 += movelen * mover.dir.v2;
-            }
+
+            mover.dest = end;
+            mover.dir.v2 = mover.dest.v2 - tf.v.v2;
+            mover.dir.v2.Normalize();
+            tf.degree = BBMath::UnitVectorToDegree(mover.dir.v2.x, mover.dir.v2.y);
+            tf.speed = spd;
         }
     }
 }

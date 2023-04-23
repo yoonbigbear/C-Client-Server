@@ -1,4 +1,5 @@
 #include "region_system.h"
+#include "move_system.h"
 
 #include "net_tcp.h"
 #include "player_client.h"
@@ -79,5 +80,96 @@ void Recv_LeaveNeighborsNfy(void* session, Vector<uint8_t>& data)
     if (scene)
     {
         scene->Leave(t->leave_entity);
+    }
+}
+
+bool RegionSystem::PathTo(Region& region, Entity eid, Vec& start, Vec& end)
+{
+    _ASSERT(region.Valid<Transform>(eid));
+
+    float t;
+    if (region.navmesh().ScreenRay(start.get(), end.get(), t))
+    {
+        if (t < 1.0f)
+        {
+            float pos[3];
+            pos[0] = start.v3.x + (end.v3.x - start.v3.x) * t;
+            pos[1] = start.v3.z + (end.v3.z - start.v3.z) * t;
+            pos[2] = start.v3.y + (end.v3.y - start.v3.y) * t;
+            //ray hit.
+
+            auto& tf = region.get<Transform>(eid);
+            Deque<Vec> path;
+            if (region.navmesh().FindPath(tf.v,
+                Vec(pos[0], pos[1], pos[2]), path, dtQueryFilter()))
+            {
+                auto& pathlist = region.Emplace_or_Replace<PathList>(eid);
+                std::swap(pathlist.paths, path);
+                pathlist.flag = MoveFlag::Start;
+            }
+        }
+    }
+    else
+    {
+        //failed raycasting
+        ADD_ERROR("Failed screen ray");
+        return false;
+    }
+    return true;
+}
+
+void RegionSystem::Update(Region& region)
+{
+    //decide move behaviour path
+    auto view = region.view<PathList, Transform>();
+    for (const auto [entity, path, tf] : view.each())
+    {
+        switch (path.flag)
+        {
+        case MoveFlag::Arrive:
+        case MoveFlag::Start:
+        {
+            if (path.paths.empty())
+            {
+                //reached destination.
+                region.remove<PathList>(entity);
+                tf.speed = 0;
+            }
+            else
+            {
+                //keep moving toward next path.
+                auto& mover = region.emplace_or_replace<Mover>(entity);
+                mover.dest = path.paths.front();
+                path.paths.pop_front();
+
+                //direction
+                mover.dir.v2 = mover.dest.v2 - tf.v.v2;
+                mover.dir.v2.Normalize();
+
+                //move angle
+                tf.degree = BBMath::UnitVectorToDegree(mover.dir.v2.x, mover.dir.v2.y);
+
+                tf.speed = tf.base_spd;
+                path.flag = Moving;
+
+                //Send MovePacket
+                if (region.all_of<PlayerSession>(entity))
+                {
+                    auto& net = region.get<PlayerSession>(entity);
+                    MoveSystem::Send_MoveReq(net.session, mover.dest.v3);
+                }
+            }
+        }
+        break;
+        case MoveFlag::Moving:
+        {
+            //moving.
+            break;;
+        }
+        break;
+
+        default:
+            break;
+        }
     }
 }

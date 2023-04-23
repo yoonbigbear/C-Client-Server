@@ -5,6 +5,8 @@
 
 #include "manager/scene_manager.h"
 #include "manager/render_manager.h"
+#include "manager/datatable.h"
+
 #include "timer.h"
 #include "player_client.h"
 #include "net_tcp.h"
@@ -24,6 +26,8 @@ App::~App()
 
 bool App::Initialize()
 {
+    DataTable::instance().Load("genCsv\\");
+
     //create temp sample scene
     if (!SceneManager::instance().Add(0, "all_tiles_navmesh.bin"))
     {

@@ -6,8 +6,9 @@
 struct Transform
 {
     Vec v;
-    float speed;
     short degree;
+    float speed;
+    float base_spd;
 };
 
 struct NpcComponent

@@ -76,7 +76,7 @@ void Server::EnterWorld()
     auto lg = std::lock_guard(lock_);
     for (auto& e : enter_queue)
     {
-        e->eid(UserSystem::Construct(*world_, e));
+        e->eid(UserSystem::CreatePc(*world_, e));
     }
     enter_queue.clear();
 }

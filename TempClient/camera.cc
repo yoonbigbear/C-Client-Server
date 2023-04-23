@@ -76,15 +76,16 @@ void Camera::Input(SDL_Event* event)
 
 	if (/*processHitTest*/
 		ImGui::IsMouseClicked(ImGuiMouseButton_Left) &&
-		!ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow))
+		!ImGui::IsWindowFocused(ImGuiHoveredFlags_AnyWindow))
 	{
 		SceneManager::instance().current_scene()->AddCommandQueue(
 			[this]() {
 
 				Vec start = Vec(Camera::instance().ray_start);
 				Vec end = Vec(Camera::instance().ray_end);
-				SceneManager::instance().current_scene()->ScreenRayMove(start, end,
-					(entt::entity)PlayerClient::instance().eid);
+				RegionSystem::PathTo(*SceneManager::instance().current_scene(),
+					(entt::entity)PlayerClient::instance().eid,
+					start, end);
 			}
 		);
 	}

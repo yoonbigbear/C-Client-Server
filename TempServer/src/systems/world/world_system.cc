@@ -47,7 +47,7 @@ void UpdateDestroyed(entt::registry& world, entt::entity caller)
 
 void UpdateMove(Region& world, float dt)
 {
-    auto view = world.view<const Mover, Transform,const Proxy>();
+    auto view = world.view<const Mover, Transform,const b2Proxy>();
     for (auto [entity, mover, tf, proxy] : view.each())
     {
         auto distance = mover.dest.v2 - tf.v.v2;
@@ -117,7 +117,7 @@ void MoveAlongPath(Region& world)
                 //move angle
                 tf.degree = static_cast<short>
                     (std::atan2f(mover.dir.v2.y, mover.dir.v2.x));
-                tf.speed = 1.f;
+                tf.speed = tf.base_spd;
 
                 path.flag = Moving;
 

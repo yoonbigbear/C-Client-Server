@@ -19,5 +19,7 @@ class MoveSystem
 public:
     static void Send_MoveReq(class NetTcp* net, const Vec3& dst);
     static void Send_DashReq(class NetTcp* net, const short dir);
-    static void MoveAlongPath(class Region& region, float dt);
+    static void Update(class Region& region, float dt);
+
+    static void MoveTo(class Region& region, Entity eid, Vec& end, float spd);
 };

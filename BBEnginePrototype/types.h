@@ -80,6 +80,7 @@ union Vec
         }
     }
     auto operator*(float len) { return len * v2; }
+    float* get() { return &v3.x; }
 
     b2Vec2 v2;
     b2Vec3 v3;
