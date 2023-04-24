@@ -3,12 +3,6 @@
 #include "pre.h"
 #include "fbb/common_generated.h"
 
-enum MoveFlag : uint8_t
-{
-    Start,
-    Arrive,
-    Moving,
-};
 
 struct Transform
 {
@@ -18,15 +12,3 @@ struct Transform
     float base_spd;
 };
 
-struct Mover
-{
-    Vec dest;
-    Vec dir;
-};
-
-
-struct PathList
-{
-    Deque<Vec> paths;
-    MoveFlag flag;
-};

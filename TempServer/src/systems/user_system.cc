@@ -1,9 +1,10 @@
 #pragma once
 #include "user_system.h"
 #include "dynamic_tree_system.h"
+#include "move_system.h"
+#include "world_system.h"
 
 #include "world/region.h"
-#include "world/world_system.h"
 #include "world/b2_world_tree.h"
 #include "mgr/datatable_mgr.h"
 

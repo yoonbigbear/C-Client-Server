@@ -1,6 +1,6 @@
 #include "npc_system.h"
 #include "dynamic_tree_system.h"
-#include "world/world_system.h"
+#include "world_system.h"
 #include "ai/ai_system.h"
 
 #include "world/region.h"

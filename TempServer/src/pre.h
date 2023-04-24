@@ -29,7 +29,7 @@
 using Entity = uint32_t;
 #endif
 
-
+#include "bb_math.h"
 #include "bb_logger.h"
 #include "filesystem.h"
 #include "random_generator.h"

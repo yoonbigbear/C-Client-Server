@@ -1,6 +1,7 @@
 #pragma once
 #include "world_system.h"
-#include "../user_system.h"
+#include "move_system.h"
+#include "user_system.h"
 
 #include "components.h"
 
@@ -41,129 +42,6 @@ void UpdateDestroyed(entt::registry& world, entt::entity caller)
             world.get<NetComponent>(e).user->tcp()->
                 Send((uint16_t)PacketId::LeaveNeighborsNfy,
                     fbb.GetSize(), fbb.GetBufferPointer());
-        }
-    }
-}
-
-void UpdateMove(Region& world, float dt)
-{
-    auto view = world.view<const Mover, Transform,const b2Proxy>();
-    for (auto [entity, mover, tf, proxy] : view.each())
-    {
-        auto distance = mover.dest.v2 - tf.v.v2;
-        auto len_sqr = distance.LengthSquared();
-        auto move_sqr = dt * tf.speed;
-
-        if (len_sqr < (move_sqr * move_sqr))
-        {
-            tf.v = mover.dest;
-            //arrive
-            auto path = world.try_get<PathList>(entity);
-            if (path)
-            {
-                path->flag = MoveFlag::Arrive;
-            }
-            world.remove<Mover>(entity);
-        }
-        else
-        {
-            //moving
-            tf.v.v2 += move_sqr * mover.dir.v2;
-        }
-
-        //move collider
-        auto b2_tree = world.dyanmic_tree();
-        _ASSERT(b2_tree);
-        b2_tree->Move(tf.v, proxy);
-
-        //update sight
-        auto proxies_on_sight = b2_tree->Query(tf.v.v2,
-            world.viewing_range(), entity);
-        if (proxies_on_sight.size() > 0)
-            WorldSystem::UpdateNeighbors(world, proxies_on_sight, entity);
-    }
-}
-
-void MoveAlongPath(Region& world)
-{
-    auto view = world.view<PathList, Transform>();
-    for (auto [entity, path, tf] : view.each())
-    {
-        switch (path.flag)
-        {
-        case MoveFlag::Arrive:
-        case MoveFlag::Start:
-        {
-            if (path.paths.empty())
-            {
-                //reached destination.
-                world.remove<PathList>(entity);
-
-                _ASSERT(world.all_of<Neighbor>(entity));
-            }
-            else
-            {
-                _ASSERT(world.all_of<Neighbor>(entity));
-
-                //keep moving toward next path.
-                auto& mover = world.emplace_or_replace<Mover>(entity);
-                mover.dest = path.paths.front();
-                path.paths.pop_front();
-
-                //direction
-                mover.dir.v2 = mover.dest.v2 - tf.v.v2;
-                mover.dir.v2.Normalize();
-
-                //move angle
-                tf.degree = static_cast<short>
-                    (std::atan2f(mover.dir.v2.y, mover.dir.v2.x));
-                tf.speed = tf.base_spd;
-
-                path.flag = Moving;
-
-                auto sight = world.get<Neighbor>(entity);
-                auto dyanmic_tree = world.dyanmic_tree();
-                if (!dyanmic_tree)
-                {
-                    LOG_ERROR("Failed to find field pointer");
-                    return;
-                }
-
-                auto proxies = dyanmic_tree->Query(tf.v.v2, world.viewing_range(), entity);
-                if (proxies.size() == 0)
-                    return;
-
-                //broadcast sender's info
-                LOG_INFO("Send MoveSync(start) from {}", static_cast<uint32_t>(entity));
-                flatbuffers::FlatBufferBuilder fbb(64);
-                MoveNfyT sync;
-                sync.dest = VecToUnique<fbVec>(mover.dest);
-                sync.spd = tf.speed;
-                sync.eid = static_cast<uint32_t>(entity);
-                fbb.Finish(MoveNfy::Pack(fbb, &sync));
-
-                for (auto& proxy : proxies)
-                {
-                    if (world.all_of<NetComponent>(proxy))
-                    {
-                        auto net = world.get<NetComponent>(proxy);
-                        _ASSERT(net.user->tcp());
-                        net.user->tcp()->Send((uint16_t)PacketId::MoveNfy,
-                            fbb.GetSize(), fbb.GetBufferPointer());
-                    }
-                }
-            }
-        }
-        break;
-        case MoveFlag::Moving:
-        {
-            //moving.
-            break;
-        }
-        break;
-
-        default:
-            break;
         }
     }
 }

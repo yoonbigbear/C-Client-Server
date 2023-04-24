@@ -19,9 +19,6 @@ public:
     void Send(const Entity eid, const flatbuffers::FlatBufferBuilder& fbb, uint16_t id) const;
 
 public:
-    bool HandleMove(Entity eid, const Vec& dest);
-
-public:
     Shared<class b2WorldTree> dyanmic_tree() { return dynamic_tree_; }
     Shared<class Navigation> navigation() { return navigation_; }
     float viewing_range() { return viewing_range_; }

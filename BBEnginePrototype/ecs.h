@@ -49,6 +49,16 @@ namespace Entt
         {
             return Emplace_or_Replace<Comp>(entity);
         }
+        template<typename Comp>
+        decltype(auto) Get(entt::entity entity)
+        {
+            return get<Comp>(entity);
+        }
+        template<typename Comp>
+        decltype(auto) Get(uint32_t entity)
+        {
+            return Get<Comp>(entity);
+        }
 
 #ifdef _CLIENT
 #include <unordered_map>

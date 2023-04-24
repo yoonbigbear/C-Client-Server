@@ -21,7 +21,7 @@ bool Region::Initialize(Vec pos)
 
     viewing_range_ = 150;
 
-    SpawnAI(2);
+    SpawnAI(0);
 
     on_destroy<Neighbor>().connect<UpdateDestroyed>();
 
@@ -54,8 +54,8 @@ void Region::Update(float dt)
     Wander(shared(), dt);
 
     //move
-    MoveAlongPath(*this);
-    UpdateMove(*this, dt);
+    MoveSystem::UpdatePath(*this);
+    MoveSystem::UpdateMove(*this, dt);
 
     //Broadcast(BroadcastChat("broadcast from server"));
 }
@@ -94,29 +94,4 @@ void Region::Send(const Entity eid, const flatbuffers::FlatBufferBuilder& fbb, u
     {
         get<NetComponent>(eid).user->tcp()->Send(id, fbb.GetSize(), fbb.GetBufferPointer());
     }
-}
-
-bool Region::HandleMove(Entity entity, const Vec& dest)
-{
-    if (valid(entity))
-    {
-        auto tf = try_get<Transform>(entity);
-        if (tf)
-        {
-            /*auto& mover = emplace_or_replace<Mover>(entity);
-            mover.dest = dest;
-
-            
-            mover.dir = tf->v.v2 - mover.dest.v2;
-            mover.dir.v2.Normalize();*/
-
-            auto& pathlist = emplace_or_replace<PathList>(entity);
-            navigation_->FindPath(tf->v, dest, pathlist.paths);
-
-            tf->speed = 1.f;
-            
-            return true;
-        }
-    }
-    return false;
 }

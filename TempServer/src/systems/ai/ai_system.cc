@@ -1,4 +1,6 @@
 #include "ai_system.h"
+#include "../move_system.h"
+#include "../npc_system.h"
 
 #include "components.h"
 
@@ -13,7 +15,7 @@ void Wander(Shared<Region> world, float dt)
     _ASSERT(navigation);
 
 
-    auto view = world->view<WanderComponent, Transform>(entt::exclude<PathList>);
+    auto view = world->view<WanderComponent, Transform>(entt::exclude<Mover, PathList>);
     for (auto [entity, wandering, tf] : view.each())
     {
         //dwelling for remaining time
@@ -42,7 +44,7 @@ void Wander(Shared<Region> world, float dt)
 
             auto& pathlist = world->emplace_or_replace<PathList>(entity);
             std::swap(pathlist.paths, path);
-
+            pathlist.flag = Start;
             //next dwelling time
             wandering.acc_time = 2.f;
         }

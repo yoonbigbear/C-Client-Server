@@ -96,9 +96,8 @@ public:
         while (true)
         {
             uint64_t time = GetTickCount64();
-            double dt = static_cast<double>(time - previous);
+            double dt = static_cast<double>(time - previous) * 0.001;
             previous = time;
-            dt = std::clamp(dt, 0.0, 0.25);
 
             time_acc += dt;
 
@@ -115,34 +114,3 @@ public:
 private:
     uint64_t previous;
 };
-
-//class TimeStep
-//{
-//    double t = 0.0;
-//    const double dt = 0.01;
-//
-//    double currentTime = GetTickCount64();
-//    double accumulator = 0.0;
-//
-//    bool quit;
-//    void Step()
-//    {
-//        while (!quit)
-//        {
-//            double newTime = GetTickCount64();
-//            double frameTime = newTime - currentTime;
-//            currentTime = newTime;
-//
-//            accumulator += frameTime;
-//
-//            while (accumulator >= dt)
-//            {
-//                //integrate(state, t, dt);
-//                accumulator -= dt;
-//                t += dt;
-//            }
-//
-//            //render(state);
-//        }
-//    }
-//};

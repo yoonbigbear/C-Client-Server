@@ -10,12 +10,14 @@ entt::entity CreatePc(Shared<Region> scene, const EntityInfo* info)
 {
     auto entity = scene->Create(info->entity_id());
     
-    
+    //키 넣어줘야함
+    //DataTable::instance().classtable.HasKey()
+    // 
     // Add Transform
     auto& tf = scene->emplace<Transform>(entity);
     memcpy(&tf.v.v3, &info->pos(), sizeof(Vec));
     tf.degree = info->angle();
-    tf.base_spd = 1;
+    tf.base_spd = 10;
 
     // rendering info.
     auto& cylinder = scene->emplace<CylinderData>(entity);
