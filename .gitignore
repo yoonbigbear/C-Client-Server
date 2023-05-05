@@ -35,7 +35,6 @@
 *.opendb
 *.ipch
 *.ipch
-*.bin
 *.db-journal
 *.db-wal
 *.db-wal
