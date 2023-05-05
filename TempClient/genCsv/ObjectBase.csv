@@ -1,0 +1,4 @@
+id,max_hp,damage,exp,base_speed,drop_table,name:c,resource:c
+10000001,122,100,44,10,1010101:1010102,몹a,moba
+10000002,144,150,55,10,1010101:1010102:1010103,몹b,mobb
+10001,3,0,0,10,1010104,나무a,tree

@@ -81,11 +81,11 @@ void Camera::Input(SDL_Event* event)
 		SceneManager::instance().current_scene()->AddCommandQueue(
 			[this]() {
 
-				//Vec start = Vec(Camera::instance().ray_start);
-				//Vec end = Vec(Camera::instance().ray_end);
-				//RegionSystem::PathTo(*SceneManager::instance().current_scene(),
-				//	(entt::entity)PlayerClient::instance().eid,
-				//	start, end);
+				Vec start = Vec(Camera::instance().ray_start);
+				Vec end = Vec(Camera::instance().ray_end);
+				RegionSystem::PathTo(*SceneManager::instance().current_scene(),
+					(entt::entity)PlayerClient::instance().eid,
+					start, end);
 			}
 		);
 	}

@@ -1,0 +1,9 @@
+{
+	"TableData": "Table\\",
+	"ServerCsvOutput": "..\\TempServer\\genCsv\\",
+	"ClientCsvOutput": "..\\TempClient\\genCsv\\",
+	"ServerCsOutput": "Server\\genCs\\",
+	"ClientCsOutput": "Client\\genCs\\",
+	"ServerCPPOutput": "..\\TempServer\\genCpp\\",
+	"ClientCPPOutput": "..\\TempClient\\genCpp\\"
+}

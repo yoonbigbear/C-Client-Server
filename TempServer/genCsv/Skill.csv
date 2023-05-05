@@ -1,0 +1,2 @@
+id,skilltype,max_range,halfangle,damage,cooldown,ani_time,hit_time,name:c
+100001,0,2,5,7,0,240,110,unarmed attack
