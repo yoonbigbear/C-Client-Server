@@ -85,37 +85,39 @@ void Recv_LeaveNeighborsNfy(void* session, Vector<uint8_t>& data)
 
 bool RegionSystem::PathTo(Region& region, Entity eid, Vec& start, Vec& end)
 {
-    _ASSERT(region.Valid<Transform>(eid));
-
-    float t;
-    if (region.navmesh().ScreenRay(start.get(), end.get(), t))
+    if (region.Valid<Transform>(eid))
     {
-        if (t < 1.0f)
+        float t;
+        if (region.navmesh().ScreenRay(start.get(), end.get(), t))
         {
-            float pos[3];
-            pos[0] = start.v3.x + (end.v3.x - start.v3.x) * t;
-            pos[1] = start.v3.z + (end.v3.z - start.v3.z) * t;
-            pos[2] = start.v3.y + (end.v3.y - start.v3.y) * t;
-            //ray hit.
-
-            auto& tf = region.get<Transform>(eid);
-            Deque<Vec> path;
-            if (region.navmesh().FindPath(tf.v,
-                Vec(pos[0], pos[1], pos[2]), path, dtQueryFilter()))
+            if (t < 1.0f)
             {
-                auto& pathlist = region.Emplace_or_Replace<PathList>(eid);
-                std::swap(pathlist.paths, path);
-                pathlist.flag = MoveFlag::Start;
+                float pos[3];
+                pos[0] = start.v3.x + (end.v3.x - start.v3.x) * t;
+                pos[1] = start.v3.z + (end.v3.z - start.v3.z) * t;
+                pos[2] = start.v3.y + (end.v3.y - start.v3.y) * t;
+                //ray hit.
+
+                auto& tf = region.get<Transform>(eid);
+                Deque<Vec> path;
+                if (region.navmesh().FindPath(tf.v,
+                    Vec(pos[0], pos[1], pos[2]), path, dtQueryFilter()))
+                {
+                    auto& pathlist = region.Emplace_or_Replace<PathList>(eid);
+                    std::swap(pathlist.paths, path);
+                    pathlist.flag = MoveFlag::Start;
+                }
             }
         }
+        else
+        {
+            //failed raycasting
+            ADD_ERROR("Failed screen ray");
+            return false;
+        }
+        return true;
     }
-    else
-    {
-        //failed raycasting
-        ADD_ERROR("Failed screen ray");
-        return false;
-    }
-    return true;
+    return false;
 }
 
 void RegionSystem::Update(Region& region)
