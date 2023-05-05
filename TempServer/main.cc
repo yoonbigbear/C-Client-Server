@@ -34,6 +34,7 @@ LONG __stdcall ExceptionCallBack(EXCEPTION_POINTERS* e)
 
     return 0;
 }
+
 BOOL CtrlHandler(DWORD fdwCtrlType)
 {
     switch (fdwCtrlType)

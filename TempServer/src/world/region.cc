@@ -21,7 +21,7 @@ bool Region::Initialize(Vec pos)
 
     viewing_range_ = 150;
 
-    SpawnAI(0);
+    SpawnAI(10);
 
     on_destroy<Neighbor>().connect<UpdateDestroyed>();
 

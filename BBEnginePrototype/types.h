@@ -116,6 +116,7 @@ union Vec
     float& operator[](const unsigned int i) { return v3[i]; }
     const float& operator[](const unsigned int i) const { return v3[i]; }
     auto operator*(float len) { return std::array<float, 3>{len* v3[0], len* v3[1], len* v3[2]}; }
+    auto operator-(const Vec& in) { return Vec(v3[0] - in[0], v3[1] - in[1], v3[2] - in[2]); }
 
     float v2[2];
     float v3[3];

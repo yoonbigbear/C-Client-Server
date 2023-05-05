@@ -15,9 +15,9 @@ enum SamplePolyAreas
 	SAMPLE_POLYAREA_JUMP,
 };
 
-static const unsigned int startCol = BB::RGBA<128, 25, 0, 192>::VAL;
-static const unsigned int endCol = BB::RGBA<51, 102, 0, 129>::VAL;
-static const unsigned int pathCol = BB::RGBA<0, 0, 0, 64>::VAL;
+static const unsigned int startCol = bb::RGBA<128, 25, 0, 192>::VAL;
+static const unsigned int endCol = bb::RGBA<51, 102, 0, 129>::VAL;
+static const unsigned int pathCol = bb::RGBA<0, 0, 0, 64>::VAL;
 
 
 class DebugDrawGLBB : public duDebugDraw
@@ -28,19 +28,19 @@ public:
 		switch (area)
 		{
 			// Ground (0) : light blue
-		case SAMPLE_POLYAREA_GROUND: return BB::RGBA<0, 192, 255, 255>::VAL;
+		case SAMPLE_POLYAREA_GROUND: return bb::RGBA<0, 192, 255, 255>::VAL;
 			// Water : blue
-		case SAMPLE_POLYAREA_WATER: return BB::RGBA<0, 0, 255, 255>::VAL;
+		case SAMPLE_POLYAREA_WATER: return bb::RGBA<0, 0, 255, 255>::VAL;
 			// Road : brown
-		case SAMPLE_POLYAREA_ROAD: return BB::RGBA<50, 20, 12, 255>::VAL;
+		case SAMPLE_POLYAREA_ROAD: return bb::RGBA<50, 20, 12, 255>::VAL;
 			// Door : cyan
-		case SAMPLE_POLYAREA_DOOR: return BB::RGBA<0, 255, 255, 255>::VAL;
+		case SAMPLE_POLYAREA_DOOR: return bb::RGBA<0, 255, 255, 255>::VAL;
 			// Grass : green
-		case SAMPLE_POLYAREA_GRASS: return BB::RGBA<0, 255, 0, 255>::VAL;
+		case SAMPLE_POLYAREA_GRASS: return bb::RGBA<0, 255, 0, 255>::VAL;
 			// Jump : yellow
-		case SAMPLE_POLYAREA_JUMP: return BB::RGBA<255, 255, 0, 255>::VAL;
+		case SAMPLE_POLYAREA_JUMP: return bb::RGBA<255, 255, 0, 255>::VAL;
 			// Unexpected : red
-		default: return BB::RGBA<255, 0, 0, 255>::VAL;
+		default: return bb::RGBA<255, 0, 0, 255>::VAL;
 		}
 	}
 	virtual void depthMask(bool state)
@@ -152,9 +152,9 @@ public:
 		duDebugDrawCylinderWire(&dd, pos[0] - r, pos[1] + 0.02f, pos[2] - r,
 			pos[0] + r, pos[1] + h, pos[2] + r, col, 2.0f);
 
-		duDebugDrawCircle(&dd, pos[0], pos[1] + c, pos[2], r, BB::RGBA<0, 0, 0, 64>::VAL, 1.0f);
+		duDebugDrawCircle(&dd, pos[0], pos[1] + c, pos[2], r, bb::RGBA<0, 0, 0, 64>::VAL, 1.0f);
 
-		auto colb = BB::RGBA < 0, 0, 0, 196>::VAL;
+		auto colb = bb::RGBA<0, 0, 0, 196>::VAL;
 		dd.begin(DU_DRAW_LINES);
 		dd.vertex(pos[0], pos[1] - c, pos[2], colb);
 		dd.vertex(pos[0], pos[1] + c, pos[2], colb);

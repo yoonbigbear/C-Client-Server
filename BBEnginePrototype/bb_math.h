@@ -2,7 +2,7 @@
 
 #include <xmmintrin.h>
 #include "types.h"
-
+#include "geometry2d.h"
 #ifdef _BBENGINE
 struct Vector3
 {
@@ -391,4 +391,9 @@ namespace BBMath
     {
         return DirLength(ToUnitVector(degree), length);
     }
+}
+
+namespace bb
+{
+
 }

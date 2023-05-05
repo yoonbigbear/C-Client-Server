@@ -107,7 +107,6 @@ void App::Run()
 
             RenderManager::instance().Draw();
             auto scenes = SceneManager::instance().container();
-
             for (auto& [key, val] : scenes)
             {
                 val->Draw();

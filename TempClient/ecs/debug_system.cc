@@ -52,7 +52,7 @@ void Recv_DebugColliderNfy(void* session, Vector<uint8_t>& data)
     }
 
     DebugSystem::CreateDebugColliderObject(*(SceneManager::instance().current_scene().get()),
-        std::move(col), BB::RGBA<0, 255, 0, 255>::VAL, 0.5f);
+        std::move(col), bb::RGBA<0, 255, 0, 255>::VAL, 0.5f);
 }
 
 void DrawDebugToggledObjects(Shared<Region> scene)

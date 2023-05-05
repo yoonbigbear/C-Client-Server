@@ -3907,7 +3907,7 @@ bool ImGui::IsItemHovered(ImGuiHoveredFlags flags)
         delay = 0.0f;
     if (delay > 0.0f)
     {
-        ImGuiID hover_delay_id = (g.LastItemData.ID != 0) ? g.LastItemData.ID : window->GetIDFromRectangle(g.LastItemData.Rect);
+        ImGuiID hover_delay_id = (g.LastItemData.ID != 0) ? g.LastItemData.ID : window->GetIDFromRectangle(g.LastItemData.rect);
         if ((flags & ImGuiHoveredFlags_NoSharedDelay) && (g.HoverDelayIdPreviousFrame != hover_delay_id))
             g.HoverDelayTimer = 0.0f;
         g.HoverDelayId = hover_delay_id;
@@ -3993,7 +3993,7 @@ void ImGui::SetLastItemData(ImGuiID item_id, ImGuiItemFlags in_flags, ImGuiItemS
     g.LastItemData.ID = item_id;
     g.LastItemData.InFlags = in_flags;
     g.LastItemData.StatusFlags = item_flags;
-    g.LastItemData.Rect = item_rect;
+    g.LastItemData.rect = item_rect;
 }
 
 float ImGui::CalcWrapWidthForPos(const ImVec2& pos, float wrap_pos_x)
@@ -4793,7 +4793,7 @@ static void ImGui::RenderDimmedBackgrounds()
         ImGuiWindow* window = g.NavWindowingTargetAnim;
         ImGuiViewport* viewport = GetMainViewport();
         float distance = g.FontSize;
-        ImRect bb = window->Rect();
+        ImRect bb = window->rect();
         bb.Expand(distance);
         if (bb.GetWidth() >= viewport->Size.x && bb.GetHeight() >= viewport->Size.y)
             bb.Expand(-distance - 1.0f); // If a window fits the entire viewport, adjust its highlight inward
@@ -5157,19 +5157,19 @@ ImGuiID ImGui::GetItemID()
 ImVec2 ImGui::GetItemRectMin()
 {
     ImGuiContext& g = *GImGui;
-    return g.LastItemData.Rect.Min;
+    return g.LastItemData.rect.Min;
 }
 
 ImVec2 ImGui::GetItemRectMax()
 {
     ImGuiContext& g = *GImGui;
-    return g.LastItemData.Rect.Max;
+    return g.LastItemData.rect.Max;
 }
 
 ImVec2 ImGui::GetItemRectSize()
 {
     ImGuiContext& g = *GImGui;
-    return g.LastItemData.Rect.GetSize();
+    return g.LastItemData.rect.GetSize();
 }
 
 bool ImGui::BeginChildEx(const char* name, ImGuiID id, const ImVec2& size_arg, bool border, ImGuiWindowFlags flags)
@@ -5556,7 +5556,7 @@ static const ImGuiResizeBorderDef resize_border_def[4] =
 
 static ImRect GetResizeBorderRect(ImGuiWindow* window, int border_n, float perp_padding, float thickness)
 {
-    ImRect rect = window->Rect();
+    ImRect rect = window->rect();
     if (thickness == 0.0f)
         rect.Max -= ImVec2(1, 1);
     if (border_n == ImGuiDir_Left)  { return ImRect(rect.Min.x - thickness,    rect.Min.y + perp_padding, rect.Min.x + thickness,    rect.Max.y - perp_padding); }
@@ -5817,7 +5817,7 @@ void ImGui::RenderWindowDecorations(ImGuiWindow* window, const ImRect& title_bar
         if (flags & ImGuiWindowFlags_MenuBar)
         {
             ImRect menu_bar_rect = window->MenuBarRect();
-            menu_bar_rect.ClipWith(window->Rect());  // Soft clipping, in particular child window don't have minimum size covering the menu bar so this is useful for them.
+            menu_bar_rect.ClipWith(window->rect());  // Soft clipping, in particular child window don't have minimum size covering the menu bar so this is useful for them.
             window->DrawList->AddRectFilled(menu_bar_rect.Min + ImVec2(window_border_size, 0), menu_bar_rect.Max - ImVec2(window_border_size, 0), GetColorU32(ImGuiCol_MenuBarBg), (flags & ImGuiWindowFlags_NoTitleBar) ? window_rounding : 0.0f, ImDrawFlags_RoundCornersTop);
             if (style.FrameBorderSize > 0.0f && menu_bar_rect.Max.y < window->Pos.y + window->Size.y)
                 window->DrawList->AddLine(menu_bar_rect.GetBL(), menu_bar_rect.GetBR(), GetColorU32(ImGuiCol_Border), style.FrameBorderSize);
@@ -6427,7 +6427,7 @@ bool ImGui::Begin(const char* name, bool* p_open, ImGuiWindowFlags flags)
         // - Begin() initial clipping rect for drawing window background and borders.
         // - Begin() clipping whole child
         const ImRect host_rect = ((flags & ImGuiWindowFlags_ChildWindow) && !(flags & ImGuiWindowFlags_Popup) && !window_is_child_tooltip) ? parent_window->ClipRect : viewport_rect;
-        const ImRect outer_rect = window->Rect();
+        const ImRect outer_rect = window->rect();
         const ImRect title_bar_rect = window->TitleBarRect();
         window->OuterRectClipped = outer_rect;
         window->OuterRectClipped.ClipWith(host_rect);
@@ -6493,7 +6493,7 @@ bool ImGui::Begin(const char* name, bool* p_open, ImGuiWindowFlags flags)
                 // - We test overlap with the previous child window only (testing all would end up being O(log N) not a good investment here)
                 // - We disable this when the parent window has zero vertices, which is a common pattern leading to laying out multiple overlapping childs
                 ImGuiWindow* previous_child = parent_window->DC.ChildWindows.Size >= 2 ? parent_window->DC.ChildWindows[parent_window->DC.ChildWindows.Size - 2] : NULL;
-                bool previous_child_overlapping = previous_child ? previous_child->Rect().Overlaps(window->Rect()) : false;
+                bool previous_child_overlapping = previous_child ? previous_child->rect().Overlaps(window->rect()) : false;
                 bool parent_is_empty = parent_window->DrawList->VtxBuffer.Size > 0;
                 if (window->DrawList->CmdBuffer.back().ElemCount == 0 && parent_is_empty && !previous_child_overlapping)
                     render_decorations_in_parent = true;
@@ -7443,12 +7443,12 @@ void ImGui::SetItemDefaultFocus()
 
     g.NavInitRequest = false;
     g.NavInitResultId = g.LastItemData.ID;
-    g.NavInitResultRectRel = WindowRectAbsToRel(window, g.LastItemData.Rect);
+    g.NavInitResultRectRel = WindowRectAbsToRel(window, g.LastItemData.rect);
     NavUpdateAnyRequestFlag();
 
     // Scroll could be done in NavInitRequestApplyResult() via an opt-in flag (we however don't want regular init requests to scroll)
     if (!IsItemVisible())
-        ScrollToRectEx(window, g.LastItemData.Rect, ImGuiScrollFlags_None);
+        ScrollToRectEx(window, g.LastItemData.rect, ImGuiScrollFlags_None);
 }
 
 void ImGui::SetStateStorage(ImGuiStorage* tree)
@@ -9149,7 +9149,7 @@ bool ImGui::ItemAdd(const ImRect& bb, ImGuiID id, const ImRect* nav_bb_arg, ImGu
     // Set item data
     // (DisplayRect is left untouched, made valid when ImGuiItemStatusFlags_HasDisplayRect is set)
     g.LastItemData.ID = id;
-    g.LastItemData.Rect = bb;
+    g.LastItemData.rect = bb;
     g.LastItemData.NavRect = nav_bb_arg ? *nav_bb_arg : bb;
     g.LastItemData.InFlags = g.CurrentItemFlags | extra_flags;
     g.LastItemData.StatusFlags = ImGuiItemStatusFlags_None;
@@ -9555,7 +9555,7 @@ void ImGui::EndGroup()
         g.LastItemData.ID = g.ActiveId;
     else if (group_contains_prev_active_id)
         g.LastItemData.ID = g.ActiveIdPreviousFrame;
-    g.LastItemData.Rect = group_bb;
+    g.LastItemData.rect = group_bb;
 
     // Forward Hovered flag
     const bool group_contains_curr_hovered_id = (group_data.BackupHoveredIdIsAlive == false) && g.HoveredId != 0;
@@ -9797,7 +9797,7 @@ void ImGui::SetScrollHereX(float center_x_ratio)
     ImGuiContext& g = *GImGui;
     ImGuiWindow* window = g.CurrentWindow;
     float spacing_x = ImMax(window->WindowPadding.x, g.Style.ItemSpacing.x);
-    float target_pos_x = ImLerp(g.LastItemData.Rect.Min.x - spacing_x, g.LastItemData.Rect.Max.x + spacing_x, center_x_ratio);
+    float target_pos_x = ImLerp(g.LastItemData.rect.Min.x - spacing_x, g.LastItemData.rect.Max.x + spacing_x, center_x_ratio);
     SetScrollFromPosX(window, target_pos_x - window->Pos.x, center_x_ratio); // Convert from absolute to local pos
 
     // Tweak: snap on edges when aiming at an item very close to the edge
@@ -11413,7 +11413,7 @@ static void ImGui::NavUpdateCancelRequest()
         ImGuiWindow* child_window = g.NavWindow;
         ImGuiWindow* parent_window = g.NavWindow->ParentWindow;
         IM_ASSERT(child_window->ChildId != 0);
-        ImRect child_rect = child_window->Rect();
+        ImRect child_rect = child_window->rect();
         FocusWindow(parent_window);
         SetNavID(child_window->ChildId, ImGuiNavLayer_Main, 0, WindowRectAbsToRel(parent_window, child_rect));
         NavRestoreHighlightAfterMove();
@@ -11926,9 +11926,9 @@ bool ImGui::BeginDragDropSource(ImGuiDragDropFlags flags)
             // THE IDENTIFIER WON'T SURVIVE ANY REPOSITIONING/RESIZINGG OF THE WIDGET, so if your widget moves your dragging operation will be canceled.
             // We don't need to maintain/call ClearActiveID() as releasing the button will early out this function and trigger !ActiveIdIsAlive.
             // Rely on keeping other window->LastItemXXX fields intact.
-            source_id = g.LastItemData.ID = window->GetIDFromRectangle(g.LastItemData.Rect);
+            source_id = g.LastItemData.ID = window->GetIDFromRectangle(g.LastItemData.rect);
             KeepAliveID(source_id);
-            bool is_hovered = ItemHoverable(g.LastItemData.Rect, source_id);
+            bool is_hovered = ItemHoverable(g.LastItemData.rect, source_id);
             if (is_hovered && g.IO.MouseClicked[mouse_button])
             {
                 SetActiveID(source_id, window);
@@ -12091,7 +12091,7 @@ bool ImGui::BeginDragDropTarget()
     if (hovered_window == NULL || window->RootWindow != hovered_window->RootWindow || window->SkipItems)
         return false;
 
-    const ImRect& display_rect = (g.LastItemData.StatusFlags & ImGuiItemStatusFlags_HasDisplayRect) ? g.LastItemData.DisplayRect : g.LastItemData.Rect;
+    const ImRect& display_rect = (g.LastItemData.StatusFlags & ImGuiItemStatusFlags_HasDisplayRect) ? g.LastItemData.DisplayRect : g.LastItemData.rect;
     ImGuiID id = g.LastItemData.ID;
     if (id == 0)
     {
@@ -13019,7 +13019,7 @@ void ImGui::DebugRenderViewportThumbnail(ImDrawList* draw_list, ImGuiViewportP* 
         if (!thumb_window->WasActive || (thumb_window->Flags & ImGuiWindowFlags_ChildWindow))
             continue;
 
-        ImRect thumb_r = thumb_window->Rect();
+        ImRect thumb_r = thumb_window->rect();
         ImRect title_r = thumb_window->TitleBarRect();
         thumb_r = ImRect(ImFloor(off + thumb_r.Min * scale), ImFloor(off +  thumb_r.Max * scale));
         title_r = ImRect(ImFloor(off + title_r.Min * scale), ImFloor(off +  ImVec2(title_r.Max.x, title_r.Min.y) * scale) + ImVec2(0,5)); // Exaggerate title bar height
@@ -13232,7 +13232,7 @@ void ImGui::ShowMetricsWindow(bool* p_open)
 
         static ImRect GetWindowRect(ImGuiWindow* window, int rect_type)
         {
-            if (rect_type == WRT_OuterRect)                 { return window->Rect(); }
+            if (rect_type == WRT_OuterRect)                 { return window->rect(); }
             else if (rect_type == WRT_OuterRectClipped)     { return window->OuterRectClipped; }
             else if (rect_type == WRT_InnerRect)            { return window->InnerRect; }
             else if (rect_type == WRT_InnerClipRect)        { return window->InnerClipRect; }
@@ -14162,7 +14162,7 @@ void ImGui::ShowDebugLogWindow(bool* p_open)
             const char* line_begin = g.DebugLogIndex.get_line_begin(g.DebugLogBuf.c_str(), line_no);
             const char* line_end = g.DebugLogIndex.get_line_end(g.DebugLogBuf.c_str(), line_no);
             TextUnformatted(line_begin, line_end);
-            ImRect text_rect = g.LastItemData.Rect;
+            ImRect text_rect = g.LastItemData.rect;
             if (IsItemHovered())
                 for (const char* p = line_begin; p < line_end - 10; p++)
                 {
@@ -14171,8 +14171,8 @@ void ImGui::ShowDebugLogWindow(bool* p_open)
                         continue;
                     ImVec2 p0 = CalcTextSize(line_begin, p);
                     ImVec2 p1 = CalcTextSize(p, p + 10);
-                    g.LastItemData.Rect = ImRect(text_rect.Min + ImVec2(p0.x, 0.0f), text_rect.Min + ImVec2(p0.x + p1.x, p1.y));
-                    if (IsMouseHoveringRect(g.LastItemData.Rect.Min, g.LastItemData.Rect.Max, true))
+                    g.LastItemData.rect = ImRect(text_rect.Min + ImVec2(p0.x, 0.0f), text_rect.Min + ImVec2(p0.x + p1.x, p1.y));
+                    if (IsMouseHoveringRect(g.LastItemData.rect.Min, g.LastItemData.rect.Max, true))
                         DebugLocateItemOnHover(id);
                     p += 10;
                 }
@@ -14203,7 +14203,7 @@ void ImGui::DebugLocateItemOnHover(ImGuiID target_id)
         return;
     ImGuiContext& g = *GImGui;
     DebugLocateItem(target_id);
-    GetForegroundDrawList(g.CurrentWindow)->AddRect(g.LastItemData.Rect.Min - ImVec2(3.0f, 3.0f), g.LastItemData.Rect.Max + ImVec2(3.0f, 3.0f), DEBUG_LOCATE_ITEM_COLOR);
+    GetForegroundDrawList(g.CurrentWindow)->AddRect(g.LastItemData.rect.Min - ImVec2(3.0f, 3.0f), g.LastItemData.rect.Max + ImVec2(3.0f, 3.0f), DEBUG_LOCATE_ITEM_COLOR);
 }
 
 void ImGui::DebugLocateItemResolveWithLastItem()
@@ -14212,7 +14212,7 @@ void ImGui::DebugLocateItemResolveWithLastItem()
     ImGuiLastItemData item_data = g.LastItemData;
     g.DebugLocateId = 0;
     ImDrawList* draw_list = GetForegroundDrawList(g.CurrentWindow);
-    ImRect r = item_data.Rect;
+    ImRect r = item_data.rect;
     r.Expand(3.0f);
     ImVec2 p1 = g.IO.MousePos;
     ImVec2 p2 = ImVec2((p1.x < r.Min.x) ? r.Min.x : (p1.x > r.Max.x) ? r.Max.x : p1.x, (p1.y < r.Min.y) ? r.Min.y : (p1.y > r.Max.y) ? r.Max.y : p1.y);

@@ -15,7 +15,7 @@ struct IfElse<false, _True, _False>
 };
 
 
-namespace BB
+namespace bb
 {
     template<int r, int g, int b, int a>
     struct RGBA

@@ -8,8 +8,8 @@
 #include "timer.h"
 
 #ifdef _SPDLOG
-#include <spdlog/spdlog.h>
-#include <spdlog/stopwatch.h>
+#include "spdlog/spdlog.h"
+#include "spdlog/stopwatch.h"
 ///////////////////////////////////////////
 // spdlog ÄÜ¼Ö.
 ///////////////////////////////////////////

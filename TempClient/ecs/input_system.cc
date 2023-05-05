@@ -18,7 +18,7 @@ void InputSystem::KeyboardInput(Region& region, Entity entity)
         {
             collider.circle.r = 10.f;
             DebugSystem::SendDebugCollision(region, Circle, tf.degree, entity);
-            DebugSystem::CreateDebugColliderObject(region, std::move(collider), BB::RGBA<0, 0, 255, 100>::VAL);
+            DebugSystem::CreateDebugColliderObject(region, std::move(collider), bb::RGBA<0, 0, 255, 100>::VAL);
         }
 
         if (ImGui::IsKeyPressed(ImGuiKey_2))
@@ -28,7 +28,7 @@ void InputSystem::KeyboardInput(Region& region, Entity entity)
             collider.sector.half_angle = 30;
             collider.sector.r = 10.f;
             DebugSystem::SendDebugCollision(region, Sector, tf.degree, entity);
-            DebugSystem::CreateDebugColliderObject(region, std::move(collider), BB::RGBA<0, 0, 255, 100>::VAL);
+            DebugSystem::CreateDebugColliderObject(region, std::move(collider), bb::RGBA<0, 0, 255, 100>::VAL);
         }
 
         if (ImGui::IsKeyPressed(ImGuiKey_3))
@@ -37,7 +37,7 @@ void InputSystem::KeyboardInput(Region& region, Entity entity)
             collider.aabb.hx = 10.f;
             collider.aabb.hy = 10.f;
             DebugSystem::SendDebugCollision(region, AABB, tf.degree, entity);
-            DebugSystem::CreateDebugColliderObject(region, std::move(collider), BB::RGBA<0, 0, 255, 100>::VAL);
+            DebugSystem::CreateDebugColliderObject(region, std::move(collider), bb::RGBA<0, 0, 255, 100>::VAL);
         }
 
         if (ImGui::IsKeyPressed(ImGuiKey_4))
@@ -48,7 +48,7 @@ void InputSystem::KeyboardInput(Region& region, Entity entity)
             collider.obb.hl = 10.f;
             collider.center.v2 += BBMath::DirLength(tf.degree, collider.obb.hl).v2;
             DebugSystem::SendDebugCollision(region, OBB, tf.degree, entity);
-            DebugSystem::CreateDebugColliderObject(region, std::move(collider), BB::RGBA<0,0,255, 100>::VAL);
+            DebugSystem::CreateDebugColliderObject(region, std::move(collider), bb::RGBA<0,0,255, 100>::VAL);
         }
 
         if (ImGui::IsKeyPressed(ImGuiKey_5))
@@ -57,7 +57,7 @@ void InputSystem::KeyboardInput(Region& region, Entity entity)
             collider.ray.dir = tf.degree;
             collider.ray.length = 20.f;
             DebugSystem::SendDebugCollision(region, Ray, tf.degree, entity);
-            DebugSystem::CreateDebugColliderObject(region, std::move(collider), BB::RGBA<0, 0, 255, 100>::VAL);
+            DebugSystem::CreateDebugColliderObject(region, std::move(collider), bb::RGBA<0, 0, 255, 100>::VAL);
         }
 
         if (ImGui::IsKeyPressed(ImGuiKey_Space))

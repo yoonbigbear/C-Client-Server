@@ -2,7 +2,7 @@
 
 #pragma warning( push )
 #pragma warning(disable : 4819 )
-#include <entt-3.11.1/entt/entt.hpp>
+#include "entt/entt.hpp"
 #pragma warning( pop )
 
 using Entity = entt::entity;
