@@ -1,0 +1,157 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="main.cc" />
+    <ClCompile Include="src\world\region.cc">
+      <Filter>world</Filter>
+    </ClCompile>
+    <ClCompile Include="src\server.cc" />
+    <ClCompile Include="src\db\db.cpp">
+      <Filter>db</Filter>
+    </ClCompile>
+    <ClCompile Include="src\world\b2_world_tree.cc">
+      <Filter>world</Filter>
+    </ClCompile>
+    <ClCompile Include="src\net\client_session.cpp">
+      <Filter>net</Filter>
+    </ClCompile>
+    <ClCompile Include="src\systems\ai\ai_system.cc">
+      <Filter>ecs\systems\ai</Filter>
+    </ClCompile>
+    <ClCompile Include="src\net\user.cc">
+      <Filter>net</Filter>
+    </ClCompile>
+    <ClCompile Include="src\systems\dynamic_tree_system.cc">
+      <Filter>ecs\systems\collision</Filter>
+    </ClCompile>
+    <ClCompile Include="src\systems\user_system.cc">
+      <Filter>ecs\systems</Filter>
+    </ClCompile>
+    <ClCompile Include="src\systems\debug_system.cc">
+      <Filter>ecs\systems\debug</Filter>
+    </ClCompile>
+    <ClCompile Include="src\systems\move_system.cc">
+      <Filter>ecs\systems\world</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mgr\datatable_mgr.cpp">
+      <Filter>mgr</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mgr\file_mgr.cpp" />
+    <ClCompile Include="src\systems\world_system.cc">
+      <Filter>ecs\systems\world</Filter>
+    </ClCompile>
+    <ClCompile Include="src\systems\chat_system.cc">
+      <Filter>ecs\systems\chat</Filter>
+    </ClCompile>
+    <ClCompile Include="src\systems\npc_system.cpp">
+      <Filter>ecs\systems</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="world">
+      <UniqueIdentifier>{5b0d5bee-0d40-4c12-8e85-e8f5c0e5c7cb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="fbb">
+      <UniqueIdentifier>{f3bc8ee0-c19a-4b2c-a249-b32c2952ddf3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="net">
+      <UniqueIdentifier>{811f856b-d3dd-45f2-9891-bd337c3726d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="db">
+      <UniqueIdentifier>{7506957e-41e0-49b0-81ed-d134b114c921}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ecs">
+      <UniqueIdentifier>{d54c7721-8882-4a88-a3aa-170b7805bc03}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ecs\systems">
+      <UniqueIdentifier>{f5f05115-8d4f-4956-8074-e64a9036450b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ecs\systems\world">
+      <UniqueIdentifier>{346d7bf5-40fe-42e6-ac08-ac3bac55145d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ecs\systems\ai">
+      <UniqueIdentifier>{fcbb2ad5-de83-4790-b650-85e49cdf8948}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ecs\systems\chat">
+      <UniqueIdentifier>{9f0c421e-951c-4953-9092-ce385166ccb3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ecs\systems\collision">
+      <UniqueIdentifier>{047bb82f-907e-41fc-8375-30ebe5b432e0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ecs\systems\debug">
+      <UniqueIdentifier>{982678ba-b38d-48f1-ad75-91e462b07beb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="mgr">
+      <UniqueIdentifier>{94553f22-c1d0-48f0-9e2a-65c0a2cf1a43}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="db\procedure">
+      <UniqueIdentifier>{84606978-eded-4855-b78d-091a2470d51d}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\world\region.h">
+      <Filter>world</Filter>
+    </ClInclude>
+    <ClInclude Include="src\net\client_session.h">
+      <Filter>net</Filter>
+    </ClInclude>
+    <ClInclude Include="fbb\chat_generated.h">
+      <Filter>fbb</Filter>
+    </ClInclude>
+    <ClInclude Include="fbb\packets_generated.h">
+      <Filter>fbb</Filter>
+    </ClInclude>
+    <ClInclude Include="src\server.h" />
+    <ClInclude Include="src\world\b2_world_tree.h">
+      <Filter>world</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pre.h" />
+    <ClInclude Include="src\db\db.h">
+      <Filter>db</Filter>
+    </ClInclude>
+    <ClInclude Include="src\components.h">
+      <Filter>ecs</Filter>
+    </ClInclude>
+    <ClInclude Include="src\systems\systems.h">
+      <Filter>ecs</Filter>
+    </ClInclude>
+    <ClInclude Include="src\systems\ai\ai_system.h">
+      <Filter>ecs\systems\ai</Filter>
+    </ClInclude>
+    <ClInclude Include="src\net\user.h">
+      <Filter>net</Filter>
+    </ClInclude>
+    <ClInclude Include="src\systems\user_system.h">
+      <Filter>ecs\systems</Filter>
+    </ClInclude>
+    <ClInclude Include="src\systems\npc_system.h">
+      <Filter>ecs\systems</Filter>
+    </ClInclude>
+    <ClInclude Include="src\systems\dynamic_tree_system.h">
+      <Filter>ecs\systems\collision</Filter>
+    </ClInclude>
+    <ClInclude Include="src\systems\debug_system.h">
+      <Filter>ecs\systems\debug</Filter>
+    </ClInclude>
+    <ClInclude Include="src\systems\move_system.h">
+      <Filter>ecs\systems\world</Filter>
+    </ClInclude>
+    <ClInclude Include="src\mgr\datatable_mgr.h">
+      <Filter>mgr</Filter>
+    </ClInclude>
+    <ClInclude Include="src\mgr\file_mgr.h">
+      <Filter>mgr</Filter>
+    </ClInclude>
+    <ClInclude Include="src\systems\world_system.h">
+      <Filter>ecs\systems\world</Filter>
+    </ClInclude>
+    <ClInclude Include="src\systems\chat_system.h">
+      <Filter>ecs\systems\chat</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="sp\create_account_table.sql">
+      <Filter>db\procedure</Filter>
+    </None>
+  </ItemGroup>
+</Project>

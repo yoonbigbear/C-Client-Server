@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="E:\3rdParty\nanodbc-2.14.0\CMakeFiles\391971eab2881ec4a1354072dba4d099\INSTALL_force.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{52302ECE-76DA-3C91-8466-119F268B99A7}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

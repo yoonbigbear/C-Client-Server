@@ -39,7 +39,6 @@
 *.db-journal
 *.db-wal
 *.db-wal
-*.filters
 *.user
 *.user
 *.idb
@@ -59,7 +58,6 @@ TempServer/x64/Debug/TempServer.vcxproj.FileListAbsolute.txt
 BBEnginePrototype/.vs/BBEnginePrototype/v17/.suo
 BBEnginePrototype/obj/x64/Debug/BBEnginePrototype.vcxproj.FileListAbsolute.txt
 BBEnginePrototype/StructLayoutSettings.json
-*.vcxproj
 /.svn/pristine
 /TableConverter
 /TempClient/genCpp

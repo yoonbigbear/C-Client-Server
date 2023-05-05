@@ -1,0 +1,224 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="main.cc" />
+    <ClCompile Include="app.cc" />
+    <ClCompile Include="imgui\imgui_impl_sdl.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui_tables.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui_widgets.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui_demo.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui_draw.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui_impl_opengl3.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="graphics.cc">
+      <Filter>client</Filter>
+    </ClCompile>
+    <ClCompile Include="gui.cc">
+      <Filter>client</Filter>
+    </ClCompile>
+    <ClCompile Include="camera.cc">
+      <Filter>client</Filter>
+    </ClCompile>
+    <ClCompile Include="level\region.cc">
+      <Filter>scene</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\login_window.cc">
+      <Filter>widget</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\scene_info.cc">
+      <Filter>widget</Filter>
+    </ClCompile>
+    <ClCompile Include="manager\scene_manager.cc">
+      <Filter>manager</Filter>
+    </ClCompile>
+    <ClCompile Include="net_tcp.cc">
+      <Filter>net</Filter>
+    </ClCompile>
+    <ClCompile Include="ecs\systems.cc">
+      <Filter>ecs</Filter>
+    </ClCompile>
+    <ClCompile Include="level\navigation_c.cc">
+      <Filter>scene</Filter>
+    </ClCompile>
+    <ClCompile Include="player_client.cc">
+      <Filter>client</Filter>
+    </ClCompile>
+    <ClCompile Include="ecs\factory_system.cc">
+      <Filter>ecs</Filter>
+    </ClCompile>
+    <ClCompile Include="ecs\schedule_system.cc">
+      <Filter>ecs</Filter>
+    </ClCompile>
+    <ClCompile Include="ecs\debug_system.cc">
+      <Filter>ecs</Filter>
+    </ClCompile>
+    <ClCompile Include="ecs\input_system.cc">
+      <Filter>ecs</Filter>
+    </ClCompile>
+    <ClCompile Include="ecs\move_system.cc">
+      <Filter>ecs</Filter>
+    </ClCompile>
+    <ClCompile Include="ecs\region_system.cc">
+      <Filter>ecs</Filter>
+    </ClCompile>
+    <ClCompile Include="ecs\chat_system.cc">
+      <Filter>ecs</Filter>
+    </ClCompile>
+    <ClCompile Include="ecs\battle_system.cc">
+      <Filter>ecs</Filter>
+    </ClCompile>
+    <ClCompile Include="manager\datatable.cc">
+      <Filter>manager</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="fbb\chat_generated.h">
+      <Filter>fbb</Filter>
+    </ClInclude>
+    <ClInclude Include="fbb\packets_generated.h">
+      <Filter>fbb</Filter>
+    </ClInclude>
+    <ClInclude Include="app.h" />
+    <ClInclude Include="imgui\imgui_impl_opengl3.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\imgui_impl_opengl3_loader.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\imgui_impl_sdl.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\imgui_internal.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\imconfig.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\imgui.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\imstb_textedit.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\imstb_truetype.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\imstb_rectpack.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="graphics.h">
+      <Filter>client</Filter>
+    </ClInclude>
+    <ClInclude Include="gui.h">
+      <Filter>client</Filter>
+    </ClInclude>
+    <ClInclude Include="camera.h">
+      <Filter>client</Filter>
+    </ClInclude>
+    <ClInclude Include="level\region.h">
+      <Filter>scene</Filter>
+    </ClInclude>
+    <ClInclude Include="net_tcp.h">
+      <Filter>net</Filter>
+    </ClInclude>
+    <ClInclude Include="widget\login_window.h">
+      <Filter>widget</Filter>
+    </ClInclude>
+    <ClInclude Include="widget\scene_info.h">
+      <Filter>widget</Filter>
+    </ClInclude>
+    <ClInclude Include="manager\scene_manager.h">
+      <Filter>manager</Filter>
+    </ClInclude>
+    <ClInclude Include="widget\log_widget.h">
+      <Filter>widget</Filter>
+    </ClInclude>
+    <ClInclude Include="widget\console_widget.h">
+      <Filter>widget</Filter>
+    </ClInclude>
+    <ClInclude Include="pre.h" />
+    <ClInclude Include="ecs\systems.h">
+      <Filter>ecs</Filter>
+    </ClInclude>
+    <ClInclude Include="ecs\components.h">
+      <Filter>ecs</Filter>
+    </ClInclude>
+    <ClInclude Include="draw.h" />
+    <ClInclude Include="level\navigation_c.h">
+      <Filter>scene</Filter>
+    </ClInclude>
+    <ClInclude Include="player_client.h">
+      <Filter>client</Filter>
+    </ClInclude>
+    <ClInclude Include="ecs\factory_system.h">
+      <Filter>ecs</Filter>
+    </ClInclude>
+    <ClInclude Include="ecs\schedule_system.h">
+      <Filter>ecs</Filter>
+    </ClInclude>
+    <ClInclude Include="ecs\debug_system.h">
+      <Filter>ecs</Filter>
+    </ClInclude>
+    <ClInclude Include="manager\render_manager.h">
+      <Filter>manager</Filter>
+    </ClInclude>
+    <ClInclude Include="ecs\input_system.h">
+      <Filter>ecs</Filter>
+    </ClInclude>
+    <ClInclude Include="ecs\move_system.h">
+      <Filter>ecs</Filter>
+    </ClInclude>
+    <ClInclude Include="ecs\region_system.h">
+      <Filter>ecs</Filter>
+    </ClInclude>
+    <ClInclude Include="ecs\chat_system.h">
+      <Filter>ecs</Filter>
+    </ClInclude>
+    <ClInclude Include="ecs\battle_system.h">
+      <Filter>ecs</Filter>
+    </ClInclude>
+    <ClInclude Include="manager\datatable.h">
+      <Filter>manager</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="fbb">
+      <UniqueIdentifier>{93f69d47-d894-4fb8-aabb-72ff9e8da383}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="imgui">
+      <UniqueIdentifier>{7a9f5559-2655-40e4-a0dc-583cd69c27c8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="client">
+      <UniqueIdentifier>{625697c5-1fa1-4ffa-b363-6e9e05668683}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="net">
+      <UniqueIdentifier>{344a7b8e-d73a-4e55-8806-ab62708cf41d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="widget">
+      <UniqueIdentifier>{030679e2-e430-42b8-a231-67f5728f8c8e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="manager">
+      <UniqueIdentifier>{5355a40a-e460-42ff-9278-978c8d65d153}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ecs">
+      <UniqueIdentifier>{ae1c73ab-1282-467c-a956-9533b218c890}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="scene">
+      <UniqueIdentifier>{847d7916-885c-4ca6-b065-325f419e9719}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

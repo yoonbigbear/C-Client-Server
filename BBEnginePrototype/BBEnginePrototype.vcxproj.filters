@@ -1,0 +1,195 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="libraries">
+      <UniqueIdentifier>{db71145f-0ada-4ab4-abe7-00b05c6f3a7e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{97b8069b-7b79-464f-8f14-3b1f76d15cb1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include">
+      <UniqueIdentifier>{1cf58cd6-4918-42a4-bad7-39bd36d593a9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libraries\recastdetour">
+      <UniqueIdentifier>{616bf9dd-731b-4acc-aad7-39175baed235}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libraries\ASIO">
+      <UniqueIdentifier>{28a430f9-8fe9-413e-ab72-fda7121053fb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libraries\ENTT">
+      <UniqueIdentifier>{2674040d-37bb-4e74-b8da-a0b8b277d342}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\grid">
+      <UniqueIdentifier>{e398be6c-8aa7-4228-96cb-14370f74a0f8}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="packet_handler.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="random_generator.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="recv_buffer.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="singleton.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="tcp_server.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="tcp_session.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="udp_session.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="packet_buffer.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="action.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="bb_math.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="timer.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="bb_util.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="bb_lock.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="types.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="bb_collider.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="bb_logger.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="strand.h">
+      <Filter>libraries\ASIO</Filter>
+    </ClInclude>
+    <ClInclude Include="task_queue.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="resolver.h">
+      <Filter>libraries\ASIO</Filter>
+    </ClInclude>
+    <ClInclude Include="ecs.h">
+      <Filter>libraries\ENTT</Filter>
+    </ClInclude>
+    <ClInclude Include="csv_parser.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="json_parser.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="filesystem.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="share\detour\DebugDraw.h">
+      <Filter>libraries\recastdetour</Filter>
+    </ClInclude>
+    <ClInclude Include="share\detour\DetourAlloc.h">
+      <Filter>libraries\recastdetour</Filter>
+    </ClInclude>
+    <ClInclude Include="share\detour\DetourAssert.h">
+      <Filter>libraries\recastdetour</Filter>
+    </ClInclude>
+    <ClInclude Include="share\detour\DetourCommon.h">
+      <Filter>libraries\recastdetour</Filter>
+    </ClInclude>
+    <ClInclude Include="share\detour\DetourDebugDraw.h">
+      <Filter>libraries\recastdetour</Filter>
+    </ClInclude>
+    <ClInclude Include="share\detour\DetourMath.h">
+      <Filter>libraries\recastdetour</Filter>
+    </ClInclude>
+    <ClInclude Include="share\detour\DetourNavMesh.h">
+      <Filter>libraries\recastdetour</Filter>
+    </ClInclude>
+    <ClInclude Include="share\detour\DetourNavMeshBuilder.h">
+      <Filter>libraries\recastdetour</Filter>
+    </ClInclude>
+    <ClInclude Include="share\detour\DetourNavMeshQuery.h">
+      <Filter>libraries\recastdetour</Filter>
+    </ClInclude>
+    <ClInclude Include="share\detour\DetourNode.h">
+      <Filter>libraries\recastdetour</Filter>
+    </ClInclude>
+    <ClInclude Include="share\detour\DetourStatus.h">
+      <Filter>libraries\recastdetour</Filter>
+    </ClInclude>
+    <ClInclude Include="share\detour\DetourTileCache.h">
+      <Filter>libraries\recastdetour</Filter>
+    </ClInclude>
+    <ClInclude Include="share\detour\DetourTileCacheBuilder.h">
+      <Filter>libraries\recastdetour</Filter>
+    </ClInclude>
+    <ClInclude Include="share\detour\Recast.h">
+      <Filter>libraries\recastdetour</Filter>
+    </ClInclude>
+    <ClInclude Include="navigation.h">
+      <Filter>libraries\recastdetour</Filter>
+    </ClInclude>
+    <ClInclude Include="quad_tree.h">
+      <Filter>include\grid</Filter>
+    </ClInclude>
+    <ClInclude Include="grid.h">
+      <Filter>include\grid</Filter>
+    </ClInclude>
+    <ClInclude Include="geometry2d.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="geometry3d.h">
+      <Filter>include</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="bb_math.cc">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="navigation.cc">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="share\detour\DebugDraw.cpp">
+      <Filter>libraries\recastdetour</Filter>
+    </ClCompile>
+    <ClCompile Include="share\detour\DetourAlloc.cpp">
+      <Filter>libraries\recastdetour</Filter>
+    </ClCompile>
+    <ClCompile Include="share\detour\DetourAssert.cpp">
+      <Filter>libraries\recastdetour</Filter>
+    </ClCompile>
+    <ClCompile Include="share\detour\DetourCommon.cpp">
+      <Filter>libraries\recastdetour</Filter>
+    </ClCompile>
+    <ClCompile Include="share\detour\DetourDebugDraw.cpp">
+      <Filter>libraries\recastdetour</Filter>
+    </ClCompile>
+    <ClCompile Include="share\detour\DetourNavMesh.cpp">
+      <Filter>libraries\recastdetour</Filter>
+    </ClCompile>
+    <ClCompile Include="share\detour\DetourNavMeshBuilder.cpp">
+      <Filter>libraries\recastdetour</Filter>
+    </ClCompile>
+    <ClCompile Include="share\detour\DetourNavMeshQuery.cpp">
+      <Filter>libraries\recastdetour</Filter>
+    </ClCompile>
+    <ClCompile Include="share\detour\DetourNode.cpp">
+      <Filter>libraries\recastdetour</Filter>
+    </ClCompile>
+    <ClCompile Include="share\detour\DetourTileCache.cpp">
+      <Filter>libraries\recastdetour</Filter>
+    </ClCompile>
+    <ClCompile Include="share\detour\DetourTileCacheBuilder.cpp">
+      <Filter>libraries\recastdetour</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
