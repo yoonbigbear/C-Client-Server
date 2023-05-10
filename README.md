@@ -11,7 +11,10 @@
 ## Visual Client
 ![image](https://user-images.githubusercontent.com/101116747/226402628-ff28b8e6-7617-4c06-a2ef-576a5829866c.png)
 
+recast navimesh/Detour 라이브러리를 사용한 pathfinding.
+Opengl 3 사용 내비메쉬 시각화 및 스크린 레이충돌 추가.
 Entt 라이브러리를 활용한 ECS 구조 개발.
+Excel 테이블 csv , C#/C++ 소스코드 자동변환.
 
 ### 3rdparty
 - [SDL2](https://github.com/ocornut/imgui)
