@@ -1,7 +1,8 @@
 # C++ client / server
  
  - boost ASIO TCP 소켓통신 클라이언트 / 서버
-
+ - ECS 기반 게임로직
+ 
 ## Used
 - [ASIO 1.24](https://www.boost.org/doc/libs/1_81_0/doc/html/boost_asio.html)
 - [Flatbuffer](https://google.github.io/flatbuffers/)
