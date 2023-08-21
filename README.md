@@ -25,3 +25,9 @@
 ### 3rdparty
 - [nanodbc 2.13.0](https://github.com/nanodbc/nanodbc)
 - [spdlog 1.x](https://github.com/gabime/spdlog)
+
+
+## To do
+
+- [ ] stack 컨테이너 추가
+- [ ] c++ 20 coroutine, async/await 비동기 등 활용
