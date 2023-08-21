@@ -1,12 +1,13 @@
-# C++ Asio Tcp Server w/ Visual Client
- project is an experimental
-## Intro
- ASIO TCP 소켓통신 클라이언트 / 서버
+# C++ client / server
+ 
+ - boost ASIO TCP 소켓통신 클라이언트 / 서버
 
+## Used
 - [ASIO 1.24](https://www.boost.org/doc/libs/1_81_0/doc/html/boost_asio.html)
 - [Flatbuffer](https://google.github.io/flatbuffers/)
 - [entt 3.11](https://github.com/skypjack/entt)
 - [box2d](https://box2d.org/)
+- 
 ## Client
 ![image](https://user-images.githubusercontent.com/101116747/226402628-ff28b8e6-7617-4c06-a2ef-576a5829866c.png)
 
@@ -16,7 +17,7 @@
 - [Opengl3](https://github.com/ocornut/imgui)
 - [recast&detour](https://github.com/recastnavigation/recastnavigation)
 - [ENTT](https://github.com/skypjack/entt)
-- 
+  
 ## Server
 ![image](https://user-images.githubusercontent.com/101116747/224535326-f43fb51f-722d-4135-af23-2d29ab4592b8.png)
 
